@@ -1,3 +1,11 @@
+#
+# Copyright (c) 2019 Evgeniy Alekseev.
+#
+# This file is part of ffxivbis
+# (see https://github.com/arcan1s/ffxivbis).
+#
+# License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
+#
 from aiohttp.web import Response, View
 from typing import Iterable, Optional
 
@@ -33,7 +41,7 @@ class BiSView(View):
         except Exception:
             data = dict(await self.request.post())
 
-        required = ['action', 'job', 'nick']
+        required = ['action', 'is_tome', 'job', 'nick', 'piece']
         if any(param not in data for param in required):
             return wrap_invalid_param(required, data)
         player_id = PlayerId(Job[data['job']], data['nick'])
@@ -42,20 +50,11 @@ class BiSView(View):
         if action not in ('add', 'remove'):
             return wrap_invalid_param(['action'], data)
 
-        piece: Optional[Piece] = None
         try:
+            piece = Piece.get(data)  # type: ignore
             if action == 'add':
-                if 'is_tome' not in data or 'piece' not in data:
-                    return wrap_invalid_param(['is_tome', 'piece'], data)
-
-                piece = Piece.get(data)  # type: ignore
                 self.request.app['party'].set_item_bis(player_id, piece)
-
             elif action == 'remove':
-                if 'is_tome' not in data or 'piece' not in data:
-                    return wrap_invalid_param(['is_tome', 'piece'], data)
-
-                piece = Piece.get(data)  # type: ignore
                 self.request.app['party'].remove_item_bis(player_id, piece)
 
         except Exception as e:

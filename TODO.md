@@ -1,0 +1,2 @@
+[ ] postgres support
+[ ] pretty UI
