@@ -20,8 +20,9 @@ class AriyalaParser:
 
     def __init__(self, config: Configuration) -> None:
         self.ariyala_url = config.get('ariyala', 'ariyala_url')
+        self.xivapi_key = config.get('ariyala', 'xivapi_key', fallback=None)
         self.xivapi_url = config.get('ariyala', 'xivapi_url')
-        self.request_timeout = config.getfloat('ariyala', 'request_timeout')
+        self.request_timeout = config.getfloat('ariyala', 'request_timeout', fallback=30)
 
     def __remap_key(self, key: str) -> Optional[str]:
         if key == 'mainhand':
@@ -62,9 +63,12 @@ class AriyalaParser:
         return result
 
     def get_is_tome(self, item_id: int) -> bool:
+        params = {'columns': 'IsEquippable'}
+        if self.xivapi_key is not None:
+            params['private_key'] = self.xivapi_key
+
         response = requests.get('{}/item/{}'.format(self.xivapi_url, item_id),
-                                params={'columns': 'IsEquippable'},
-                                timeout=self.request_timeout)
+                                params=params, timeout=self.request_timeout)
         response.raise_for_status()
         data = response.json()
 

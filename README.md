@@ -84,12 +84,14 @@ Service which allows to manage savage loot distribution easy.
     * `database`: database provide name, string, required. Allowed values: `sqlite`.
     * `priority`: methods of `Player` class which will be called to sort players for loot priority, space separated list of strings, required.
     
-* `web` section
+* `ariyala` section
 
-    Web server related settings.
+    Settings related to ariyala parser.
     
-    * `host`: address to bind, string, required.
-    * `port`: port to bind, int, required.
+    * `ariyala_url`: ariyala base url, string, required.
+    * `request_timeout`: xivapi request timeout, float, optional, default 30.
+    * `xivapi_key`: xivapi developer key, string, optional.
+    * `xivapi_url`: xivapi base url, string, required.
     
 * `sqlite` section
 
@@ -97,3 +99,10 @@ Service which allows to manage savage loot distribution easy.
     
     * `database_path`: path to sqlite database, string, required.
     * `migrations_path`: path to database migrations, string, required.
+    
+* `web` section
+
+    Web server related settings.
+    
+    * `host`: address to bind, string, required.
+    * `port`: port to bind, int, required.
