@@ -6,28 +6,21 @@
 #
 # License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
 #
-from aiohttp.web import Response, View
-from typing import Iterable, Optional
+from aiohttp.web import Response
 
-from service.core.ariyala_parser import AriyalaParser
 from service.models.job import Job
 from service.models.piece import Piece
-from service.models.player import Player, PlayerId
+from service.models.player import PlayerId
 
-from ..utils import wrap_exception, wrap_invalid_param, wrap_json
+from service.api.utils import wrap_exception, wrap_invalid_param, wrap_json
+from service.api.views.common.bis_base import BiSBaseView
 
 
-class BiSView(View):
+class BiSView(BiSBaseView):
 
     async def get(self) -> Response:
         try:
-            nick = self.request.query.getone('nick', None)
-            party: Iterable[Player] = [
-                player
-                for player in self.request.app['party'].party
-                if nick is None or player.nick == nick
-            ]
-            loot = list(sum([player.bis.pieces for player in party], []))
+            loot = self.bis_get(self.request.query.getone('nick', None))
 
         except Exception as e:
             self.request.app.logger.exception('could not get bis')
@@ -44,18 +37,15 @@ class BiSView(View):
         required = ['action', 'is_tome', 'job', 'nick', 'piece']
         if any(param not in data for param in required):
             return wrap_invalid_param(required, data)
-        player_id = PlayerId(Job[data['job']], data['nick'])
 
         action = data.get('action')
         if action not in ('add', 'remove'):
             return wrap_invalid_param(['action'], data)
 
         try:
-            piece = Piece.get(data)  # type: ignore
-            if action == 'add':
-                self.request.app['party'].set_item_bis(player_id, piece)
-            elif action == 'remove':
-                self.request.app['party'].remove_item_bis(player_id, piece)
+            player_id = PlayerId(Job[data['job']], data['nick'])
+            piece: Piece = Piece.get(data)  # type: ignore
+            self.bis_post(action, player_id, piece)
 
         except Exception as e:
             self.request.app.logger.exception('could not add bis')
@@ -72,17 +62,13 @@ class BiSView(View):
         required = ['job', 'link', 'nick']
         if any(param not in data for param in required):
             return wrap_invalid_param(required, data)
-        player_id = PlayerId(Job[data['job']], data['nick'])
 
         try:
-            parser = AriyalaParser(self.request.app['config'])
-            items = parser.get(data['link'])
-            for piece in items:
-                self.request.app['party'].set_item_bis(player_id, piece)
-            self.request.app['party'].set_bis_link(player_id, data['link'])
+            player_id = PlayerId(Job[data['job']], data['nick'])
+            link = self.bis_put(player_id, data['link'])
 
         except Exception as e:
             self.request.app.logger.exception('could not parse bis')
             return wrap_exception(e, data)
 
-        return wrap_json({'link': data['link']}, data)
+        return wrap_json({'link': link}, data)

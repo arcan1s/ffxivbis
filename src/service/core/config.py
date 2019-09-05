@@ -30,6 +30,8 @@ class Configuration(configparser.RawConfigParser):
         self.read(os.path.join(self.include, conf))
 
     def __with_root_path(self, path: str) -> str:
+        if self.root_path is None:
+            return path
         return os.path.join(self.root_path, path)
 
     def get_section(self, section: str) -> Dict[str, str]:

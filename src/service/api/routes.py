@@ -8,9 +8,9 @@
 #
 from aiohttp.web import Application
 
-from .views.bis import BiSView
-from .views.loot import LootView
-from .views.player import PlayerView
+from service.api.views.api.bis import BiSView
+from service.api.views.api.loot import LootView
+from service.api.views.api.player import PlayerView
 
 
 def setup_routes(app: Application) -> None:

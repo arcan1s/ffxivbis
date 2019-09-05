@@ -25,7 +25,9 @@ setup(
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
 
     install_requires=[
+        'aiohttp_jinja2',
         'aiohttp',
+        'Jinja2',
         'requests',
         'yoyo_migrations'
     ],

@@ -6,27 +6,19 @@
 #
 # License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
 #
-from aiohttp.web import Response, View
-from typing import Iterable
+from aiohttp.web import Response
 
-from service.core.ariyala_parser import AriyalaParser
-from service.models.bis import BiS
 from service.models.job import Job
-from service.models.player import Player, PlayerId
 
-from ..utils import wrap_exception, wrap_invalid_param, wrap_json
+from service.api.utils import wrap_exception, wrap_invalid_param, wrap_json
+from service.api.views.common.player_base import PlayerBaseView
 
 
-class PlayerView(View):
+class PlayerView(PlayerBaseView):
 
     async def get(self) -> Response:
         try:
-            nick = self.request.query.getone('nick', None)
-            party: Iterable[Player] = [
-                player
-                for player in self.request.app['party'].party
-                if nick is None or player.nick == nick
-            ]
+            party = self.player_get(self.request.query.getone('nick', None))
 
         except Exception as e:
             self.request.app.logger.exception('could not get loot')
@@ -51,20 +43,7 @@ class PlayerView(View):
             return wrap_invalid_param(['action'], data)
 
         try:
-            if action == 'add':
-                player = Player(Job[data['job']], data['nick'], BiS(), [], link, priority)
-                player_id = player.player_id
-                self.request.app['party'].set_player(player)
-
-                if link is not None:
-                    parser = AriyalaParser(self.request.app['config'])
-                    items = parser.get(link)
-                    for piece in items:
-                        self.request.app['party'].set_item_bis(player_id, piece)
-
-            elif action == 'remove':
-                player_id = PlayerId(Job[data['job']], data['nick'])
-                self.request.app['party'].remove_player(player_id)
+            player_id = self.player_post(action, Job[data['job']], data['nick'], link, priority)
 
         except Exception as e:
             self.request.app.logger.exception('could not add loot')

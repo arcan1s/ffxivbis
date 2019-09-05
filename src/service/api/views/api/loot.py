@@ -6,27 +6,21 @@
 #
 # License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
 #
-from aiohttp.web import Response, View
-from typing import Iterable
+from aiohttp.web import Response
 
 from service.models.job import Job
 from service.models.piece import Piece
-from service.models.player import Player, PlayerId
+from service.models.player import PlayerId
 
-from ..utils import wrap_exception, wrap_invalid_param, wrap_json
+from service.api.utils import wrap_exception, wrap_invalid_param, wrap_json
+from service.api.views.common.loot_base import LootBaseView
 
 
-class LootView(View):
+class LootView(LootBaseView):
 
     async def get(self) -> Response:
         try:
-            nick = self.request.query.getone('nick', None)
-            party: Iterable[Player] = [
-                player
-                for player in self.request.app['party'].party
-                if nick is None or player.nick == nick
-            ]
-            loot = list(sum([player.loot for player in party], []))
+            loot = self.loot_get(self.request.query.getone('nick', None))
 
         except Exception as e:
             self.request.app.logger.exception('could not get loot')
@@ -50,11 +44,8 @@ class LootView(View):
 
         try:
             player_id = PlayerId(Job[data['job']], data['nick'])
-            piece = Piece.get(data)
-            if action == 'add':
-                self.request.app['party'].set_item(player_id, piece)
-            elif action == 'remove':
-                self.request.app['party'].remove_item(player_id, piece)
+            piece: Piece = Piece.get(data)  # type: ignore
+            self.loot_post(action, player_id, piece)
 
         except Exception as e:
             self.request.app.logger.exception('could not add loot')
@@ -73,8 +64,8 @@ class LootView(View):
             return wrap_invalid_param(required, data)
 
         try:
-            piece = Piece.get(data)
-            players = self.request.app['loot'].suggest(piece)
+            piece: Piece = Piece.get(data)  # type: ignore
+            players = self.loot_put(piece)
 
         except Exception as e:
             self.request.app.logger.exception('could not suggest loot')
