@@ -33,6 +33,7 @@ class PlayerHtmlView(PlayerBaseView):
             error = repr(e)
 
         return {
+            'jobs': [job.name for job in Job],
             'players': [
                 {
                     'job': player.job.name,

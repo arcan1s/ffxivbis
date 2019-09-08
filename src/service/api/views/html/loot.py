@@ -12,6 +12,7 @@ from typing import Any, Dict, List
 
 from service.models.piece import Piece
 from service.models.player import Player, PlayerId
+from service.models.upgrade import Upgrade
 
 from service.api.utils import wrap_exception, wrap_invalid_param
 from service.api.views.common.loot_base import LootBaseView
@@ -32,7 +33,7 @@ class LootHtmlView(LootBaseView, PlayerBaseView):
                 {
                     'player': player.player_id.pretty_name,
                     'piece': piece.name,
-                    'is_tome': 'yes' if piece.is_tome else 'no'  # type: ignore
+                    'is_tome': 'yes' if getattr(piece, 'is_tome', True) else 'no'
                 }
                 for player in players
                 for piece in player.loot
@@ -44,7 +45,7 @@ class LootHtmlView(LootBaseView, PlayerBaseView):
 
         return {
             'items': items,
-            'pieces': Piece.available(),
+            'pieces': Piece.available() + [upgrade.name for upgrade in Upgrade],
             'players': [player.player_id.pretty_name for player in players],
             'request_error': error
         }

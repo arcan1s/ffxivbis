@@ -11,7 +11,8 @@ from aiohttp_jinja2 import template
 from typing import Any, Dict, List, Union
 
 from service.models.piece import Piece
-from service.models.player import Player, PlayerIdWithCounters
+from service.models.player import PlayerIdWithCounters
+from service.models.upgrade import Upgrade
 
 from service.api.utils import wrap_invalid_param
 from service.api.views.common.loot_base import LootBaseView
@@ -23,8 +24,7 @@ class LootSuggestHtmlView(LootBaseView, PlayerBaseView):
     @template('loot_suggest.jinja2')
     async def get(self) -> Dict[str, Any]:
         return {
-            'pieces': Piece.available(),
-            'players': [player.player_id.pretty_name for player in self.player_get(None)],
+            'pieces': Piece.available() + [upgrade.name for upgrade in Upgrade]
         }
 
     @template('loot_suggest.jinja2')
@@ -46,8 +46,7 @@ class LootSuggestHtmlView(LootBaseView, PlayerBaseView):
             error = repr(e)
 
         return {
-            'pieces': Piece.available(),
-            'players': [player.player_id.pretty_name for player in self.player_get(None)],
+            'pieces': Piece.available() + [upgrade.name for upgrade in Upgrade],
             'suggest': [
                 {
                     'player': player.pretty_name,

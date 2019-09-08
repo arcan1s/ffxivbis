@@ -11,11 +11,6 @@
         {% include "search_line.jinja2" %}
 
         <form action="/suggest" method="post">
-            <select name="player" id="player" title="player">
-                {% for player in players %}
-                    <option>{{ player|e }}</option>
-                {% endfor %}
-            </select>
             <select name="piece" id="piece" title="piece">
                 {% for piece in pieces %}
                     <option>{{ piece|e }}</option>

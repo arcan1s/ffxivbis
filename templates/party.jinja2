@@ -12,7 +12,11 @@
 
         <form action="/party" method="post">
             <input name="nick" id="nick" placeholder="player nick name" title="nick" type="text"/>
-            <input name="job" id="job" placeholder="player job" title="job" type="text"/>
+            <select name="job" id="job" title="job">
+                {% for job in jobs %}
+                    <option>{{ job|e }}</option>
+                {% endfor %}
+            </select>
             <input name="bis" id="bis" placeholder="player bis link" title="bis" type="text"/>
             <input name="priority" id="priority" placeholder="player priority" title="priority" type="number" value="0"/>
             <input name="action" id="action" type="hidden" value="add"/>

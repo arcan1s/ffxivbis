@@ -37,22 +37,27 @@ class AriyalaParser:
             return key
         return None
 
-    def get(self, url: str) -> List[Piece]:
-        items = self.get_ids(url)
+    def get(self, url: str, job: str) -> List[Piece]:
+        items = self.get_ids(url, job)
         return [
             Piece.get({'piece': slot, 'is_tome': self.get_is_tome(item_id)})  # type: ignore
             for slot, item_id in items.items()
         ]
 
-    def get_ids(self, url: str) -> Dict[str, int]:
+    def get_ids(self, url: str, job: str) -> Dict[str, int]:
         norm_path = os.path.normpath(url)
         set_id = os.path.basename(norm_path)
         response = requests.get('{}/store.app'.format(self.ariyala_url), params={'identifier': set_id})
         response.raise_for_status()
         data = response.json()
 
-        job = data['content']
-        bis = data['datasets'][job]['normal']['items']
+        # it has job in response but for some reasons job name differs sometimes from one in dictionary,
+        # e.g. http://ffxiv.ariyala.com/store.app?identifier=1AJB8
+        api_job = data['content']
+        try:
+            bis = data['datasets'][api_job]['normal']['items']
+        except KeyError:
+            bis = data['datasets'][job]['normal']['items']
 
         result: Dict[str, int] = {}
         for original_key, value in bis.items():
