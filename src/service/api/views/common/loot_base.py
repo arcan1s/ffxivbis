@@ -7,10 +7,11 @@
 # License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
 #
 from aiohttp.web import View
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from service.models.piece import Piece
 from service.models.player import PlayerId, PlayerIdWithCounters
+from service.models.upgrade import Upgrade
 
 
 class LootBaseView(View):
@@ -34,7 +35,7 @@ class LootBaseView(View):
             return self.loot_remove(player_id, piece)
         return None
 
-    def loot_put(self, piece: Piece) -> List[PlayerIdWithCounters]:
+    def loot_put(self, piece: Union[Piece, Upgrade]) -> List[PlayerIdWithCounters]:
         return self.request.app['loot'].suggest(piece)
 
     def loot_remove(self, player_id: PlayerId, piece: Piece) -> Piece:

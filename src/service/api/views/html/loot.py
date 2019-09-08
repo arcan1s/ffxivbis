@@ -14,13 +14,13 @@ from service.models.piece import Piece
 from service.models.player import Player, PlayerId
 
 from service.api.utils import wrap_exception, wrap_invalid_param
-from service.api.views.common.bis_base import BiSBaseView
+from service.api.views.common.loot_base import LootBaseView
 from service.api.views.common.player_base import PlayerBaseView
 
 
-class BiSHtmlView(BiSBaseView, PlayerBaseView):
+class LootHtmlView(LootBaseView, PlayerBaseView):
 
-    @template('bis.jinja2')
+    @template('loot.jinja2')
     async def get(self) -> Dict[str, Any]:
         error = None
         items: List[Dict[str, str]] = []
@@ -32,14 +32,14 @@ class BiSHtmlView(BiSBaseView, PlayerBaseView):
                 {
                     'player': player.player_id.pretty_name,
                     'piece': piece.name,
-                    'is_tome': 'yes' if piece.is_tome else 'no'
+                    'is_tome': 'yes' if piece.is_tome else 'no'  # type: ignore
                 }
                 for player in players
-                for piece in player.bis.pieces
+                for piece in player.loot
             ]
 
         except Exception as e:
-            self.request.app.logger.exception('could not get bis')
+            self.request.app.logger.exception('could not get loot')
             error = repr(e)
 
         return {
@@ -52,30 +52,17 @@ class BiSHtmlView(BiSBaseView, PlayerBaseView):
     async def post(self) -> Response:
         data = await self.request.post()
 
-        required = ['method', 'player']
+        required = ['action', 'piece', 'player']
         if any(param not in data for param in required):
             return wrap_invalid_param(required, data)
 
         try:
-            method = data.get('method')
             player_id = PlayerId.from_pretty_name(data.get('player'))  # type: ignore
-
-            if method == 'post':
-                required = ['action', 'piece']
-                if any(param not in data for param in required):
-                    return wrap_invalid_param(required, data)
-                self.bis_post(data.get('action'), player_id,  # type: ignore
-                              Piece.get({'piece': data.get('piece'), 'is_tome': data.get('is_tome', False)}))  # type: ignore
-
-            elif method == 'put':
-                required = ['bis']
-                if any(param not in data for param in required):
-                    return wrap_invalid_param(required, data)
-
-                self.bis_put(player_id, data.get('bis'))  # type: ignore
+            self.loot_post(data.get('action'), player_id,  # type: ignore
+                           Piece.get({'piece': data.get('piece'), 'is_tome': data.get('is_tome', False)}))  # type: ignore
 
         except Exception as e:
-            self.request.app.logger.exception('could not manage bis')
+            self.request.app.logger.exception('could not manage loot')
             return wrap_exception(e, data)
 
         return HTTPFound(self.request.url)

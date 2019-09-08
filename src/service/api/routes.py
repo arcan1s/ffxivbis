@@ -13,6 +13,8 @@ from service.api.views.api.loot import LootView
 from service.api.views.api.player import PlayerView
 from service.api.views.html.bis import BiSHtmlView
 from service.api.views.html.index import IndexHtmlView
+from service.api.views.html.loot import LootHtmlView
+from service.api.views.html.loot_suggest import LootSuggestHtmlView
 from service.api.views.html.player import PlayerHtmlView
 
 
@@ -37,3 +39,9 @@ def setup_routes(app: Application) -> None:
 
     app.router.add_get('/bis', BiSHtmlView)
     app.router.add_post('/bis', BiSHtmlView)
+
+    app.router.add_get('/loot', LootHtmlView)
+    app.router.add_post('/loot', LootHtmlView)
+
+    app.router.add_get('/suggest', LootSuggestHtmlView)
+    app.router.add_post('/suggest', LootSuggestHtmlView)

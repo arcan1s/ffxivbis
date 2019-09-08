@@ -1,16 +1,16 @@
 <html lang="en">
     <head>
-        <title>Best in slot</title>
+        <title>Loot</title>
 
         {% include "style.jinja2" %}
     </head>
     <body>
-        <h2>best in slot</h2>
+        <h2>Loot</h2>
 
         {% include "error.jinja2" %}
         {% include "search_line.jinja2" %}
 
-        <form action="/bis" method="post">
+        <form action="/loot" method="post">
             <select name="player" id="player" title="player">
                 {% for player in players %}
                     <option>{{ player|e }}</option>
@@ -23,17 +23,6 @@
             </select>
             <input name="is_tome" id="is_tome" title="is tome" type="checkbox"/>
             <input name="action" id="action" type="hidden" value="add"/>
-            <input name="method" id="method" type="hidden" value="post"/>
-            <button>add</button>
-        </form>
-        <form action="/bis" method="post">
-            <select name="player" id="player" title="player">
-                {% for player in players %}
-                    <option>{{ player|e }}</option>
-                {% endfor %}
-            </select>
-            <input name="bis" id="bis" placeholder="player bis link" title="bis" type="text"/>
-            <input name="method" id="method" type="hidden" value="put"/>
             <button>add</button>
         </form>
 
@@ -51,7 +40,7 @@
                     <td class="include_search">{{ item.piece|e }}</td>
                     <td>{{ item.is_tome|e }}</td>
                     <td>
-                        <form action="/bis" method="post">
+                        <form action="/loot" method="post">
                             <input name="action" id="action" type="hidden" value="remove"/>
                             <button>remove</button>
                         </form>

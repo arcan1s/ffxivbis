@@ -29,8 +29,10 @@ class PlayerId:
         return '{} ({})'.format(self.nick, self.job.name)
 
     @classmethod
-    def from_pretty_name(cls: Type[PlayerId], value: str) -> PlayerId:
+    def from_pretty_name(cls: Type[PlayerId], value: str) -> Optional[PlayerId]:
         matches = re.search('^(?P<nick>.*) \((?P<job>[A-Z]+)\)$', value)
+        if matches is None:
+            return None
         return PlayerId(Job[matches.group('job')], matches.group('nick'))
 
     def __hash__(self) -> int:

@@ -1,0 +1,48 @@
+<html lang="en">
+    <head>
+        <title>Suggest loot</title>
+
+        {% include "style.jinja2" %}
+    </head>
+    <body>
+        <h2>suggest loot</h2>
+
+        {% include "error.jinja2" %}
+        {% include "search_line.jinja2" %}
+
+        <form action="/suggest" method="post">
+            <select name="player" id="player" title="player">
+                {% for player in players %}
+                    <option>{{ player|e }}</option>
+                {% endfor %}
+            </select>
+            <select name="piece" id="piece" title="piece">
+                {% for piece in pieces %}
+                    <option>{{ piece|e }}</option>
+                {% endfor %}
+            </select>
+            <input name="is_tome" id="is_tome" title="is tome" type="checkbox"/>
+            <button>suggest</button>
+        </form>
+
+        <table id="result">
+            <tr>
+                <th>player</th>
+                <th>bis pieces looted</th>
+                <th>total pieces looted</th>
+            </tr>
+
+            {% for player in suggest %}
+                <tr>
+                    <td class="include_search">{{ player.player|e }}</td>
+                    <td>{{ player.loot_count_bis|e }}</td>
+                    <td>{{ player.loot_count|e }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        {% include "export_to_csv.jinja2" %}
+        {% include "root.jinja2" %}
+        {% include "search.jinja2" %}
+    </body>
+</html>
