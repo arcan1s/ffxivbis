@@ -34,7 +34,7 @@ class Party:
     def get(cls: Type[Party], database: Database) -> Party:
         obj = Party(database)
         for player in database.get_party():
-            obj.set_player(player)
+            obj.players[player.player_id] = player
         return obj
 
     def set_bis_link(self, player_id: PlayerId, link: str) -> None:
