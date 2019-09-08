@@ -22,7 +22,7 @@ class PlayerBaseView(View):
         player_id = player.player_id
         self.request.app['party'].set_player(player)
 
-        if link is not None:
+        if link:
             parser = AriyalaParser(self.request.app['config'])
             items = parser.get(link)
             for piece in items:

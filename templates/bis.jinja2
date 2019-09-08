@@ -1,0 +1,67 @@
+<html lang="en">
+    <head>
+        <title>Best in slot</title>
+
+        {% include "style.jinja2" %}
+    </head>
+    <body>
+        <h2>best in slot</h2>
+
+        {% include "error.jinja2" %}
+        {% include "search_line.jinja2" %}
+
+        <form action="/bis" method="post">
+            <select name="player" id="player" title="player">
+                {% for player in players %}
+                    <option>{{ player.player|e }}</option>
+                {% endfor %}
+            </select>
+            <select name="piece" id="piece" title="piece">
+                {% for piece in pieces %}
+                    <option>{{ piece|e }}</option>
+                {% endfor %}
+            </select>
+            <input name="is_tome" id="is_tome" title="is tome" type="checkbox"/>
+            <input name="action" id="action" type="hidden" value="add"/>
+            <input name="method" id="method" type="hidden" value="post"/>
+            <button>add</button>
+        </form>
+        <form action="/bis" method="post">
+            <select name="player" id="player" title="player">
+                {% for player in players %}
+                    <option>{{ player.player|e }}</option>
+                {% endfor %}
+            </select>
+            <input name="bis" id="bis" placeholder="player bis link" title="bis" type="text"/>
+            <input name="method" id="method" type="hidden" value="put"/>
+            <button>add</button>
+        </form>
+
+        <table id="result">
+            <tr>
+                <th>player</th>
+                <th>piece</th>
+                <th>is_tome</th>
+                <th></th>
+            </tr>
+
+            {% for player in players %}
+                <tr>
+                    <td class="include_search">{{ player.player|e }}</td>
+                    <td class="include_search">{{ player.piece|e }}</td>
+                    <td>{{ player.is_tome|e }}</td>
+                    <td>
+                        <form action="/bis" method="post">
+                            <input name="action" id="action" type="hidden" value="remove"/>
+                            <button>remove</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        {% include "export_to_csv.jinja2" %}
+        {% include "root.jinja2" %}
+        {% include "search.jinja2" %}
+    </body>
+</html>

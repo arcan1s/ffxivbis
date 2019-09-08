@@ -21,7 +21,7 @@ class PlayerView(PlayerBaseView):
             party = self.player_get(self.request.query.getone('nick', None))
 
         except Exception as e:
-            self.request.app.logger.exception('could not get loot')
+            self.request.app.logger.exception('could not get party')
             return wrap_exception(e, self.request.query)
 
         return wrap_json(party, self.request.query)

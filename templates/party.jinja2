@@ -1,0 +1,53 @@
+<html lang="en">
+    <head>
+        <title>Party</title>
+
+        {% include "style.jinja2" %}
+    </head>
+    <body>
+        <h2>party</h2>
+
+        {% include "error.jinja2" %}
+        {% include "search_line.jinja2" %}
+
+        <form action="/party" method="post">
+            <input name="nick" id="nick" placeholder="player nick name" title="nick" type="text"/>
+            <input name="job" id="job" placeholder="player job" title="job" type="text"/>
+            <input name="bis" id="bis" placeholder="player bis link" title="bis" type="text"/>
+            <input name="priority" id="priority" placeholder="player priority" title="priority" type="number" value="0"/>
+            <input name="action" id="action" type="hidden" value="add"/>
+            <button>add</button>
+        </form>
+
+        <table id="result">
+            <tr>
+                <th>nick</th>
+                <th>job</th>
+                <th>bis pieces looted</th>
+                <th>total pieces looted</th>
+                <th>priority</th>
+                <th></th>
+            </tr>
+
+            {% for player in players %}
+                <tr>
+                    <td class="include_search">{{ player.nick|e }}</td>
+                    <td class="include_search">{{ player.job|e }}</td>
+                    <td>{{ player.loot_count_bis|e }}</td>
+                    <td>{{ player.loot_count|e }}</td>
+                    <td>{{ player.priority|e }}</td>
+                    <td>
+                        <form action="/party" method="post">
+                            <input name="action" id="action" type="hidden" value="remove"/>
+                            <button>remove</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        {% include "export_to_csv.jinja2" %}
+        {% include "root.jinja2" %}
+        {% include "search.jinja2" %}
+    </body>
+</html>

@@ -6,6 +6,8 @@
 #
 # License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
 #
+import aiohttp_jinja2
+import jinja2
 import logging
 
 from aiohttp import web
@@ -38,6 +40,8 @@ def setup_service(config: Configuration, database: Database, loot: LootSelector,
     # routes
     app.logger.info('setup routes')
     setup_routes(app)
+    if config.has_option('web', 'templates'):
+        aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(config.get('web', 'templates')))
 
     app.logger.info('setup configuration')
     app['config'] = config

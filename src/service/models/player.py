@@ -6,8 +6,12 @@
 #
 # License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
 #
+from __future__ import annotations
+
+import re
+
 from dataclasses import dataclass
-from typing import List, Optional, Union
+from typing import List, Optional, Type, Union
 
 from .bis import BiS
 from .job import Job
@@ -20,12 +24,22 @@ class PlayerId:
     job: Job
     nick: str
 
+    @property
+    def pretty_name(self) -> str:
+        return '{} ({})'.format(self.nick, self.job.name)
+
+    @classmethod
+    def from_pretty_name(cls: Type[PlayerId], value: str) -> PlayerId:
+        matches = re.search('^(?P<nick>.*) \((?P<job>[A-Z]+)\)$', value)
+        return PlayerId(Job[matches.group('job')], matches.group('nick'))
+
     def __hash__(self) -> int:
         return hash(str(self))
 
 
 @dataclass
 class PlayerIdWithCounters(PlayerId):
+    priority: int
     loot_count: int
     loot_count_bis: int
     loot_count_total: int
@@ -50,12 +64,15 @@ class Player:
     def player_id(self) -> PlayerId:
         return PlayerId(self.job, self.nick)
 
-    def player_id_with_counters(self, piece: Union[Piece, Upgrade]) -> PlayerIdWithCounters:
-        return PlayerIdWithCounters(self.job, self.nick, self.loot_count(piece),
+    def player_id_with_counters(self, piece: Union[Piece, Upgrade, None]) -> PlayerIdWithCounters:
+        return PlayerIdWithCounters(self.job, self.nick, self.priority, self.loot_count(piece),
                                     self.loot_count_bis(piece), self.loot_count_total(piece))
 
     # ordering methods
-    def is_required(self, piece: Union[Piece, Upgrade]) -> bool:
+    def is_required(self, piece: Union[Piece, Upgrade, None]) -> bool:
+        if piece is None:
+            return False
+
         # lets check if it is even in bis
         if not self.bis.has_piece(piece):
             return False
@@ -68,14 +85,16 @@ class Player:
             return self.bis.upgrades_required[piece] > self.loot_count(piece)
         return False
 
-    def loot_count(self, piece: Union[Piece, Upgrade]) -> int:
+    def loot_count(self, piece: Union[Piece, Upgrade, None]) -> int:
+        if piece is None:
+            return len(self.loot)
         return self.loot.count(piece)
 
-    def loot_count_bis(self, _: Union[Piece, Upgrade]) -> int:
+    def loot_count_bis(self, _: Union[Piece, Upgrade, None]) -> int:
         return len([piece for piece in self.loot if self.bis.has_piece(piece)])
 
-    def loot_count_total(self, _: Union[Piece, Upgrade]) -> int:
+    def loot_count_total(self, _: Union[Piece, Upgrade, None]) -> int:
         return len(self.loot)
 
-    def loot_priority(self, _: Union[Piece, Upgrade]) -> int:
+    def loot_priority(self, _: Union[Piece, Upgrade, None]) -> int:
         return self.priority

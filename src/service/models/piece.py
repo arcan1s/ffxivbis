@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Mapping, Type, Union
+from typing import Any, List, Mapping, Type, Union
 
 from .upgrade import Upgrade
 
@@ -33,11 +33,19 @@ class Piece:
             return Upgrade.GearUpgrade
         return Upgrade.NoUpgrade
 
+    @staticmethod
+    def available() -> List[str]:
+        return [
+            'weapon',
+            'head', 'body', 'hands', 'waist', 'legs', 'feet',
+            'ears', 'neck', 'wrist', 'left_ring', 'right_ring'
+        ]
+
     @classmethod
     def get(cls: Type[Piece], data: Mapping[str, Any]) -> Union[Piece, Upgrade]:
         try:
             piece_type = data['piece']
-            is_tome = bool(data['is_tome'])
+            is_tome = data['is_tome'] in ('yes', 'on', '1', 1, True)
         except KeyError:
             raise InvalidDataRow(data)
         if piece_type.lower() == 'weapon':
