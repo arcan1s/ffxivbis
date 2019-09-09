@@ -1,8 +1,9 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">
     <head>
         <title>Party</title>
 
-        {% include "style.jinja2" %}
+        <link href="{{ static('styles.css') }}" rel="stylesheet" type="text/css">
     </head>
     <body>
         <h2>party</h2>
@@ -20,7 +21,7 @@
             <input name="bis" id="bis" placeholder="player bis link" title="bis" type="text"/>
             <input name="priority" id="priority" placeholder="player priority" title="priority" type="number" value="0"/>
             <input name="action" id="action" type="hidden" value="add"/>
-            <button>add</button>
+            <input name="add" id="add" type="button" value="add"/>
         </form>
 
         <table id="result">
@@ -42,8 +43,10 @@
                     <td>{{ player.priority|e }}</td>
                     <td>
                         <form action="/party" method="post">
+                            <input name="nick" id="nick" type="hidden" value="{{ player.nick|e }}"/>
+                            <input name="job" id="job" type="hidden" value="{{ player.job|e }}"/>
                             <input name="action" id="action" type="hidden" value="remove"/>
-                            <button>remove</button>
+                            <input name="remove" id="remove" type="button" value="x"/>
                         </form>
                     </td>
                 </tr>

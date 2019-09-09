@@ -16,6 +16,7 @@ from service.api.views.html.index import IndexHtmlView
 from service.api.views.html.loot import LootHtmlView
 from service.api.views.html.loot_suggest import LootSuggestHtmlView
 from service.api.views.html.player import PlayerHtmlView
+from service.api.views.html.static import StaticHtmlView
 
 
 def setup_routes(app: Application) -> None:
@@ -33,6 +34,7 @@ def setup_routes(app: Application) -> None:
 
     # html routes
     app.router.add_get('/', IndexHtmlView)
+    app.router.add_get('/static/{resource_id}', StaticHtmlView)
 
     app.router.add_get('/party', PlayerHtmlView)
     app.router.add_post('/party', PlayerHtmlView)

@@ -1,8 +1,9 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">
     <head>
         <title>Loot</title>
 
-        {% include "style.jinja2" %}
+        <link href="{{ static('styles.css') }}" rel="stylesheet" type="text/css">
     </head>
     <body>
         <h2>Loot</h2>
@@ -23,7 +24,7 @@
             </select>
             <input name="is_tome" id="is_tome" title="is tome" type="checkbox"/>
             <input name="action" id="action" type="hidden" value="add"/>
-            <button>add</button>
+            <input name="add" id="add" type="button" value="add"/>
         </form>
 
         <table id="result">
@@ -41,8 +42,11 @@
                     <td>{{ item.is_tome|e }}</td>
                     <td>
                         <form action="/loot" method="post">
+                            <input name="player" id="player" type="hidden" value="{{ item.player|e }}"/>
+                            <input name="piece" id="piece" type="hidden" value="{{ item.piece|e }}"/>
+                            <input name="is_tome" id="is_tome" type="hidden" value="{{ item.is_tome|e }}"/>
                             <input name="action" id="action" type="hidden" value="remove"/>
-                            <button>remove</button>
+                            <input name="remove" id="remove" type="button" value="x"/>
                         </form>
                     </td>
                 </tr>

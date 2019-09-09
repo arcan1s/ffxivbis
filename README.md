@@ -106,3 +106,4 @@ Service which allows to manage savage loot distribution easy.
     
     * `host`: address to bind, string, required.
     * `port`: port to bind, int, required.
+    * `templates`: path to directory with jinja templates, string, required.

@@ -45,6 +45,7 @@ class PlayerIdWithCounters(PlayerId):
     loot_count: int
     loot_count_bis: int
     loot_count_total: int
+    loot_count_total_bis: int
 
 
 @dataclass
@@ -67,8 +68,9 @@ class Player:
         return PlayerId(self.job, self.nick)
 
     def player_id_with_counters(self, piece: Union[Piece, Upgrade, None]) -> PlayerIdWithCounters:
-        return PlayerIdWithCounters(self.job, self.nick, self.priority, self.loot_count(piece),
-                                    self.loot_count_bis(piece), self.loot_count_total(piece))
+        return PlayerIdWithCounters(self.job, self.nick, self.priority,
+                                    abs(self.loot_count(piece)), abs(self.loot_count_bis(piece)),
+                                    abs(self.loot_count_total(piece)), abs(self.loot_count_total_bis(piece)))
 
     # ordering methods
     def is_required(self, piece: Union[Piece, Upgrade, None]) -> bool:
@@ -89,14 +91,19 @@ class Player:
 
     def loot_count(self, piece: Union[Piece, Upgrade, None]) -> int:
         if piece is None:
-            return len(self.loot)
-        return self.loot.count(piece)
+            return -self.loot_count_total(piece)
+        return -self.loot.count(piece)
 
-    def loot_count_bis(self, _: Union[Piece, Upgrade, None]) -> int:
-        return len([piece for piece in self.loot if self.bis.has_piece(piece)])
+    def loot_count_bis(self, piece: Union[Piece, Upgrade, None]) -> int:
+        if piece is None:
+            return -self.loot_count_total_bis(piece)
+        return -len([piece for piece in self.loot if self.bis.has_piece(piece)])
 
     def loot_count_total(self, _: Union[Piece, Upgrade, None]) -> int:
-        return len(self.loot)
+        return -len(self.loot)
+
+    def loot_count_total_bis(self, _: Union[Piece, Upgrade, None]) -> int:
+        return len([piece for piece in self.bis.pieces if not piece.is_tome])
 
     def loot_priority(self, _: Union[Piece, Upgrade, None]) -> int:
         return self.priority

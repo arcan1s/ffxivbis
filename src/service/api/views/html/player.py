@@ -38,7 +38,7 @@ class PlayerHtmlView(PlayerBaseView):
                 {
                     'job': player.job.name,
                     'nick': player.nick,
-                    'loot_count_bis': player.loot_count_bis,
+                    'loot_count_bis': player.loot_count_total_bis,
                     'loot_count': player.loot_count,
                     'priority': player.priority
                 }

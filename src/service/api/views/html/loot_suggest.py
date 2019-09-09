@@ -31,6 +31,7 @@ class LootSuggestHtmlView(LootBaseView, PlayerBaseView):
     async def post(self) -> Union[Dict[str, Any], Response]:
         data = await self.request.post()
         error = None
+        item_values: Dict[str, Any] = {}
         players: List[PlayerIdWithCounters] = []
 
         required = ['piece']
@@ -40,20 +41,22 @@ class LootSuggestHtmlView(LootBaseView, PlayerBaseView):
         try:
             piece = Piece.get({'piece': data.get('piece'), 'is_tome': data.get('is_tome', False)})
             players = self.loot_put(piece)
+            item_values = {'piece': piece.name, 'is_tome': piece.is_tome}
 
         except Exception as e:
             self.request.app.logger.exception('could not manage loot')
             error = repr(e)
 
         return {
+            'item': item_values,
             'pieces': Piece.available() + [upgrade.name for upgrade in Upgrade],
+            'request_error': error,
             'suggest': [
                 {
                     'player': player.pretty_name,
-                    'loot_count_bis': player.loot_count_bis,
+                    'loot_count_bis': player.loot_count_total_bis,
                     'loot_count': player.loot_count,
                 }
                 for player in players
-            ],
-            'request_error': error
+            ]
         }

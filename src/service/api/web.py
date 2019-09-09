@@ -41,7 +41,9 @@ def setup_service(config: Configuration, database: Database, loot: LootSelector,
     app.logger.info('setup routes')
     setup_routes(app)
     if config.has_option('web', 'templates'):
-        aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(config.get('web', 'templates')))
+        templates_root = app['templates_root'] = config.get('web', 'templates')
+        app['static_root_url'] = '/static'
+        aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(templates_root))
 
     app.logger.info('setup configuration')
     app['config'] = config

@@ -18,7 +18,7 @@ from service.models.player import Player, PlayerId
 class PlayerBaseView(View):
 
     def player_add(self, job: Job, nick: str, link: Optional[str], priority: int) -> PlayerId:
-        player = Player(job, nick, BiS(), [], link, priority)
+        player = Player(job, nick, BiS(), [], link, int(priority))
         player_id = player.player_id
         self.request.app['party'].set_player(player)
 
