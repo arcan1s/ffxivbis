@@ -24,7 +24,7 @@
             </select>
             <input name="is_tome" id="is_tome" title="is tome" type="checkbox"/>
             <input name="action" id="action" type="hidden" value="add"/>
-            <input name="add" id="add" type="button" value="add"/>
+            <input name="add" id="add" type="submit" value="add"/>
         </form>
 
         <table id="result">
@@ -46,7 +46,7 @@
                             <input name="piece" id="piece" type="hidden" value="{{ item.piece|e }}"/>
                             <input name="is_tome" id="is_tome" type="hidden" value="{{ item.is_tome|e }}"/>
                             <input name="action" id="action" type="hidden" value="remove"/>
-                            <input name="remove" id="remove" type="button" value="x"/>
+                            <input name="remove" id="remove" type="submit" value="x"/>
                         </form>
                     </td>
                 </tr>

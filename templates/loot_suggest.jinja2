@@ -18,7 +18,7 @@
                 {% endfor %}
             </select>
             <input name="is_tome" id="is_tome" title="is tome" type="checkbox"/>
-            <input name="suggest" id="suggest" type="button" value="suggest"/>
+            <input name="suggest" id="suggest" type="submit" value="suggest"/>
         </form>
 
         <table id="result">
@@ -39,7 +39,8 @@
                             <input name="player" id="player" type="hidden" value="{{ player.player|e }}"/>
                             <input name="piece" id="piece" type="hidden" value="{{ item.piece|e }}"/>
                             <input name="is_tome" id="is_tome" type="hidden" value="{{ item.is_tome|e }}"/>
-                            <input name="action" id="action" type="hidden" value="remove"/>
+                            <input name="action" id="action" type="hidden" value="add"/>
+                            <input name="add" id="add" type="submit" value="add"/>
                         </form>
                     </td>
                 </tr>

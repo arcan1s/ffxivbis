@@ -21,7 +21,7 @@
             <input name="bis" id="bis" placeholder="player bis link" title="bis" type="text"/>
             <input name="priority" id="priority" placeholder="player priority" title="priority" type="number" value="0"/>
             <input name="action" id="action" type="hidden" value="add"/>
-            <input name="add" id="add" type="button" value="add"/>
+            <input name="add" id="add" type="submit" value="add"/>
         </form>
 
         <table id="result">
@@ -46,7 +46,7 @@
                             <input name="nick" id="nick" type="hidden" value="{{ player.nick|e }}"/>
                             <input name="job" id="job" type="hidden" value="{{ player.job|e }}"/>
                             <input name="action" id="action" type="hidden" value="remove"/>
-                            <input name="remove" id="remove" type="button" value="x"/>
+                            <input name="remove" id="remove" type="submit" value="x"/>
                         </form>
                     </td>
                 </tr>

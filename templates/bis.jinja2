@@ -25,7 +25,7 @@
             <input name="is_tome" id="is_tome" title="is tome" type="checkbox"/>
             <input name="action" id="action" type="hidden" value="add"/>
             <input name="method" id="method" type="hidden" value="post"/>
-            <input name="add" id="add" type="button" value="add"/>
+            <input name="add" id="add" type="submit" value="add"/>
         </form>
         <form action="/bis" method="post">
             <select name="player" id="player" title="player">
@@ -35,7 +35,7 @@
             </select>
             <input name="bis" id="bis" placeholder="player bis link" title="bis" type="text"/>
             <input name="method" id="method" type="hidden" value="put"/>
-            <input name="add" id="add" type="button" value="add"/>
+            <input name="add" id="add" type="submit" value="add"/>
         </form>
 
         <table id="result">
@@ -57,7 +57,8 @@
                             <input name="piece" id="piece" type="hidden" value="{{ item.piece|e }}"/>
                             <input name="is_tome" id="is_tome" type="hidden" value="{{ item.is_tome|e }}"/>
                             <input name="action" id="action" type="hidden" value="remove"/>
-                            <input name="remove" id="remove" type="button" value="x"/>
+                            <input name="method" id="method" type="hidden" value="post"/>
+                            <input name="remove" id="remove" type="submit" value="x"/>
                         </form>
                     </td>
                 </tr>

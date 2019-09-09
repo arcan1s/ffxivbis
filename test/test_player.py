@@ -16,17 +16,17 @@ def test_loot_count(player: Player, head_with_upgrade: Piece, weapon: Piece) -> 
 
 
 def test_loot_count_bis(player: Player, head_with_upgrade: Piece, weapon: Piece) -> None:
-    assert abs(player.loot_count_bis(head_with_upgrade)) == 0
-    assert abs(player.loot_count_bis(weapon)) == 0
+    assert abs(player.loot_count_total_bis(head_with_upgrade)) == 0
+    assert abs(player.loot_count_total_bis(weapon)) == 0
 
     player.bis.set_item(head_with_upgrade)
     player.loot.append(head_with_upgrade)
-    assert abs(player.loot_count_bis(head_with_upgrade)) == 1
-    assert abs(player.loot_count_bis(weapon)) == 1
+    assert abs(player.loot_count_total_bis(head_with_upgrade)) == 1
+    assert abs(player.loot_count_total_bis(weapon)) == 1
 
     player.bis.set_item(weapon)
-    assert abs(player.loot_count_bis(head_with_upgrade)) == 1
-    assert abs(player.loot_count_bis(weapon)) == 1
+    assert abs(player.loot_count_total_bis(head_with_upgrade)) == 1
+    assert abs(player.loot_count_total_bis(weapon)) == 1
 
 
 def test_loot_count_total(player: Player, head_with_upgrade: Piece, weapon: Piece) -> None:
