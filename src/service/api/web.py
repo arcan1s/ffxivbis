@@ -11,12 +11,15 @@ import jinja2
 import logging
 
 from aiohttp import web
+from aiohttp_security import setup as setup_security
+from aiohttp_security import CookiesIdentityPolicy
 
 from service.core.config import Configuration
 from service.core.database import Database
 from service.core.loot_selector import LootSelector
 from service.core.party import Party
 
+from .auth import AuthorizationPolicy, authorize_factory
 from .routes import setup_routes
 
 
@@ -36,6 +39,12 @@ def setup_service(config: Configuration, database: Database, loot: LootSelector,
     app.on_shutdown.append(on_shutdown)
 
     app.middlewares.append(web.normalize_path_middleware(append_slash=False, remove_slash=True))
+
+    # auth related
+    auth_required = config.getboolean('auth', 'enabled')
+    if auth_required:
+        setup_security(app, CookiesIdentityPolicy(), AuthorizationPolicy(database))
+        app.middlewares.append(authorize_factory())
 
     # routes
     app.logger.info('setup routes')

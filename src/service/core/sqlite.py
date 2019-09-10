@@ -6,6 +6,7 @@
 #
 # License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
 #
+from passlib.hash import md5_crypt
 from typing import List, Optional, Union
 
 from service.models.bis import BiS
@@ -14,6 +15,7 @@ from service.models.loot import Loot
 from service.models.piece import Piece
 from service.models.player import Player, PlayerId
 from service.models.upgrade import Upgrade
+from service.models.user import User
 
 from .database import Database
 from .sqlite_helper import SQLiteHelper
@@ -58,6 +60,10 @@ class SQLiteDatabase(Database):
             cursor.execute('''delete from players where nick = ? and job = ?''',
                            (player_id.nick, player_id.job.name))
 
+    def delete_user(self, username: str) -> None:
+        with SQLiteHelper(self.database_path) as cursor:
+            cursor.execute('''delete from users where username = ?''', (username,))
+
     def get_party(self) -> List[Player]:
         with SQLiteHelper(self.database_path) as cursor:
             cursor.execute('''select * from bis''')
@@ -77,6 +83,17 @@ class SQLiteDatabase(Database):
                            (player_id.nick, player_id.job.name))
             player = cursor.fetchone()
             return player['player_id'] if player is not None else None
+
+    def get_user(self, username: str) -> Optional[User]:
+        with SQLiteHelper(self.database_path) as cursor:
+            cursor.execute('''select * from users where username = ?''', (username,))
+            user = cursor.fetchone()
+            return User(user['username'], user['password'], user['permission']) if user is not None else None
+
+    def get_users(self) -> List[User]:
+        with SQLiteHelper(self.database_path) as cursor:
+            cursor.execute('''select * from users''')
+            return [User(user['username'], user['password'], user['permission']) for user in cursor.fetchall()]
 
     def insert_piece(self, player_id: PlayerId, piece: Union[Piece, Upgrade]) -> None:
         player = self.get_player(player_id)
@@ -114,4 +131,15 @@ class SQLiteDatabase(Database):
                 values
                 (?, ?, ?, ?, ?)''',
                 (Database.now(), player.nick, player.job.name, player.link, player.priority)
+            )
+
+    def insert_user(self, user: User, hashed_password: bool) -> None:
+        password = user.password if hashed_password else md5_crypt.hash(user.password)
+        with SQLiteHelper(self.database_path) as cursor:
+            cursor.execute(
+                '''replace into users
+                (username, password, permission)
+                values
+                (?, ?, ?)''',
+                (user.username, password, user.permission)
             )

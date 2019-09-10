@@ -8,7 +8,7 @@
 #
 import json
 
-from aiohttp.web import Response
+from aiohttp.web import HTTPException, Response
 from typing import Any, Mapping, List
 
 from .json import HttpEncoder
@@ -23,6 +23,8 @@ def make_json(response: Any, args: Mapping[str, Any], code: int = 200) -> str:
 
 
 def wrap_exception(exception: Exception, args: Mapping[str, Any], code: int = 500) -> Response:
+    if isinstance(exception, HTTPException):
+        raise exception  # reraise return
     return wrap_json({'message': repr(exception)}, args, code)
 
 

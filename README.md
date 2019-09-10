@@ -71,6 +71,34 @@ Service which allows to manage savage loot distribution easy.
     
     * `is_tome`: is item tome gear or not, bool, required.
     * `piece`: item name, string, required.
+    
+    
+### Users API
+
+* `DELETE /api/v1/login/{username}`
+    
+    Delete user with specified username. Parameters:
+    
+    * `username`: username to remove, required.
+    
+* `POST /api/v1/login`
+       
+    Login with credentials. Parameters:
+    
+    * `username`: username to login, string, required.
+    * `password`: password to login, string, required.
+    
+* `PUT /api/v1/login`
+
+    Create new user. Parameters:
+    
+    * `username`: username to login, string, required.
+    * `password`: password to login, string, 
+    * `permission`: user permission, one of `get`, `post`, optional, default `get`.
+    
+* `POST /api/v1/logout`
+
+    Logout.
 
 
 ## Configuration
@@ -92,6 +120,14 @@ Service which allows to manage savage loot distribution easy.
     * `request_timeout`: xivapi request timeout, float, optional, default 30.
     * `xivapi_key`: xivapi developer key, string, optional.
     * `xivapi_url`: xivapi base url, string, required.
+    
+* `auth` section
+
+    Authentication settings.
+    
+    * `enabled`: whether authentication enabled or not, boolean, required.
+    * `root_username`: username of administrator, string, required.
+    * `root_password`: md5 hashed password of administrator, string, required.
     
 * `sqlite` section
 

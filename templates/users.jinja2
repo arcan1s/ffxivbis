@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+    <head>
+        <title>Users</title>
+
+        <link href="{{ static('styles.css') }}" rel="stylesheet" type="text/css">
+    </head>
+    <body>
+        <h2>users</h2>
+
+        {% include "error.jinja2" %}
+        {% include "search_line.jinja2" %}
+
+        <form action="/admin/users" method="post">
+            <input name="username" id="username" title="username" placeholder="username" type="text"/>
+            <input name="password" id="password" title="password" placeholder="password" type="password"/>
+            <select name="permission" id="permission" title="permission">
+                <option>get</option>
+                <option>post</option>
+            </select>
+            <input name="action" id="action" type="hidden" value="add"/>
+            <input name="add" id="add" type="submit" value="add"/>
+        </form>
+
+        <table id="result">
+            <tr>
+                <th>username</th>
+                <th>permission</th>
+                <th></th>
+            </tr>
+
+            {% for user in users %}
+                <tr>
+                    <td class="include_search">{{ user.username|e }}</td>
+                    <td>{{ user.permission|e }}</td>
+                    <td>
+                        <form action="/admin/users" method="post">
+                            <input name="username" id="username" type="hidden" value="{{ user.username|e }}"/>
+                            <input name="action" id="action" type="hidden" value="remove"/>
+                            <input name="remove" id="remove" type="submit" value="x"/>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        {% include "export_to_csv.jinja2" %}
+        {% include "root.jinja2" %}
+        {% include "search.jinja2" %}
+    </body>
+</html>

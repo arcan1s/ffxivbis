@@ -39,9 +39,9 @@ class LootSuggestHtmlView(LootBaseView, PlayerBaseView):
             return wrap_invalid_param(required, data)
 
         try:
-            piece = Piece.get({'piece': data.get('piece'), 'is_tome': data.get('is_tome', False)})
+            piece = Piece.get({'piece': data.get('piece'), 'is_tome': data.get('is_tome', True)})
             players = self.loot_put(piece)
-            item_values = {'piece': piece.name, 'is_tome': piece.is_tome}
+            item_values = {'piece': piece.name, 'is_tome': getattr(piece, 'is_tome', True)}
 
         except Exception as e:
             self.request.app.logger.exception('could not manage loot')

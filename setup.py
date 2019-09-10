@@ -25,9 +25,11 @@ setup(
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
 
     install_requires=[
-        'aiohttp_jinja2',
         'aiohttp',
+        'aiohttp_jinja2',
+        'aiohttp_security',
         'Jinja2',
+        'passlib',
         'requests',
         'yoyo_migrations'
     ],

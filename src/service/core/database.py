@@ -18,6 +18,7 @@ from service.models.loot import Loot
 from service.models.piece import Piece
 from service.models.player import Player, PlayerId
 from service.models.upgrade import Upgrade
+from service.models.user import User
 
 from .config import Configuration
 from .exceptions import InvalidDatabase
@@ -59,10 +60,19 @@ class Database:
     def delete_player(self, player_id: PlayerId) -> None:
         raise NotImplementedError
 
+    def delete_user(self, username: str) -> None:
+        raise NotImplementedError
+
     def get_party(self) -> List[Player]:
         raise NotImplementedError
 
     def get_player(self, player_id: PlayerId) -> Optional[int]:
+        raise NotImplementedError
+
+    def get_user(self, username: str) -> Optional[User]:
+        raise NotImplementedError
+
+    def get_users(self) -> List[User]:
         raise NotImplementedError
 
     def insert_piece(self, player_id: PlayerId, piece: Union[Piece, Upgrade]) -> None:
@@ -72,6 +82,9 @@ class Database:
         raise NotImplementedError
 
     def insert_player(self, player: Player) -> None:
+        raise NotImplementedError
+
+    def insert_user(self, user: User, hashed_password: bool) -> None:
         raise NotImplementedError
 
     def migration(self) -> None:

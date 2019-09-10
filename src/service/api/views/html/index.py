@@ -8,6 +8,7 @@
 #
 from aiohttp.web import View
 from aiohttp_jinja2 import template
+from aiohttp_security import authorized_userid
 from typing import Any, Dict
 
 
@@ -15,4 +16,8 @@ class IndexHtmlView(View):
 
     @template('index.jinja2')
     async def get(self) -> Dict[str, Any]:
-        return {}
+        username = await authorized_userid(self.request)
+
+        return {
+            'logged': username
+        }

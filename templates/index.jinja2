@@ -8,10 +8,27 @@
 
     <body>
         <center>
+            {% if logged is defined and logged %}
+                <form action="/api/v1/logout" method="post">
+                    logged in as {{ logged|e }}
+                    <input name="logout" id="logout" type="submit" value="logout"/>
+                </form>
+            {% else %}
+                <form action="/api/v1/login" method="post">
+                    <input name="username" id="username" title="username" placeholder="username" type="text" required/>
+                    <input name="password" id="password" title="password" placeholder="password" type="password" required/>
+                    <input name="login" id="login" type="submit" value="login"/>
+                </form>
+            {% endif %}
+
+            <br>
+
             <h2><a href="/party" title="party">party</a></h2>
             <h2><a href="/bis" title="bis management">bis</a></h2>
             <h2><a href="/loot" title="loot management">loot</a></h2>
             <h2><a href="/suggest" title="suggest loot">suggest</a></h2>
+            <hr>
+            <h2><a href="/admin/users" title="manage users">manage users</a></h2>
         </center>
     </body>
 </html>

@@ -13,6 +13,7 @@ from service.core.config import Configuration
 from service.core.database import Database
 from service.core.loot_selector import LootSelector
 from service.core.party import Party
+from service.models.user import User
 
 
 class Application:
@@ -25,6 +26,9 @@ class Application:
         database = Database.get(self.config)
         database.migration()
         party = Party.get(database)
+
+        admin = User(self.config.get('auth', 'root_username'), self.config.get('auth', 'root_password'), 'admin')
+        database.insert_user(admin, True)
 
         priority = self.config.get('settings', 'priority').split()
         loot_selector = LootSelector(party, priority)

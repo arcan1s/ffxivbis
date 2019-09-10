@@ -8,19 +8,27 @@
 #
 from aiohttp.web import Application
 
-from service.api.views.api.bis import BiSView
-from service.api.views.api.loot import LootView
-from service.api.views.api.player import PlayerView
-from service.api.views.html.bis import BiSHtmlView
-from service.api.views.html.index import IndexHtmlView
-from service.api.views.html.loot import LootHtmlView
-from service.api.views.html.loot_suggest import LootSuggestHtmlView
-from service.api.views.html.player import PlayerHtmlView
-from service.api.views.html.static import StaticHtmlView
+from .views.api.bis import BiSView
+from .views.api.login import LoginView
+from .views.api.logout import LogoutView
+from .views.api.loot import LootView
+from .views.api.player import PlayerView
+from .views.html.bis import BiSHtmlView
+from .views.html.index import IndexHtmlView
+from .views.html.loot import LootHtmlView
+from .views.html.loot_suggest import LootSuggestHtmlView
+from .views.html.player import PlayerHtmlView
+from .views.html.static import StaticHtmlView
+from .views.html.users import UsersHtmlView
 
 
 def setup_routes(app: Application) -> None:
     # api routes
+    app.router.add_delete('/api/v1/login/{username}', LoginView)
+    app.router.add_post('/api/v1/login', LoginView)
+    app.router.add_post('/api/v1/logout', LogoutView)
+    app.router.add_put('/api/v1/login', LoginView)
+
     app.router.add_get('/api/v1/party', PlayerView)
     app.router.add_post('/api/v1/party', PlayerView)
 
@@ -47,3 +55,8 @@ def setup_routes(app: Application) -> None:
 
     app.router.add_get('/suggest', LootSuggestHtmlView)
     app.router.add_post('/suggest', LootSuggestHtmlView)
+
+    app.router.add_get('/admin/users', UsersHtmlView)
+    app.router.add_post('/admin/users', UsersHtmlView)
+
+
