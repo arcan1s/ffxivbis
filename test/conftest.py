@@ -65,6 +65,9 @@ def config() -> Configuration:
             'request_timeout': 1,
             'xivapi_url': 'https://xivapi.com'
         },
+        'auth': {
+            'enabled': 'no'
+        },
         'settings': {
             'include': '/dev/null'
         }
