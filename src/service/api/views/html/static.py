@@ -14,7 +14,6 @@ class StaticHtmlView(View):
 
     def __get_content_type(self, filename: str) -> str:
         _, ext = os.path.splitext(filename)
-        print(ext)
         if ext == '.css':
             return 'text/css'
         elif ext == '.js':
