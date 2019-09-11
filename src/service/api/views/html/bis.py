@@ -57,22 +57,23 @@ class BiSHtmlView(BiSBaseView, PlayerBaseView):
             return wrap_invalid_param(required, data)
 
         try:
-            method = data.get('method')
-            player_id = PlayerId.from_pretty_name(data.get('player'))  # type: ignore
+            method = data.getone('method')
+            player_id = PlayerId.from_pretty_name(data.getone('player'))  # type: ignore
 
             if method == 'post':
                 required = ['action', 'piece']
                 if any(param not in data for param in required):
                     return wrap_invalid_param(required, data)
-                self.bis_post(data.get('action'), player_id,  # type: ignore
-                              Piece.get({'piece': data.get('piece'), 'is_tome': data.get('is_tome', False)}))  # type: ignore
+                is_tome = (data.getone('is_tome', None) == 'on')
+                self.bis_post(data.getone('action'), player_id,  # type: ignore
+                              Piece.get({'piece': data.getone('piece'), 'is_tome': is_tome}))  # type: ignore
 
             elif method == 'put':
                 required = ['bis']
                 if any(param not in data for param in required):
                     return wrap_invalid_param(required, data)
 
-                self.bis_put(player_id, data.get('bis'))  # type: ignore
+                self.bis_put(player_id, data.getone('bis'))  # type: ignore
 
         except Exception as e:
             self.request.app.logger.exception('could not manage bis')

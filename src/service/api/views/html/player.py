@@ -39,7 +39,7 @@ class PlayerHtmlView(PlayerBaseView):
                     'job': player.job.name,
                     'nick': player.nick,
                     'loot_count_bis': player.loot_count_bis,
-                    'loot_count': player.loot_count,
+                    'loot_count_total': player.loot_count_total,
                     'priority': player.priority
                 }
                 for player in counters
@@ -55,9 +55,9 @@ class PlayerHtmlView(PlayerBaseView):
             return wrap_invalid_param(required, data)
 
         try:
-            action = data.get('action')
-            priority = data.get('priority', 0)
-            link = data.get('bis', None)
+            action = data.getone('action')
+            priority = data.getone('priority', 0)
+            link = data.getone('bis', None)
             self.player_post(action, Job[data['job'].upper()], data['nick'], link, priority)  # type: ignore
 
         except Exception as e:

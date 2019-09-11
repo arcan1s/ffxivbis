@@ -28,7 +28,7 @@
             <tr>
                 <th>nick</th>
                 <th>job</th>
-                <th>bis pieces looted</th>
+                <th>total bis pieces looted</th>
                 <th>total pieces looted</th>
                 <th>priority</th>
                 <th></th>
@@ -39,7 +39,7 @@
                     <td class="include_search">{{ player.nick|e }}</td>
                     <td class="include_search">{{ player.job|e }}</td>
                     <td>{{ player.loot_count_bis|e }}</td>
-                    <td>{{ player.loot_count|e }}</td>
+                    <td>{{ player.loot_count_total|e }}</td>
                     <td>{{ player.priority|e }}</td>
                     <td>
                         <form action="/party" method="post">

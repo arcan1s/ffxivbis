@@ -41,6 +41,7 @@ class PlayerId:
 
 @dataclass
 class PlayerIdWithCounters(PlayerId):
+    is_required: bool
     priority: int
     loot_count: int
     loot_count_bis: int
@@ -68,7 +69,7 @@ class Player:
         return PlayerId(self.job, self.nick)
 
     def player_id_with_counters(self, piece: Union[Piece, Upgrade, None]) -> PlayerIdWithCounters:
-        return PlayerIdWithCounters(self.job, self.nick, self.priority,
+        return PlayerIdWithCounters(self.job, self.nick, self.is_required(piece), self.priority,
                                     abs(self.loot_count(piece)), abs(self.loot_count_bis(piece)),
                                     abs(self.loot_count_total(piece)), abs(self.bis_count_total(piece)))
 

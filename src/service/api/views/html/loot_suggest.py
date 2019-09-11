@@ -39,7 +39,7 @@ class LootSuggestHtmlView(LootBaseView, PlayerBaseView):
             return wrap_invalid_param(required, data)
 
         try:
-            piece = Piece.get({'piece': data.get('piece'), 'is_tome': data.get('is_tome', True)})
+            piece = Piece.get({'piece': data.getone('piece'), 'is_tome': data.getone('is_tome', False)})
             players = self.loot_put(piece)
             item_values = {'piece': piece.name, 'is_tome': getattr(piece, 'is_tome', True)}
 
@@ -54,8 +54,10 @@ class LootSuggestHtmlView(LootBaseView, PlayerBaseView):
             'suggest': [
                 {
                     'player': player.pretty_name,
-                    'loot_count_bis': player.loot_count_bis,
+                    'is_required': 'yes' if player.is_required else 'no',
                     'loot_count': player.loot_count,
+                    'loot_count_bis': player.loot_count_bis,
+                    'loot_count_total': player.loot_count_total
                 }
                 for player in players
             ]

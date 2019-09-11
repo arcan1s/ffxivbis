@@ -24,7 +24,9 @@
         <table id="result">
             <tr>
                 <th>player</th>
-                <th>bis pieces looted</th>
+                <th>is required</th>
+                <th>these pieces looted</th>
+                <th>total bis pieces looted</th>
                 <th>total pieces looted</th>
                 <th></th>
             </tr>
@@ -32,8 +34,10 @@
             {% for player in suggest %}
                 <tr>
                     <td class="include_search">{{ player.player|e }}</td>
-                    <td>{{ player.loot_count_bis|e }}</td>
+                    <td>{{ player.is_required|e }}</td>
                     <td>{{ player.loot_count|e }}</td>
+                    <td>{{ player.loot_count_bis|e }}</td>
+                    <td>{{ player.loot_count_total|e }}</td>
                     <td>
                         <form action="/loot" method="post">
                             <input name="player" id="player" type="hidden" value="{{ player.player|e }}"/>
