@@ -8,9 +8,9 @@ from service.models.player import Player
 
 async def test_bis_get(server: Any, party: Party, player: Player, player2: Player,
                        head_with_upgrade: Piece, weapon: Piece) -> None:
-    party.set_item_bis(player.player_id, weapon)
-    party.set_item_bis(player2.player_id, weapon)
-    party.set_item_bis(player2.player_id, head_with_upgrade)
+    await party.set_item_bis(player.player_id, weapon)
+    await party.set_item_bis(player2.player_id, weapon)
+    await party.set_item_bis(player2.player_id, head_with_upgrade)
 
     response = await server.get('/api/v1/party/bis')
     assert response.status == 200
@@ -19,9 +19,9 @@ async def test_bis_get(server: Any, party: Party, player: Player, player2: Playe
 
 async def test_bis_get_with_filter(server: Any, party: Party, player: Player, player2: Player,
                                    head_with_upgrade: Piece, weapon: Piece) -> None:
-    party.set_item_bis(player.player_id, weapon)
-    party.set_item_bis(player2.player_id, weapon)
-    party.set_item_bis(player2.player_id, head_with_upgrade)
+    await party.set_item_bis(player.player_id, weapon)
+    await party.set_item_bis(player2.player_id, weapon)
+    await party.set_item_bis(player2.player_id, head_with_upgrade)
 
     response = await server.get('/api/v1/party/bis', params={'nick': player.nick})
     assert response.status == 200

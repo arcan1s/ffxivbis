@@ -16,8 +16,8 @@ from service.models.player import PlayerId
 
 class BiSBaseView(View):
 
-    def bis_add(self, player_id: PlayerId, piece: Piece) -> Piece:
-        self.request.app['party'].set_item_bis(player_id, piece)
+    async def bis_add(self, player_id: PlayerId, piece: Piece) -> Piece:
+        await self.request.app['party'].set_item_bis(player_id, piece)
         return piece
 
     def bis_get(self, nick: Optional[str]) -> List[Piece]:
@@ -28,21 +28,21 @@ class BiSBaseView(View):
         ]
         return list(sum([player.bis.pieces for player in party], []))
 
-    def bis_post(self, action: str, player_id: PlayerId, piece: Piece) -> Optional[Piece]:
+    async def bis_post(self, action: str, player_id: PlayerId, piece: Piece) -> Optional[Piece]:
         if action == 'add':
-            return self.bis_add(player_id, piece)
+            return await self.bis_add(player_id, piece)
         elif action == 'remove':
-            return self.bis_remove(player_id, piece)
+            return await self.bis_remove(player_id, piece)
         return None
 
-    def bis_put(self, player_id: PlayerId, link: str) -> str:
+    async def bis_put(self, player_id: PlayerId, link: str) -> str:
         parser = AriyalaParser(self.request.app['config'])
         items = parser.get(link, player_id.job.name)
         for piece in items:
-            self.request.app['party'].set_item_bis(player_id, piece)
-        self.request.app['party'].set_bis_link(player_id, link)
+            await self.request.app['party'].set_item_bis(player_id, piece)
+        await self.request.app['party'].set_bis_link(player_id, link)
         return link
 
-    def bis_remove(self, player_id: PlayerId, piece: Piece) -> Piece:
-        self.request.app['party'].remove_item_bis(player_id, piece)
+    async def bis_remove(self, player_id: PlayerId, piece: Piece) -> Piece:
+        await self.request.app['party'].remove_item_bis(player_id, piece)
         return piece

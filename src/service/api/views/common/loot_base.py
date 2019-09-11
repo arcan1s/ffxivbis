@@ -16,8 +16,8 @@ from service.models.upgrade import Upgrade
 
 class LootBaseView(View):
 
-    def loot_add(self, player_id: PlayerId, piece: Piece) -> Piece:
-        self.request.app['party'].set_item(player_id, piece)
+    async def loot_add(self, player_id: PlayerId, piece: Piece) -> Piece:
+        await self.request.app['party'].set_item(player_id, piece)
         return piece
 
     def loot_get(self, nick: Optional[str]) -> List[Piece]:
@@ -28,16 +28,16 @@ class LootBaseView(View):
         ]
         return list(sum([player.loot for player in party], []))
 
-    def loot_post(self, action: str, player_id: PlayerId, piece: Piece) -> Optional[Piece]:
+    async def loot_post(self, action: str, player_id: PlayerId, piece: Piece) -> Optional[Piece]:
         if action == 'add':
-            return self.loot_add(player_id, piece)
+            return await self.loot_add(player_id, piece)
         elif action == 'remove':
-            return self.loot_remove(player_id, piece)
+            return await self.loot_remove(player_id, piece)
         return None
 
     def loot_put(self, piece: Union[Piece, Upgrade]) -> List[PlayerIdWithCounters]:
         return self.request.app['loot'].suggest(piece)
 
-    def loot_remove(self, player_id: PlayerId, piece: Piece) -> Piece:
-        self.request.app['party'].remove_item(player_id, piece)
+    async def loot_remove(self, player_id: PlayerId, piece: Piece) -> Piece:
+        await self.request.app['party'].remove_item(player_id, piece)
         return piece

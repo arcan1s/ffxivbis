@@ -45,7 +45,7 @@ class BiSView(BiSBaseView):
         try:
             player_id = PlayerId(Job[data['job']], data['nick'])
             piece: Piece = Piece.get(data)  # type: ignore
-            self.bis_post(action, player_id, piece)
+            await self.bis_post(action, player_id, piece)
 
         except Exception as e:
             self.request.app.logger.exception('could not add bis')
@@ -65,7 +65,7 @@ class BiSView(BiSBaseView):
 
         try:
             player_id = PlayerId(Job[data['job']], data['nick'])
-            link = self.bis_put(player_id, data['link'])
+            link = await self.bis_put(player_id, data['link'])
 
         except Exception as e:
             self.request.app.logger.exception('could not parse bis')

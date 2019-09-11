@@ -7,8 +7,8 @@ from service.models.player import Player
 
 
 async def test_loot_get(server: Any, party: Party, player: Player, player2: Player, weapon: Piece) -> None:
-    party.set_item(player.player_id, weapon)
-    party.set_item(player2.player_id, weapon)
+    await party.set_item(player.player_id, weapon)
+    await party.set_item(player2.player_id, weapon)
 
     response = await server.get('/api/v1/party/loot')
     assert response.status == 200
@@ -16,8 +16,8 @@ async def test_loot_get(server: Any, party: Party, player: Player, player2: Play
 
 
 async def test_loot_get_with_filter(server: Any, party: Party, player: Player, player2: Player, weapon: Piece) -> None:
-    party.set_item(player.player_id, weapon)
-    party.set_item(player2.player_id, weapon)
+    await party.set_item(player.player_id, weapon)
+    await party.set_item(player2.player_id, weapon)
 
     response = await server.get('/api/v1/party/loot', params={'nick': player.nick})
     assert response.status == 200

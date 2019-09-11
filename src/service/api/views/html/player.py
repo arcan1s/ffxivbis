@@ -58,7 +58,7 @@ class PlayerHtmlView(PlayerBaseView):
             action = data.getone('action')
             priority = data.getone('priority', 0)
             link = data.getone('bis', None)
-            self.player_post(action, Job[data['job'].upper()], data['nick'], link, priority)  # type: ignore
+            await self.player_post(action, Job[data['job'].upper()], data['nick'], link, priority)  # type: ignore
 
         except Exception as e:
             self.request.app.logger.exception('could not manage players')

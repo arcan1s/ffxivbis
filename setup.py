@@ -28,6 +28,7 @@ setup(
         'aiohttp',
         'aiohttp_jinja2',
         'aiohttp_security',
+        'aiosqlite',
         'Jinja2',
         'passlib',
         'requests',
@@ -37,7 +38,7 @@ setup(
         'pytest-runner'
     ],
     tests_require=[
-        'pytest', 'pytest-aiohttp'
+        'pytest', 'pytest-aiohttp', 'pytest-asyncio'
     ],
 
     include_package_data=True,

@@ -17,16 +17,16 @@ from service.models.player import Player, PlayerId
 
 class PlayerBaseView(View):
 
-    def player_add(self, job: Job, nick: str, link: Optional[str], priority: int) -> PlayerId:
+    async def player_add(self, job: Job, nick: str, link: Optional[str], priority: int) -> PlayerId:
         player = Player(job, nick, BiS(), [], link, int(priority))
         player_id = player.player_id
-        self.request.app['party'].set_player(player)
+        await self.request.app['party'].set_player(player)
 
         if link:
             parser = AriyalaParser(self.request.app['config'])
             items = parser.get(link, job.name)
             for piece in items:
-                self.request.app['party'].set_item_bis(player_id, piece)
+                await self.request.app['party'].set_item_bis(player_id, piece)
 
         return player_id
 
@@ -37,14 +37,14 @@ class PlayerBaseView(View):
             if nick is None or player.nick == nick
         ]
 
-    def player_post(self, action: str, job: Job, nick: str, link: Optional[str], priority: int) -> Optional[PlayerId]:
+    async def player_post(self, action: str, job: Job, nick: str, link: Optional[str], priority: int) -> Optional[PlayerId]:
         if action == 'add':
-            return self.player_add(job, nick, link, priority)
+            return await self.player_add(job, nick, link, priority)
         elif action == 'remove':
-            return self.player_remove(job, nick)
+            return await self.player_remove(job, nick)
         return None
 
-    def player_remove(self, job: Job, nick: str) -> PlayerId:
+    async def player_remove(self, job: Job, nick: str) -> PlayerId:
         player_id = PlayerId(job, nick)
-        self.request.app['party'].remove_player(player_id)
+        await self.request.app['party'].remove_player(player_id)
         return player_id

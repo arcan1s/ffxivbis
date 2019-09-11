@@ -45,7 +45,7 @@ class LootView(LootBaseView):
         try:
             player_id = PlayerId(Job[data['job']], data['nick'])
             piece: Piece = Piece.get(data)  # type: ignore
-            self.loot_post(action, player_id, piece)
+            await self.loot_post(action, player_id, piece)
 
         except Exception as e:
             self.request.app.logger.exception('could not add loot')

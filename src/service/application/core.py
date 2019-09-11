@@ -6,6 +6,7 @@
 #
 # License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
 #
+import asyncio
 import logging
 
 from service.api.web import run_server, setup_service
@@ -23,12 +24,15 @@ class Application:
         self.logger = logging.getLogger('application')
 
     def run(self) -> None:
+        loop = asyncio.get_event_loop()
+
         database = Database.get(self.config)
         database.migration()
-        party = Party.get(database)
+
+        party = loop.run_until_complete(Party.get(database))
 
         admin = User(self.config.get('auth', 'root_username'), self.config.get('auth', 'root_password'), 'admin')
-        database.insert_user(admin, True)
+        loop.run_until_complete(database.insert_user(admin, True))
 
         priority = self.config.get('settings', 'priority').split()
         loot_selector = LootSelector(party, priority)

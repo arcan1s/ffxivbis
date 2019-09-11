@@ -16,13 +16,13 @@ from service.models.user import User
 class LoginBaseView(View):
 
     async def check_credentials(self, username: str, password: str) -> bool:
-        user = self.request.app['database'].get_user(username)
+        user = await self.request.app['database'].get_user(username)
         if user is None:
             return False
         return md5_crypt.verify(password, user.password)
 
     async def create_user(self, username: str, password: str, permission: str) -> None:
-        self.request.app['database'].insert_user(User(username, password, permission), False)
+        await self.request.app['database'].insert_user(User(username, password, permission), False)
 
     async def login(self, username: str, password: str) -> None:
         if await self.check_credentials(username, password):
@@ -40,4 +40,4 @@ class LoginBaseView(View):
         raise response
 
     async def remove_user(self, username: str) -> None:
-        self.request.app['database'].delete_user(username)
+        await self.request.app['database'].delete_user(username)

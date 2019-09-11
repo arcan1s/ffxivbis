@@ -43,7 +43,7 @@ class PlayerView(PlayerBaseView):
             return wrap_invalid_param(['action'], data)
 
         try:
-            player_id = self.player_post(action, Job[data['job']], data['nick'], link, priority)
+            player_id = await self.player_post(action, Job[data['job']], data['nick'], link, priority)
 
         except Exception as e:
             self.request.app.logger.exception('could not add loot')

@@ -24,7 +24,7 @@ class UsersHtmlView(LoginBaseView):
         users: List[User] = []
 
         try:
-            users = self.request.app['database'].get_users()
+            users = await self.request.app['database'].get_users()
         except Exception as e:
             self.request.app.logger.exception('could not get users')
             error = repr(e)

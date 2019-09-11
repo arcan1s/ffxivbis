@@ -7,7 +7,7 @@ from service.models.player import Player
 
 
 async def test_players_get(server: Any, party: Party, player: Player) -> None:
-    party.set_player(player)
+    await party.set_player(player)
 
     response = await server.get('/api/v1/party')
     assert response.status == 200
@@ -15,7 +15,7 @@ async def test_players_get(server: Any, party: Party, player: Player) -> None:
 
 
 async def test_players_get_with_filter(server: Any, party: Party, player: Player, player2: Player) -> None:
-    party.set_player(player)
+    await party.set_player(player)
 
     response = await server.get('/api/v1/party', params={'nick': player.nick})
     assert response.status == 200
@@ -27,7 +27,7 @@ async def test_players_get_with_filter(server: Any, party: Party, player: Player
 
 
 async def test_players_post_add(server: Any, party: Party, player: Player) -> None:
-    party.remove_player(player.player_id)
+    await party.remove_player(player.player_id)
 
     response = await server.get('/api/v1/party', params={'nick': player.nick})
     assert response.status == 200
@@ -64,7 +64,7 @@ async def test_players_post_remove(server: Any, party: Party, player: Player) ->
 
 async def test_players_post_add_with_link(server: Any, party: Party, player: Player,
                                           bis_link: str, bis_set: List[Piece]) -> None:
-    party.remove_player(player.player_id)
+    await party.remove_player(player.player_id)
 
     response = await server.get('/api/v1/party', params={'nick': player.nick})
     assert response.status == 200

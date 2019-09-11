@@ -19,11 +19,11 @@ class AuthorizationPolicy(AbstractAuthorizationPolicy):
         self.database = database
 
     async def authorized_userid(self, identity: str) -> Optional[str]:
-        user = self.database.get_user(identity)
+        user = await self.database.get_user(identity)
         return identity if user is not None else None
 
     async def permits(self, identity: str, permission: str, context: str = None) -> bool:
-        user = self.database.get_user(identity)
+        user = await self.database.get_user(identity)
         if user is None:
             return False
         if user.username != identity:

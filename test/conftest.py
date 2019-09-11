@@ -105,14 +105,14 @@ def player2(bis2: BiS) -> Player:
 
 
 @pytest.fixture
-def selector(party: Party, player: Player, player2: Player,
-             head_with_upgrade: Piece, weapon: Piece) -> LootSelector:
+async def selector(party: Party, player: Player, player2: Player,
+                   head_with_upgrade: Piece, weapon: Piece) -> LootSelector:
     obj = LootSelector(party)
 
-    obj.party.set_player(player)
+    await obj.party.set_player(player)
     player.bis.set_item(weapon)
 
-    obj.party.set_player(player2)
+    await obj.party.set_player(player2)
     player2.bis.set_item(head_with_upgrade)
     player2.bis.set_item(weapon)
 

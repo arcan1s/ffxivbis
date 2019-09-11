@@ -60,8 +60,8 @@ class LootHtmlView(LootBaseView, PlayerBaseView):
         try:
             player_id = PlayerId.from_pretty_name(data.getone('player'))  # type: ignore
             is_tome = (data.getone('is_tome', None) == 'on')
-            self.loot_post(data.getone('action'), player_id,  # type: ignore
-                           Piece.get({'piece': data.getone('piece'), 'is_tome': is_tome}))  # type: ignore
+            await self.loot_post(data.getone('action'), player_id,  # type: ignore
+                                 Piece.get({'piece': data.getone('piece'), 'is_tome': is_tome}))  # type: ignore
 
         except Exception as e:
             self.request.app.logger.exception('could not manage loot')
