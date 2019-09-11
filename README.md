@@ -109,7 +109,7 @@ Service which allows to manage savage loot distribution easy.
 
     * `include`: path to include configuration directory, string, optional.
     * `logging`: path to logging configuration, see `logging.ini` for reference, string, optional.
-    * `database`: database provide name, string, required. Allowed values: `sqlite`.
+    * `database`: database provide name, string, required. Allowed values: `sqlite`, `postgres`.
     * `priority`: methods of `Player` class which will be called to sort players for loot priority, space separated list of strings, required.
     
 * `ariyala` section
@@ -128,6 +128,17 @@ Service which allows to manage savage loot distribution easy.
     * `enabled`: whether authentication enabled or not, boolean, required.
     * `root_username`: username of administrator, string, required.
     * `root_password`: md5 hashed password of administrator, string, required.
+    
+* `postgres` section
+
+    Database settings for `postgres` provider.
+    
+    * `database`: database name, string, required.
+    * `host`: database host, string, required.
+    * `password`: database password, string, required.
+    * `port`: database port, int, required.
+    * `username`: database username, string, required.
+    * `migrations_path`: path to database migrations, string, required.
     
 * `sqlite` section
 

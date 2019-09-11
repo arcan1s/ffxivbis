@@ -28,7 +28,6 @@ setup(
         'aiohttp',
         'aiohttp_jinja2',
         'aiohttp_security',
-        'aiosqlite',
         'Jinja2',
         'passlib',
         'requests',
@@ -44,6 +43,8 @@ setup(
     include_package_data=True,
 
     extras_require={
+        'Postgresql': ['aiopg'],
+        'SQLite':  ['aiosqlite'],
         'test': ['coverage', 'pytest'],
     },
 )

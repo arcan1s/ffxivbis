@@ -26,7 +26,7 @@ class Application:
     def run(self) -> None:
         loop = asyncio.get_event_loop()
 
-        database = Database.get(self.config)
+        database = loop.run_until_complete(Database.get(self.config))
         database.migration()
 
         party = loop.run_until_complete(Party.get(database))

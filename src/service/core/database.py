@@ -35,21 +35,29 @@ class Database:
         return int(datetime.datetime.now().timestamp())
 
     @classmethod
-    def get(cls: Type[Database], config: Configuration) -> Database:
+    async def get(cls: Type[Database], config: Configuration) -> Database:
         database_type = config.get('settings', 'database')
         database_settings = config.get_section(database_type)
 
         if database_type == 'sqlite':
             from .sqlite import SQLiteDatabase
             obj: Type[Database] = SQLiteDatabase
+        elif database_type == 'postgres':
+            from .postgres import PostgresDatabase
+            obj = PostgresDatabase
         else:
             raise InvalidDatabase(database_type)
 
-        return obj(**database_settings)
+        database = obj(**database_settings)
+        await database.init()
+        return database
 
     @property
     def connection(self) -> str:
         raise NotImplementedError
+
+    async def init(self) -> None:
+        pass
 
     async def delete_piece(self, player_id: PlayerId, piece: Union[Piece, Upgrade]) -> None:
         raise NotImplementedError

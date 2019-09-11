@@ -1,2 +1,3 @@
-[ ] postgres support
-[ ] pretty UI
+* [ ] items improvements
+* [ ] multiple parties support
+* [ ] pretty UI
