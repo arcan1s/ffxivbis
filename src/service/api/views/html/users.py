@@ -43,13 +43,13 @@ class UsersHtmlView(LoginBaseView):
 
         try:
             action = data.get('action')
-            username = data.get('username')
+            username = str(data.get('username'))
 
             if action == 'add':
                 required = ['password', 'permission']
                 if any(param not in data for param in required):
                     return wrap_invalid_param(required, data)
-                await self.create_user(username, data.get('password'), data.get('permission'))
+                await self.create_user(username, data.get('password'), data.get('permission'))  # type: ignore
             elif action == 'remove':
                 await self.remove_user(username)
             else:

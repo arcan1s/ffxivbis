@@ -54,7 +54,7 @@ class LootSuggestHtmlView(LootBaseView, PlayerBaseView):
             'suggest': [
                 {
                     'player': player.pretty_name,
-                    'loot_count_bis': player.loot_count_total_bis,
+                    'loot_count_bis': player.loot_count_bis,
                     'loot_count': player.loot_count,
                 }
                 for player in players
