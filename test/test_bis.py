@@ -1,6 +1,6 @@
-from service.models.bis import BiS
-from service.models.piece import Piece
-from service.models.upgrade import Upgrade
+from ffxivbis.models.bis import BiS
+from ffxivbis.models.piece import Piece
+from ffxivbis.models.upgrade import Upgrade
 
 
 def test_set_item(bis: BiS, weapon: Piece) -> None:

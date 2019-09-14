@@ -1,4 +1,4 @@
-from service.models.piece import Piece
+from ffxivbis.models.piece import Piece
 
 
 def test_parse_head(head_with_upgrade: Piece) -> None:

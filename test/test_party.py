@@ -1,7 +1,7 @@
-from service.core.database import Database
-from service.core.party import Party
-from service.models.piece import Piece
-from service.models.player import Player
+from ffxivbis.core.database import Database
+from ffxivbis.core.party import Party
+from ffxivbis.models.piece import Piece
+from ffxivbis.models.player import Player
 
 
 async def test_set_player(party: Party, player: Player) -> None:

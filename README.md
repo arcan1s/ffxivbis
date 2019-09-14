@@ -9,14 +9,23 @@ This service requires python >= 3.7. For other dependencies see `setup.py`.
 In general installation process looks like:
 
 ```bash
-python setup.py build
+python setup.py build install
 python setup.py test  # if you want to run tests
 ```
 
-Service can be run from `src` directory by using command:
+With virtualenv (make sure that virtualenv package was installed) the process may look like:
 
 ```bash
-python -m service.application.application
+virtualenv -p python3.7 env
+source env/bin/activate
+python setup.py install
+pip install aiosqlite  # setup.py does not handle extras
+```
+
+Service can be run by using command (if you don't use virtualenv, you have to run it from `src` directory):
+
+```bash
+python -m ffxivbis.application.application
 ```
 
 To see all available options type `--help`.
@@ -26,6 +35,17 @@ To see all available options type `--help`.
 REST API documentation is available at `http://0.0.0.0:8000/api-docs`. HTML representation is available at `http://0.0.0.0:8000`.
 
 *Note*: host and port depend on configuration settings. 
+
+### Authorization
+
+Default admin user is `admin:qwerty`, but it may be changed by generating new hash, e.g.:
+
+```python
+from passlib.hash import md5_crypt
+md5_crypt.hash('newstrongpassword')
+```
+
+and add new password to configuration.
 
 ## Configuration
 

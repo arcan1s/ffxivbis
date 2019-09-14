@@ -1,8 +1,8 @@
 from typing import List
 
-from service.core.ariyala_parser import AriyalaParser
-from service.models.piece import Piece
-from service.models.player import Player
+from ffxivbis.core.ariyala_parser import AriyalaParser
+from ffxivbis.models.piece import Piece
+from ffxivbis.models.player import Player
 
 
 def test_get(parser: AriyalaParser, player: Player, bis_link: str, bis_set: List[Piece]) -> None:

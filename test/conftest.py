@@ -4,17 +4,17 @@ import tempfile
 
 from typing import Any, List
 
-from service.api.web import setup_service
-from service.core.ariyala_parser import AriyalaParser
-from service.core.config import Configuration
-from service.core.database import Database
-from service.core.loot_selector import LootSelector
-from service.core.party import Party
-from service.core.sqlite import SQLiteDatabase
-from service.models.bis import BiS
-from service.models.job import Job
-from service.models.piece import Head, Piece, Weapon
-from service.models.player import Player
+from ffxivbis.api.web import setup_service
+from ffxivbis.core.ariyala_parser import AriyalaParser
+from ffxivbis.core.config import Configuration
+from ffxivbis.core.database import Database
+from ffxivbis.core.loot_selector import LootSelector
+from ffxivbis.core.party import Party
+from ffxivbis.core.sqlite import SQLiteDatabase
+from ffxivbis.models.bis import BiS
+from ffxivbis.models.job import Job
+from ffxivbis.models.piece import Head, Piece, Weapon
+from ffxivbis.models.player import Player
 
 
 @pytest.fixture

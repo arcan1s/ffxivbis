@@ -5,7 +5,7 @@ from os import path
 
 here = path.abspath(path.dirname(__file__))
 metadata = dict()
-with open(convert_path('src/service/core/version.py')) as metadata_file:
+with open(convert_path('src/ffxivbis/core/version.py')) as metadata_file:
     exec(metadata_file.read(), metadata)
 
 
@@ -22,13 +22,15 @@ setup(
 
     license='BSD',
 
-    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+    package_dir={'': 'src'},
+    packages=find_packages(where='src', exclude=['contrib', 'docs', 'test']),
 
     install_requires=[
-        'aiohttp',
+        'aiohttp==3.6.0',
         'aiohttp_jinja2',
         'aiohttp_security',
         'apispec',
+        'iniherit',
         'Jinja2',
         'passlib',
         'requests',
@@ -44,7 +46,7 @@ setup(
     include_package_data=True,
 
     extras_require={
-        'Postgresql': ['aiopg'],
+        'Postgresql': ['asyncpg'],
         'SQLite':  ['aiosqlite'],
         'test': ['coverage', 'pytest'],
     },

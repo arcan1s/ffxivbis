@@ -1,5 +1,5 @@
-from service.models.piece import Piece
-from service.models.player import Player
+from ffxivbis.models.piece import Piece
+from ffxivbis.models.player import Player
 
 
 def test_loot_count(player: Player, head_with_upgrade: Piece, weapon: Piece) -> None:

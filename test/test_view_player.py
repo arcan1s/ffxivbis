@@ -1,9 +1,9 @@
 from typing import Any, List
 
-from service.api.utils import make_json
-from service.core.party import Party
-from service.models.piece import Piece
-from service.models.player import Player
+from ffxivbis.api.utils import make_json
+from ffxivbis.core.party import Party
+from ffxivbis.models.piece import Piece
+from ffxivbis.models.player import Player
 
 
 async def test_players_get(server: Any, party: Party, player: Player) -> None:
