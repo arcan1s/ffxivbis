@@ -35,6 +35,7 @@ class AuthorizationPolicy(AbstractAuthorizationPolicy):
 
 def authorize_factory() -> Callable:
     allowed_paths = {'/', '/favicon.ico', '/api/v1/login', '/api/v1/logout'}
+    allowed_paths_groups = {'/api-docs', '/static'}
 
     @middleware
     async def authorize(request: Request, handler: Callable) -> Response:
@@ -42,7 +43,8 @@ def authorize_factory() -> Callable:
             permission = 'admin'
         else:
             permission = 'get' if request.method in ('GET', 'HEAD') else 'post'
-        if request.path not in allowed_paths:
+        if request.path not in allowed_paths \
+                and not any(request.path.startswith(path) for path in allowed_paths_groups):
             await check_permission(request, permission)
 
         return await handler(request)

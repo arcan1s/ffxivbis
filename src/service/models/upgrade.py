@@ -6,11 +6,13 @@
 #
 # License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
 #
-from enum import Enum, auto
+from enum import auto
 from typing import List
 
+from .serializable import SerializableEnum
 
-class Upgrade(Enum):
+
+class Upgrade(SerializableEnum):
     NoUpgrade = auto()
     AccessoryUpgrade = auto()
     GearUpgrade = auto()

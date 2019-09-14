@@ -28,6 +28,7 @@ setup(
         'aiohttp',
         'aiohttp_jinja2',
         'aiohttp_security',
+        'apispec',
         'Jinja2',
         'passlib',
         'requests',

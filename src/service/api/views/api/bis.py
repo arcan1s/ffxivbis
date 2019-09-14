@@ -26,7 +26,7 @@ class BiSView(BiSBaseView):
             self.request.app.logger.exception('could not get bis')
             return wrap_exception(e, self.request.query)
 
-        return wrap_json(loot, self.request.query)
+        return wrap_json(loot)
 
     async def post(self) -> Response:
         try:
@@ -51,7 +51,7 @@ class BiSView(BiSBaseView):
             self.request.app.logger.exception('could not add bis')
             return wrap_exception(e, data)
 
-        return wrap_json({'piece': piece, 'player_id': player_id}, data)
+        return wrap_json({'piece': piece, 'player_id': player_id})
 
     async def put(self) -> Response:
         try:
@@ -71,4 +71,4 @@ class BiSView(BiSBaseView):
             self.request.app.logger.exception('could not parse bis')
             return wrap_exception(e, data)
 
-        return wrap_json({'link': link}, data)
+        return wrap_json({'link': link})

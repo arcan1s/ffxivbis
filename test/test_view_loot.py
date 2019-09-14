@@ -12,7 +12,7 @@ async def test_loot_get(server: Any, party: Party, player: Player, player2: Play
 
     response = await server.get('/api/v1/party/loot')
     assert response.status == 200
-    assert await response.text() == make_json([weapon, weapon], {}, 200)
+    assert await response.text() == make_json([weapon, weapon])
 
 
 async def test_loot_get_with_filter(server: Any, party: Party, player: Player, player2: Player, weapon: Piece) -> None:
@@ -21,17 +21,17 @@ async def test_loot_get_with_filter(server: Any, party: Party, player: Player, p
 
     response = await server.get('/api/v1/party/loot', params={'nick': player.nick})
     assert response.status == 200
-    assert await response.text() == make_json([weapon], {'nick': player.nick}, 200)
+    assert await response.text() == make_json([weapon])
 
     response = await server.get('/api/v1/party/loot', params={'nick': player2.nick})
     assert response.status == 200
-    assert await response.text() == make_json([weapon], {'nick': player2.nick}, 200)
+    assert await response.text() == make_json([weapon])
 
 
 async def test_loot_post_add(server: Any, player: Player, weapon: Piece) -> None:
     response = await server.get('/api/v1/party/loot')
     assert response.status == 200
-    assert await response.text() == make_json([], {}, 200)
+    assert await response.text() == make_json([])
     assert weapon not in player.loot
 
     response = await server.post('/api/v1/party/loot', json={
@@ -82,7 +82,5 @@ async def test_loot_put(server: Any, player: Player, player2: Player, head_with_
     })
     assert response.status == 200
     assert await response.text() == make_json(
-        [player2.player_id_with_counters(head_with_upgrade), player.player_id_with_counters(head_with_upgrade)],
-        {'is_tome': head_with_upgrade.is_tome, 'piece': head_with_upgrade.name},
-        200
+        [player2.player_id_with_counters(head_with_upgrade), player.player_id_with_counters(head_with_upgrade)]
     )

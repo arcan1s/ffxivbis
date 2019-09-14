@@ -47,7 +47,7 @@ class AriyalaParser:
     def get_ids(self, url: str, job: str) -> Dict[str, int]:
         norm_path = os.path.normpath(url)
         set_id = os.path.basename(norm_path)
-        response = requests.get('{}/store.app'.format(self.ariyala_url), params={'identifier': set_id})
+        response = requests.get(f'{self.ariyala_url}/store.app', params={'identifier': set_id})
         response.raise_for_status()
         data = response.json()
 
@@ -72,8 +72,7 @@ class AriyalaParser:
         if self.xivapi_key is not None:
             params['private_key'] = self.xivapi_key
 
-        response = requests.get('{}/item/{}'.format(self.xivapi_url, item_id),
-                                params=params, timeout=self.request_timeout)
+        response = requests.get(f'{self.xivapi_url}/item/{item_id}', params=params, timeout=self.request_timeout)
         response.raise_for_status()
         data = response.json()
 

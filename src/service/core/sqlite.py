@@ -29,7 +29,7 @@ class SQLiteDatabase(Database):
 
     @property
     def connection(self) -> str:
-        return 'sqlite:///{path}'.format(path=self.database_path)
+        return f'sqlite:///{self.database_path}'
 
     async def delete_piece(self, player_id: PlayerId, piece: Union[Piece, Upgrade]) -> None:
         player = await self.get_player(player_id)

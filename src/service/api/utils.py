@@ -14,27 +14,29 @@ from typing import Any, Mapping, List
 from .json import HttpEncoder
 
 
-def make_json(response: Any, args: Mapping[str, Any], code: int = 200) -> str:
-    return json.dumps({
-        'arguments': dict(args),
-        'response': response,
-        'status': code
-    }, cls=HttpEncoder, sort_keys=True)
+def make_json(response: Any) -> str:
+    return json.dumps(response, cls=HttpEncoder, sort_keys=True)
 
 
 def wrap_exception(exception: Exception, args: Mapping[str, Any], code: int = 500) -> Response:
     if isinstance(exception, HTTPException):
         raise exception  # reraise return
-    return wrap_json({'message': repr(exception)}, args, code)
+    return wrap_json({
+        'message': repr(exception),
+        'arguments': dict(args)
+    }, code)
 
 
 def wrap_invalid_param(params: List[str], args: Mapping[str, Any], code: int = 400) -> Response:
-    return wrap_json({'message': 'invalid or missing parameters: `{}`'.format(params)}, args, code)
+    return wrap_json({
+        'message': f'invalid or missing parameters: `{params}`',
+        'arguments': dict(args)
+    }, code)
 
 
-def wrap_json(response: Any, args: Mapping[str, Any], code: int = 200) -> Response:
+def wrap_json(response: Any, code: int = 200) -> Response:
     return Response(
-        text=make_json(response, args, code),
+        text=make_json(response),
         status=code,
         content_type='application/json'
     )

@@ -21,6 +21,7 @@ from service.core.party import Party
 
 from .auth import AuthorizationPolicy, authorize_factory
 from .routes import setup_routes
+from .spec import get_spec
 
 
 async def on_shutdown(app: web.Application) -> None:
@@ -53,6 +54,7 @@ def setup_service(config: Configuration, database: Database, loot: LootSelector,
         templates_root = app['templates_root'] = config.get('web', 'templates')
         app['static_root_url'] = '/static'
         aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(templates_root))
+    app['spec'] = get_spec(app)
 
     app.logger.info('setup configuration')
     app['config'] = config

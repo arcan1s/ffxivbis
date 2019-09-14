@@ -18,4 +18,4 @@ class LogoutView(LoginBaseView):
             self.request.app.logger.exception('cannot logout user')
             return wrap_exception(e, {})
 
-        return wrap_json({}, {})
+        return wrap_json({})

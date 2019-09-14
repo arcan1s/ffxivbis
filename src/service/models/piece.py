@@ -9,15 +9,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, List, Mapping, Type, Union
-
-from .upgrade import Upgrade
+from typing import Any, Dict, List, Mapping, Type, Union
 
 from service.core.exceptions import InvalidDataRow
 
+from .serializable import Serializable
+from .upgrade import Upgrade
+
+
 
 @dataclass
-class Piece:
+class Piece(Serializable):
     is_tome: bool
     name: str
 
@@ -74,6 +76,24 @@ class Piece:
             return Upgrade[piece_type]
         else:
             raise InvalidDataRow(data)
+
+    @classmethod
+    def model_properties(cls: Type[Serializable]) -> Dict[str, Any]:
+        return {
+            'is_tome': {
+                'description': 'is this piece tome gear or not',
+                'type': 'boolean'
+            },
+            'name': {
+                'description': 'piece name',
+                'required': True,
+                'type': 'string'
+            }
+        }
+
+    @classmethod
+    def model_required(cls: Type[Serializable]) -> List[str]:
+        return ['is_tome', 'name']
 
 
 @dataclass

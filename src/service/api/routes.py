@@ -13,6 +13,7 @@ from .views.api.login import LoginView
 from .views.api.logout import LogoutView
 from .views.api.loot import LootView
 from .views.api.player import PlayerView
+from .views.html.api import ApiDocVIew, ApiHtmlView
 from .views.html.bis import BiSHtmlView
 from .views.html.index import IndexHtmlView
 from .views.html.loot import LootHtmlView
@@ -24,10 +25,10 @@ from .views.html.users import UsersHtmlView
 
 def setup_routes(app: Application) -> None:
     # api routes
-    app.router.add_delete('/api/v1/login/{username}', LoginView)
+    app.router.add_delete('/admin/api/v1/login/{username}', LoginView)
     app.router.add_post('/api/v1/login', LoginView)
     app.router.add_post('/api/v1/logout', LogoutView)
-    app.router.add_put('/api/v1/login', LoginView)
+    app.router.add_put('/admin/api/v1/login', LoginView)
 
     app.router.add_get('/api/v1/party', PlayerView)
     app.router.add_post('/api/v1/party', PlayerView)
@@ -43,6 +44,9 @@ def setup_routes(app: Application) -> None:
     # html routes
     app.router.add_get('/', IndexHtmlView)
     app.router.add_get('/static/{resource_id}', StaticHtmlView)
+
+    app.router.add_get('/api-docs', ApiHtmlView)
+    app.router.add_get('/api-docs/swagger.json', ApiDocVIew)
 
     app.router.add_get('/party', PlayerHtmlView)
     app.router.add_post('/party', PlayerHtmlView)

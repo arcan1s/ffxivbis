@@ -11,22 +11,23 @@ from __future__ import annotations
 import re
 
 from dataclasses import dataclass
-from typing import List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 from .bis import BiS
 from .job import Job
 from .piece import Piece
+from .serializable import Serializable
 from .upgrade import Upgrade
 
 
 @dataclass
-class PlayerId:
+class PlayerId(Serializable):
     job: Job
     nick: str
 
     @property
     def pretty_name(self) -> str:
-        return '{} ({})'.format(self.nick, self.job.name)
+        return f'{self.nick} ({self.job.name})'
 
     @classmethod
     def from_pretty_name(cls: Type[PlayerId], value: str) -> Optional[PlayerId]:
@@ -34,6 +35,23 @@ class PlayerId:
         if matches is None:
             return None
         return PlayerId(Job[matches.group('job')], matches.group('nick'))
+
+    @classmethod
+    def model_properties(cls: Type[Serializable]) -> Dict[str, Any]:
+        return  {
+            'job': {
+                'description': 'player job name',
+                '$ref': cls.model_ref('Job')
+            },
+            'nick': {
+                'description': 'player nick name',
+                'type': 'string'
+            }
+        }
+
+    @classmethod
+    def model_required(cls: Type[Serializable]) -> List[str]:
+        return ['job', 'nick']
 
     def __hash__(self) -> int:
         return hash(str(self))
@@ -50,13 +68,7 @@ class PlayerIdWithCounters(PlayerId):
 
 
 @dataclass
-class PlayerIdFull:
-    jobs: List[Job]
-    nick: str
-
-
-@dataclass
-class Player:
+class Player(Serializable):
     job: Job
     nick: str
     bis: BiS
@@ -67,6 +79,45 @@ class Player:
     @property
     def player_id(self) -> PlayerId:
         return PlayerId(self.job, self.nick)
+
+    @classmethod
+    def model_properties(cls: Type[Serializable]) -> Dict[str, Any]:
+        return {
+            'bis': {
+                'description': 'player BiS',
+                '$ref': cls.model_ref('BiS')
+            },
+            'job': {
+                'description': 'player job name',
+                '$ref': cls.model_ref('Job')
+            },
+            'link': {
+                'description': 'link to player BiS',
+                'type': 'string'
+            },
+            'loot': {
+                'description': 'player looted items',
+                'type': 'array',
+                'items': {
+                    'anyOf': [
+                        {'$ref': cls.model_ref('Piece')},
+                        {'$ref': cls.model_ref('Upgrade')}
+                    ]
+                }
+            },
+            'nick': {
+                'description': 'player nick name',
+                'type': 'string'
+            },
+            'priority': {
+                'description': 'player loot priority',
+                'type': 'integer'
+            }
+        }
+
+    @classmethod
+    def model_required(cls: Type[Serializable]) -> List[str]:
+        return ['bis', 'job', 'loot', 'nick', 'priority']
 
     def player_id_with_counters(self, piece: Union[Piece, Upgrade, None]) -> PlayerIdWithCounters:
         return PlayerIdWithCounters(self.job, self.nick, self.is_required(piece), self.priority,

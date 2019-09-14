@@ -36,9 +36,7 @@ class PostgresDatabase(Database):
 
     @property
     def connection(self) -> str:
-        return 'postgresql://{username}:{password}@{host}:{port}/{database}'.format(
-            username=self.username, password=self.password, host=self.host, port=self.port, database=self.database
-        )
+        return f'postgresql://{self.username}:{self.password}@{self.host}:{self.port}/{self.database}'
 
     async def init(self) -> None:
         self.pool = await asyncpg.create_pool(host=self.host, port=self.port, username=self.username,

@@ -26,7 +26,7 @@ class LootView(LootBaseView):
             self.request.app.logger.exception('could not get loot')
             return wrap_exception(e, self.request.query)
 
-        return wrap_json(loot, self.request.query)
+        return wrap_json(loot)
 
     async def post(self) -> Response:
         try:
@@ -51,7 +51,7 @@ class LootView(LootBaseView):
             self.request.app.logger.exception('could not add loot')
             return wrap_exception(e, data)
 
-        return wrap_json({'piece': piece, 'player_id': player_id}, data)
+        return wrap_json({'piece': piece, 'player_id': player_id})
 
     async def put(self) -> Response:
         try:
@@ -71,4 +71,4 @@ class LootView(LootBaseView):
             self.request.app.logger.exception('could not suggest loot')
             return wrap_exception(e, data)
 
-        return wrap_json(players, data)
+        return wrap_json(players)

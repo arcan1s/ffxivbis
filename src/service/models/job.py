@@ -8,13 +8,14 @@
 #
 from __future__ import annotations
 
-from enum import Enum, auto
+from enum import auto
 from typing import Tuple
 
 from .piece import Piece, PieceAccessory, Weapon
+from .serializable import SerializableEnum
 
 
-class Job(Enum):
+class Job(SerializableEnum):
     PLD = auto()
     WAR = auto()
     DRK = auto()

@@ -11,7 +11,7 @@ async def test_players_get(server: Any, party: Party, player: Player) -> None:
 
     response = await server.get('/api/v1/party')
     assert response.status == 200
-    assert await response.text() == make_json(party.party, {}, 200)
+    assert await response.text() == make_json(party.party)
 
 
 async def test_players_get_with_filter(server: Any, party: Party, player: Player, player2: Player) -> None:
@@ -19,11 +19,11 @@ async def test_players_get_with_filter(server: Any, party: Party, player: Player
 
     response = await server.get('/api/v1/party', params={'nick': player.nick})
     assert response.status == 200
-    assert await response.text() == make_json([player], {'nick': player.nick}, 200)
+    assert await response.text() == make_json([player])
 
     response = await server.get('/api/v1/party', params={'nick': player2.nick})
     assert response.status == 200
-    assert await response.text() == make_json([player2], {'nick': player2.nick}, 200)
+    assert await response.text() == make_json([player2])
 
 
 async def test_players_post_add(server: Any, party: Party, player: Player) -> None:
@@ -31,7 +31,7 @@ async def test_players_post_add(server: Any, party: Party, player: Player) -> No
 
     response = await server.get('/api/v1/party', params={'nick': player.nick})
     assert response.status == 200
-    assert await response.text() == make_json([], {'nick': player.nick}, 200)
+    assert await response.text() == make_json([])
 
     response = await server.post('/api/v1/party', json={
         'action': 'add',
@@ -46,7 +46,7 @@ async def test_players_post_add(server: Any, party: Party, player: Player) -> No
 async def test_players_post_remove(server: Any, party: Party, player: Player) -> None:
     response = await server.get('/api/v1/party', params={'nick': player.nick})
     assert response.status == 200
-    assert await response.text() == make_json([player], {'nick': player.nick}, 200)
+    assert await response.text() == make_json([player])
 
     response = await server.post('/api/v1/party', json={
         'action': 'remove',
@@ -57,7 +57,7 @@ async def test_players_post_remove(server: Any, party: Party, player: Player) ->
 
     response = await server.get('/api/v1/party', params={'nick': player.nick})
     assert response.status == 200
-    assert await response.text() == make_json([], {'nick': player.nick}, 200)
+    assert await response.text() == make_json([])
 
     assert player.player_id not in party.players
 
@@ -68,7 +68,7 @@ async def test_players_post_add_with_link(server: Any, party: Party, player: Pla
 
     response = await server.get('/api/v1/party', params={'nick': player.nick})
     assert response.status == 200
-    assert await response.text() == make_json([], {'nick': player.nick}, 200)
+    assert await response.text() == make_json([])
 
     response = await server.post('/api/v1/party', json={
         'action': 'add',

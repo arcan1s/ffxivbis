@@ -96,7 +96,7 @@ class Database:
         raise NotImplementedError
 
     def migration(self) -> None:
-        self.logger.info('perform migrations at {}'.format(self.connection))
+        self.logger.info('perform migrations')
         backend = get_backend(self.connection)
         migrations = read_migrations(self.migrations_path)
         with backend.lock():

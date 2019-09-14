@@ -23,7 +23,7 @@ class LoginView(LoginBaseView):
             self.request.app.logger.exception('cannot remove user')
             return wrap_exception(e, {'username': username})
 
-        return wrap_json({}, {'username': username})
+        return wrap_json({})
 
     async def post(self) -> Response:
         try:
@@ -41,7 +41,7 @@ class LoginView(LoginBaseView):
             self.request.app.logger.exception('cannot login user')
             return wrap_exception(e, data)
 
-        return wrap_json({}, data)
+        return wrap_json({})
 
     async def put(self) -> Response:
         try:
@@ -56,7 +56,7 @@ class LoginView(LoginBaseView):
         try:
             await self.create_user(data['username'], data['password'], data.get('permission', 'get'))
         except Exception as e:
-            self.request.app.logger.exception('cannot login user')
+            self.request.app.logger.exception('cannot create user')
             return wrap_exception(e, data)
 
-        return wrap_json({}, data)
+        return wrap_json({})

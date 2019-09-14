@@ -14,7 +14,7 @@ async def test_bis_get(server: Any, party: Party, player: Player, player2: Playe
 
     response = await server.get('/api/v1/party/bis')
     assert response.status == 200
-    assert await response.text() == make_json([weapon, weapon, head_with_upgrade], {}, 200)
+    assert await response.text() == make_json([weapon, weapon, head_with_upgrade])
 
 
 async def test_bis_get_with_filter(server: Any, party: Party, player: Player, player2: Player,
@@ -25,11 +25,11 @@ async def test_bis_get_with_filter(server: Any, party: Party, player: Player, pl
 
     response = await server.get('/api/v1/party/bis', params={'nick': player.nick})
     assert response.status == 200
-    assert await response.text() == make_json([weapon], {'nick': player.nick}, 200)
+    assert await response.text() == make_json([weapon])
 
     response = await server.get('/api/v1/party/bis', params={'nick': player2.nick})
     assert response.status == 200
-    assert await response.text() == make_json([weapon, head_with_upgrade], {'nick': player2.nick}, 200)
+    assert await response.text() == make_json([weapon, head_with_upgrade])
 
 
 async def test_bis_post_add(server: Any, player: Player, head_with_upgrade: Piece) -> None:
