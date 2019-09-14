@@ -35,7 +35,7 @@ async def test_bis_get_with_filter(server: Any, party: Party, player: Player, pl
 async def test_bis_post_add(server: Any, player: Player, head_with_upgrade: Piece) -> None:
     response = await server.post('/api/v1/party/bis', json={
         'action': 'add',
-        'piece': head_with_upgrade.name,
+        'name': head_with_upgrade.name,
         'is_tome': head_with_upgrade.is_tome,
         'job': player.job.name,
         'nick': player.nick
@@ -47,7 +47,7 @@ async def test_bis_post_add(server: Any, player: Player, head_with_upgrade: Piec
 async def test_bis_post_remove(server: Any, player: Player, player2: Player, weapon: Piece) -> None:
     response = await server.post('/api/v1/party/bis', json={
         'action': 'remove',
-        'piece': weapon.name,
+        'name': weapon.name,
         'is_tome': weapon.is_tome,
         'job': player.job.name,
         'nick': player.nick

@@ -46,7 +46,9 @@ class Piece(Serializable):
     @classmethod
     def get(cls: Type[Piece], data: Mapping[str, Any]) -> Union[Piece, Upgrade]:
         try:
-            piece_type = data['piece']
+            piece_type = data.get('piece') or data.get('name')
+            if piece_type is None:
+                raise KeyError
             is_tome = data['is_tome'] in ('yes', 'on', '1', 1, True)
         except KeyError:
             raise InvalidDataRow(data)

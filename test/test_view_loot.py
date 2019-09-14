@@ -36,7 +36,7 @@ async def test_loot_post_add(server: Any, player: Player, weapon: Piece) -> None
 
     response = await server.post('/api/v1/party/loot', json={
         'action': 'add',
-        'piece': weapon.name,
+        'name': weapon.name,
         'is_tome': weapon.is_tome,
         'job': player.job.name,
         'nick': player.nick
@@ -53,7 +53,7 @@ async def test_loot_post_remove(server: Any, player: Player, head_with_upgrade: 
 
     response = await server.post('/api/v1/party/loot', json={
         'action': 'remove',
-        'piece': weapon.name,
+        'name': weapon.name,
         'is_tome': weapon.is_tome,
         'job': player.job.name,
         'nick': player.nick
@@ -65,7 +65,7 @@ async def test_loot_post_remove(server: Any, player: Player, head_with_upgrade: 
 
     response = await server.post('/api/v1/party/loot', json={
         'action': 'remove',
-        'piece': weapon.name,
+        'name': weapon.name,
         'is_tome': weapon.is_tome,
         'job': player.job.name,
         'nick': player.nick
@@ -78,7 +78,7 @@ async def test_loot_post_remove(server: Any, player: Player, head_with_upgrade: 
 async def test_loot_put(server: Any, player: Player, player2: Player, head_with_upgrade: Piece) -> None:
     response = await server.put('/api/v1/party/loot', json={
         'is_tome': head_with_upgrade.is_tome,
-        'piece': head_with_upgrade.name
+        'name': head_with_upgrade.name
     })
     assert response.status == 200
     assert await response.text() == make_json(

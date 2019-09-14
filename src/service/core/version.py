@@ -6,4 +6,4 @@
 #
 # License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
 #
-__version__ = '0.1.0'
+__version__ = '0.1.1'
