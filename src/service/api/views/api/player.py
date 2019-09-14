@@ -54,8 +54,8 @@ class PlayerView(PlayerBaseView, OpenApi):
         return 'Create new party player or remove existing'
 
     @classmethod
-    def endpoint_post_request_body(cls: Type[OpenApi], content_type: str) -> str:
-        return 'PlayerEdit'
+    def endpoint_post_request_body(cls: Type[OpenApi], content_type: str) -> List[str]:
+        return ['PlayerEdit']
 
     @classmethod
     def endpoint_post_responses(cls: Type[OpenApi]) -> Dict[str, Any]:

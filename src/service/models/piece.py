@@ -86,7 +86,6 @@ class Piece(Serializable):
             },
             'name': {
                 'description': 'piece name',
-                'required': True,
                 'type': 'string'
             }
         }

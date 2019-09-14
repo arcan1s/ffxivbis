@@ -16,8 +16,37 @@ from service.models.serializable import Serializable
 class OpenApi(Serializable):
 
     @classmethod
-    def endpoint_delete_spec(cls: Type[OpenApi]) -> Dict[str, Any]:
+    def endpoint_delete_description(cls: Type[OpenApi]) -> Optional[str]:
+        return None
+
+    @classmethod
+    def endpoint_delete_parameters(cls: Type[OpenApi]) -> List[Dict[str, Any]]:
+        return []
+
+    @classmethod
+    def endpoint_delete_responses(cls: Type[OpenApi]) -> Dict[str, Any]:
         return {}
+
+    @classmethod
+    def endpoint_delete_summary(cls: Type[OpenApi]) -> Optional[str]:
+        return None
+
+    @classmethod
+    def endpoint_delete_tags(cls: Type[OpenApi]) -> List[str]:
+        return []
+
+    @classmethod
+    def endpoint_delete_spec(cls: Type[OpenApi]) -> Dict[str, Any]:
+        description = cls.endpoint_delete_description()
+        if description is None:
+            return {}
+        return {
+            'description': description,
+            'parameters': cls.endpoint_delete_parameters(),
+            'responses': cls.endpoint_with_default_responses(cls.endpoint_delete_responses()),
+            'summary': cls.endpoint_delete_summary(),
+            'tags': cls.endpoint_delete_tags()
+        }
 
     @classmethod
     def endpoint_get_description(cls: Type[OpenApi]) -> Optional[str]:
@@ -61,8 +90,8 @@ class OpenApi(Serializable):
         return None
 
     @classmethod
-    def endpoint_post_request_body(cls: Type[OpenApi], content_type: str) -> str:
-        return ''
+    def endpoint_post_request_body(cls: Type[OpenApi], content_type: str) -> List[str]:
+        return []
 
     @classmethod
     def endpoint_post_responses(cls: Type[OpenApi]) -> Dict[str, Any]:
@@ -87,7 +116,10 @@ class OpenApi(Serializable):
             'requestBody': {
                 'content': {
                     content_type: {
-                        'schema': {'$ref': cls.model_ref(cls.endpoint_post_request_body(content_type))}
+                        'schema': {'allOf': [
+                            {'$ref': cls.model_ref(ref)}
+                            for ref in cls.endpoint_post_request_body(content_type)
+                        ]}
                     }
                     for content_type in cls.endpoint_post_consumes()
                 }
@@ -95,6 +127,54 @@ class OpenApi(Serializable):
             'responses': cls.endpoint_with_default_responses(cls.endpoint_post_responses()),
             'summary': cls.endpoint_post_summary(),
             'tags': cls.endpoint_post_tags()
+        }
+
+    @classmethod
+    def endpoint_put_consumes(cls: Type[OpenApi]) -> List[str]:
+        return ['application/json']
+
+    @classmethod
+    def endpoint_put_description(cls: Type[OpenApi]) -> Optional[str]:
+        return None
+
+    @classmethod
+    def endpoint_put_request_body(cls: Type[OpenApi], content_type: str) -> List[str]:
+        return []
+
+    @classmethod
+    def endpoint_put_responses(cls: Type[OpenApi]) -> Dict[str, Any]:
+        return {}
+
+    @classmethod
+    def endpoint_put_summary(cls: Type[OpenApi]) -> Optional[str]:
+        return None
+
+    @classmethod
+    def endpoint_put_tags(cls: Type[OpenApi]) -> List[str]:
+        return []
+
+    @classmethod
+    def endpoint_put_spec(cls: Type[OpenApi]) -> Dict[str, Any]:
+        description = cls.endpoint_put_description()
+        if description is None:
+            return {}
+        return {
+            'consumes': cls.endpoint_put_consumes(),
+            'description': description,
+            'requestBody': {
+                'content': {
+                    content_type: {
+                        'schema': {'allOf': [
+                            {'$ref': cls.model_ref(ref)}
+                            for ref in cls.endpoint_put_request_body(content_type)
+                        ]}
+                    }
+                    for content_type in cls.endpoint_put_consumes()
+                }
+            },
+            'responses': cls.endpoint_with_default_responses(cls.endpoint_put_responses()),
+            'summary': cls.endpoint_put_summary(),
+            'tags': cls.endpoint_put_tags()
         }
 
     @classmethod

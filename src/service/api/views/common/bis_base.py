@@ -10,6 +10,7 @@ from aiohttp.web import View
 from typing import List, Optional
 
 from service.core.ariyala_parser import AriyalaParser
+from service.models.bis import BiS
 from service.models.piece import Piece
 from service.models.player import PlayerId
 
@@ -35,13 +36,13 @@ class BiSBaseView(View):
             return await self.bis_remove(player_id, piece)
         return None
 
-    async def bis_put(self, player_id: PlayerId, link: str) -> str:
+    async def bis_put(self, player_id: PlayerId, link: str) -> BiS:
         parser = AriyalaParser(self.request.app['config'])
         items = parser.get(link, player_id.job.name)
         for piece in items:
             await self.request.app['party'].set_item_bis(player_id, piece)
         await self.request.app['party'].set_bis_link(player_id, link)
-        return link
+        return self.request.app['party'].players[player_id].bis
 
     async def bis_remove(self, player_id: PlayerId, piece: Piece) -> Piece:
         await self.request.app['party'].remove_item_bis(player_id, piece)

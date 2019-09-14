@@ -7,6 +7,7 @@
 # License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
 #
 from aiohttp.web import Response
+from typing import Any, Dict, List, Optional, Type
 
 from service.models.job import Job
 from service.models.piece import Piece
@@ -15,8 +16,92 @@ from service.models.player import PlayerId
 from service.api.utils import wrap_exception, wrap_invalid_param, wrap_json
 from service.api.views.common.bis_base import BiSBaseView
 
+from .openapi import OpenApi
 
-class BiSView(BiSBaseView):
+
+class BiSView(BiSBaseView, OpenApi):
+
+    @classmethod
+    def endpoint_get_description(cls: Type[OpenApi]) -> Optional[str]:
+        return 'Get party players BiS items'
+
+    @classmethod
+    def endpoint_get_parameters(cls: Type[OpenApi]) -> List[Dict[str, Any]]:
+        return [
+            {
+                'name': 'nick',
+                'in': 'query',
+                'description': 'player nick name to filter',
+                'required': False,
+                'type': 'string'
+            }
+        ]
+
+    @classmethod
+    def endpoint_get_responses(cls: Type[OpenApi]) -> Dict[str, Any]:
+        return {
+            '200': {'content': {'application/json': { 'schema': {
+                'type': 'array',
+                'items': {
+                    'allOf': [{'$ref': cls.model_ref('Piece')}]
+                }}}}}
+        }
+
+    @classmethod
+    def endpoint_get_summary(cls: Type[OpenApi]) -> Optional[str]:
+        return 'get party BiS items'
+
+    @classmethod
+    def endpoint_get_tags(cls: Type[OpenApi]) -> List[str]:
+        return ['BiS']
+
+    @classmethod
+    def endpoint_post_description(cls: Type[OpenApi]) -> Optional[str]:
+        return 'Add new item to player BiS or remove existing'
+
+    @classmethod
+    def endpoint_post_request_body(cls: Type[OpenApi], content_type: str) -> List[str]:
+        return ['Piece', 'PlayerEdit']
+
+    @classmethod
+    def endpoint_post_responses(cls: Type[OpenApi]) -> Dict[str, Any]:
+        return {
+            '200': {'content': {'application/json': {'schema':  {'$ref': cls.model_ref('Loot')}}}}
+        }
+
+    @classmethod
+    def endpoint_post_summary(cls: Type[OpenApi]) -> Optional[str]:
+        return 'edit BiS'
+
+    @classmethod
+    def endpoint_post_tags(cls: Type[OpenApi]) -> List[str]:
+        return ['BiS']
+
+    @classmethod
+    def endpoint_put_consumes(cls: Type[OpenApi]) -> List[str]:
+        return ['application/json']
+
+    @classmethod
+    def endpoint_put_description(cls: Type[OpenApi]) -> Optional[str]:
+        return 'Generate new BiS set'
+
+    @classmethod
+    def endpoint_put_request_body(cls: Type[OpenApi], content_type: str) -> List[str]:
+        return ['BiSLink']
+
+    @classmethod
+    def endpoint_put_responses(cls: Type[OpenApi]) -> Dict[str, Any]:
+        return {
+            '200': {'content': {'application/json': {'schema': {'$ref': cls.model_ref('BiS')}}}}
+        }
+
+    @classmethod
+    def endpoint_put_summary(cls: Type[OpenApi]) -> Optional[str]:
+        return 'update BiS'
+
+    @classmethod
+    def endpoint_put_tags(cls: Type[OpenApi]) -> List[str]:
+        return ['BiS']
 
     async def get(self) -> Response:
         try:
@@ -34,7 +119,7 @@ class BiSView(BiSBaseView):
         except Exception:
             data = dict(await self.request.post())
 
-        required = ['action', 'is_tome', 'job', 'nick', 'piece']
+        required = ['action', 'is_tome', 'job', 'name', 'nick']
         if any(param not in data for param in required):
             return wrap_invalid_param(required, data)
 
@@ -65,10 +150,10 @@ class BiSView(BiSBaseView):
 
         try:
             player_id = PlayerId(Job[data['job']], data['nick'])
-            link = await self.bis_put(player_id, data['link'])
+            bis = await self.bis_put(player_id, data['link'])
 
         except Exception as e:
             self.request.app.logger.exception('could not parse bis')
             return wrap_exception(e, data)
 
-        return wrap_json({'link': link})
+        return wrap_json(bis)

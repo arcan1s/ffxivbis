@@ -11,9 +11,40 @@ import itertools
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Type, Union
 
+from .job import Job
 from .piece import Piece
 from .serializable import Serializable
 from .upgrade import Upgrade
+
+
+@dataclass
+class BiSLink(Serializable):
+    nick: str
+    job: Job
+    link: str
+
+    @classmethod
+    def model_properties(cls: Type[Serializable]) -> Dict[str, Any]:
+        return {
+            'job': {
+                'description': 'player job name',
+                '$ref': cls.model_ref('Job')
+            },
+            'link': {
+                'description': 'link to BiS set',
+                'example': 'https://ffxiv.ariyala.com/19V5R',
+                'type': 'string'
+            },
+            'nick': {
+                'description': 'player nick name',
+                'example': 'Siuan Sanche',
+                'type': 'string'
+            }
+        }
+
+    @classmethod
+    def model_required(cls: Type[Serializable]) -> List[str]:
+        return ['job', 'link', 'nick']
 
 
 @dataclass

@@ -66,6 +66,48 @@ class PlayerIdWithCounters(PlayerId):
     loot_count_total: int
     bis_count_total: int
 
+    @classmethod
+    def model_properties(cls: Type[Serializable]) -> Dict[str, Any]:
+        return {
+            'bis_count_total': {
+                'description': 'total savage pieces in BiS',
+                'type': 'integer'
+            },
+            'is_required': {
+                'description': 'is item required by BiS or not',
+                'type': 'boolean'
+            },
+            'job': {
+                'description': 'player job name',
+                '$ref': cls.model_ref('Job')
+            },
+            'loot_count': {
+                'description': 'count of this item which was already looted',
+                'type': 'integer'
+            },
+            'loot_count_bis': {
+                'description': 'count of BiS items which were already looted',
+                'type': 'integer'
+            },
+            'loot_count_total': {
+                'description': 'total count of items which were looted',
+                'type': 'integer'
+            },
+            'nick': {
+                'description': 'player nick name',
+                'type': 'string'
+            },
+            'priority': {
+                'description': 'player loot priority',
+                'type': 'integer'
+            }
+        }
+
+    @classmethod
+    def model_required(cls: Type[Serializable]) -> List[str]:
+        return ['bis_count_total', 'is_required', 'job', 'loot_count',
+                'loot_count_bis', 'loot_count_total', 'nick', 'priority']
+
 
 @dataclass
 class Player(Serializable):

@@ -11,13 +11,15 @@ from apispec import APISpec
 
 from service.core.version import __version__
 from service.models.action import Action
-from service.models.bis import BiS
+from service.models.bis import BiS, BiSLink
 from service.models.error import Error
 from service.models.job import Job
+from service.models.loot import Loot
 from service.models.piece import Piece
-from service.models.player import Player, PlayerId
+from service.models.player import Player, PlayerId, PlayerIdWithCounters
 from service.models.player_edit import PlayerEdit
 from service.models.upgrade import Upgrade
+from service.models.user import User
 
 
 def get_spec(app: Application) -> APISpec:
@@ -45,13 +47,17 @@ def get_spec(app: Application) -> APISpec:
     # components
     spec.components.schema(Action.model_name(), Action.model_spec())
     spec.components.schema(BiS.model_name(), BiS.model_spec())
+    spec.components.schema(BiSLink.model_name(), BiSLink.model_spec())
     spec.components.schema(Error.model_name(), Error.model_spec())
     spec.components.schema(Job.model_name(), Job.model_spec())
+    spec.components.schema(Loot.model_name(), Loot.model_spec())
     spec.components.schema(Piece.model_name(), Piece.model_spec())
     spec.components.schema(Player.model_name(), Player.model_spec())
     spec.components.schema(PlayerEdit.model_name(), PlayerEdit.model_spec())
     spec.components.schema(PlayerId.model_name(), PlayerId.model_spec())
+    spec.components.schema(PlayerIdWithCounters.model_name(), PlayerIdWithCounters.model_spec())
     spec.components.schema(Upgrade.model_name(), Upgrade.model_spec())
+    spec.components.schema(User.model_name(), User.model_spec())
 
     # default responses
     spec.components.response('BadRequest', dict(

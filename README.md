@@ -2,104 +2,30 @@
 
 Service which allows to manage savage loot distribution easy.
 
-## REST API
+## Installation and usage
 
-### Party API
+This service requires python >= 3.7. For other dependencies see `setup.py`.
 
-* `GET /api/v1/party`
-    
-    Get party list. Parameters:
-    
-    * `nick`: player full nickname to filter, string, optional.
-    
-* `POST /api/v1/party`
+In general installation process looks like:
 
-    Add or remove party member. Parameters:
-    
-    * `action`: action to do, string, required. One of `add`, `remove`.
-    * `job`: player job name, string, required.
-    * `nick`: player nickname, string, required.
-    * `link`: link to ariyala set to parse BiS, string, optional.
-    
-### BiS API
+```bash
+python setup.py build
+python setup.py test  # if you want to run tests
+```
 
-* `GET /api/v1/party/bis`
+Service can be run from `src` directory by using command:
 
-    Get party/player BiS. Parameters:
-    
-    * `nick`: player full nickname to filter, string, optional.
-    
-* `POST /api/v1/party/bis`
+```bash
+python -m service.application.application
+```
 
-    Add or remove item to/from BiS. Parameters:
-    
-    * `action`: action to do, string, required. One of `add`, `remove`.
-    * `job`: player job name, string, required.
-    * `nick`: player nickname, string, required.
-    * `is_tome`: is item tome gear or not, bool, required.
-    * `piece`: item name, string, required.
-    
-* `PUT /api/v1/party/bis`
+To see all available options type `--help`.
 
-    Create BiS from ariyala link. Parameters:
-    
-    * `job`: player job name, string, required.
-    * `nick`: player nickname, string, required.
-    * `link`: link to ariyala set to parse BiS, string, required.
-    
-### Loot API
+## Web service
 
-* `GET /api/v1/party/loot`
+REST API documentation is available at `http://0.0.0.0:8000/api-docs`. HTML representation is available at `http://0.0.0.0:8000`.
 
-    Get party/player loot. Parameters:
-    
-    * `nick`: player full nickname to filter, string, optional.
-    
-* `POST /api/v1/party/loot`
-
-    Add or remove item to/from loot list. Parameters:
-    
-    * `action`: action to do, string, required. One of `add`, `remove`.
-    * `job`: player job name, string, required.
-    * `nick`: player nickname, string, required.
-    * `is_tome`: is item tome gear or not, bool, required.
-    * `piece`: item name, string, required.
-    
-* `PUT /api/v1/party/loot`
-
-    Suggest players to get loot. Parameters:
-    
-    * `is_tome`: is item tome gear or not, bool, required.
-    * `piece`: item name, string, required.
-    
-    
-### Users API
-
-* `DELETE /api/v1/login/{username}`
-    
-    Delete user with specified username. Parameters:
-    
-    * `username`: username to remove, required.
-    
-* `POST /api/v1/login`
-       
-    Login with credentials. Parameters:
-    
-    * `username`: username to login, string, required.
-    * `password`: password to login, string, required.
-    
-* `PUT /api/v1/login`
-
-    Create new user. Parameters:
-    
-    * `username`: username to login, string, required.
-    * `password`: password to login, string, 
-    * `permission`: user permission, one of `get`, `post`, optional, default `get`.
-    
-* `POST /api/v1/logout`
-
-    Logout.
-
+*Note*: host and port depend on configuration settings. 
 
 ## Configuration
 
