@@ -5,7 +5,7 @@ from ffxivbis.models.piece import Piece
 from ffxivbis.models.player import Player
 
 
-def test_get(parser: AriyalaParser, player: Player, bis_link: str, bis_set: List[Piece]) -> None:
-    items = parser.get(bis_link, player.job.name)
+async def test_get(parser: AriyalaParser, player: Player, bis_link: str, bis_set: List[Piece]) -> None:
+    items = await parser.get(bis_link, player.job.name)
 
     assert items == bis_set

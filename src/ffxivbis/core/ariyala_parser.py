@@ -7,8 +7,9 @@
 # License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
 #
 import os
-import requests
+import socket
 
+from aiohttp import ClientSession
 from typing import Dict, List, Optional
 
 from ffxivbis.models.piece import Piece
@@ -22,7 +23,6 @@ class AriyalaParser:
         self.ariyala_url = config.get('ariyala', 'ariyala_url')
         self.xivapi_key = config.get('ariyala', 'xivapi_key', fallback=None)
         self.xivapi_url = config.get('ariyala', 'xivapi_url')
-        self.request_timeout = config.getfloat('ariyala', 'request_timeout', fallback=30)
 
     def __remap_key(self, key: str) -> Optional[str]:
         if key == 'mainhand':
@@ -37,19 +37,20 @@ class AriyalaParser:
             return key
         return None
 
-    def get(self, url: str, job: str) -> List[Piece]:
-        items = self.get_ids(url, job)
+    async def get(self, url: str, job: str) -> List[Piece]:
+        items = await self.get_ids(url, job)
         return [
-            Piece.get({'piece': slot, 'is_tome': self.get_is_tome(item_id)})  # type: ignore
+            Piece.get({'piece': slot, 'is_tome': await self.get_is_tome(item_id)})  # type: ignore
             for slot, item_id in items.items()
         ]
 
-    def get_ids(self, url: str, job: str) -> Dict[str, int]:
+    async def get_ids(self, url: str, job: str) -> Dict[str, int]:
         norm_path = os.path.normpath(url)
         set_id = os.path.basename(norm_path)
-        response = requests.get(f'{self.ariyala_url}/store.app', params={'identifier': set_id})
-        response.raise_for_status()
-        data = response.json()
+        async with ClientSession() as session:
+            async with session.get(f'{self.ariyala_url}/store.app', params={'identifier': set_id}) as response:
+                response.raise_for_status()
+                data = await response.json(content_type='text/html')
 
         # it has job in response but for some reasons job name differs sometimes from one in dictionary,
         # e.g. http://ffxiv.ariyala.com/store.app?identifier=1AJB8
@@ -67,13 +68,16 @@ class AriyalaParser:
             result[key] = value
         return result
 
-    def get_is_tome(self, item_id: int) -> bool:
+    async def get_is_tome(self, item_id: int) -> bool:
         params = {'columns': 'IsEquippable'}
         if self.xivapi_key is not None:
             params['private_key'] = self.xivapi_key
 
-        response = requests.get(f'{self.xivapi_url}/item/{item_id}', params=params, timeout=self.request_timeout)
-        response.raise_for_status()
-        data = response.json()
+        async with ClientSession() as session:
+            # for some reasons ipv6 does not work for me
+            session.connector._family = socket.AF_INET  # type: ignore
+            async with session.get(f'{self.xivapi_url}/item/{item_id}', params=params) as response:
+                response.raise_for_status()
+                data = await response.json()
 
         return data['IsEquippable'] == 0  # don't ask

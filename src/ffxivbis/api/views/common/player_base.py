@@ -24,7 +24,7 @@ class PlayerBaseView(View):
 
         if link:
             parser = AriyalaParser(self.request.app['config'])
-            items = parser.get(link, job.name)
+            items = await parser.get(link, job.name)
             for piece in items:
                 await self.request.app['party'].set_item_bis(player_id, piece)
 

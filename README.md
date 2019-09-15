@@ -63,7 +63,6 @@ and add new password to configuration.
     Settings related to ariyala parser.
     
     * `ariyala_url`: ariyala base url, string, required.
-    * `request_timeout`: xivapi request timeout, float, optional, default 30.
     * `xivapi_key`: xivapi developer key, string, optional.
     * `xivapi_url`: xivapi base url, string, required.
     

@@ -33,7 +33,6 @@ setup(
         'iniherit',
         'Jinja2',
         'passlib',
-        'requests',
         'yoyo_migrations'
     ],
     setup_requires=[

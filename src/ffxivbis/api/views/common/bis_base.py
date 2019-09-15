@@ -38,7 +38,7 @@ class BiSBaseView(View):
 
     async def bis_put(self, player_id: PlayerId, link: str) -> BiS:
         parser = AriyalaParser(self.request.app['config'])
-        items = parser.get(link, player_id.job.name)
+        items = await parser.get(link, player_id.job.name)
         for piece in items:
             await self.request.app['party'].set_item_bis(player_id, piece)
         await self.request.app['party'].set_bis_link(player_id, link)
