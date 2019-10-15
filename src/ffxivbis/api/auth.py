@@ -8,7 +8,7 @@
 #
 from aiohttp.web import middleware, Request, Response
 from aiohttp_security import AbstractAuthorizationPolicy, check_permission
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
 
 from ffxivbis.core.database import Database
 
@@ -18,12 +18,19 @@ class AuthorizationPolicy(AbstractAuthorizationPolicy):
     def __init__(self, database: Database) -> None:
         self.database = database
 
+    def split_identity(self, identity: str) -> Tuple[str, str]:
+        # identity is party_id + username
+        party_id, username = identity.split('+')
+        return party_id, username
+
     async def authorized_userid(self, identity: str) -> Optional[str]:
-        user = await self.database.get_user(identity)
-        return identity if user is not None else None
+        party_id, username = self.split_identity(identity)
+        user = await self.database.get_user(party_id, username)
+        return username if user is not None else None
 
     async def permits(self, identity: str, permission: str, context: str = None) -> bool:
-        user = await self.database.get_user(identity)
+        party_id, username = self.split_identity(identity)
+        user = await self.database.get_user(party_id, username)
         if user is None:
             return False
         if user.username != identity:

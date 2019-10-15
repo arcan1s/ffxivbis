@@ -16,8 +16,7 @@ from aiohttp_security import CookiesIdentityPolicy
 
 from ffxivbis.core.config import Configuration
 from ffxivbis.core.database import Database
-from ffxivbis.core.loot_selector import LootSelector
-from ffxivbis.core.party import Party
+from ffxivbis.core.party_aggregator import PartyAggregator
 
 from .auth import AuthorizationPolicy, authorize_factory
 from .routes import setup_routes
@@ -35,7 +34,7 @@ def run_server(app: web.Application) -> None:
                 port=app['config'].getint('web', 'port'),
                 handle_signals=False)
 
-def setup_service(config: Configuration, database: Database, loot: LootSelector, party: Party) -> web.Application:
+def setup_service(config: Configuration, database: Database, aggregator: PartyAggregator) -> web.Application:
     app = web.Application(logger=logging.getLogger('http'))
     app.on_shutdown.append(on_shutdown)
 
@@ -62,10 +61,7 @@ def setup_service(config: Configuration, database: Database, loot: LootSelector,
     app.logger.info('setup database')
     app['database'] = database
 
-    app.logger.info('setup loot selector')
-    app['loot'] = loot
-
-    app.logger.info('setup party worker')
-    app['party'] = party
+    app.logger.info('setup aggregator')
+    app['aggregator'] = aggregator
 
     return app

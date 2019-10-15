@@ -12,9 +12,7 @@ import logging
 from ffxivbis.api.web import run_server, setup_service
 from ffxivbis.core.config import Configuration
 from ffxivbis.core.database import Database
-from ffxivbis.core.loot_selector import LootSelector
-from ffxivbis.core.party import Party
-from ffxivbis.models.user import User
+from ffxivbis.core.party_aggregator import PartyAggregator
 
 
 class Application:
@@ -29,13 +27,7 @@ class Application:
         database = loop.run_until_complete(Database.get(self.config))
         database.migration()
 
-        party = loop.run_until_complete(Party.get(database))
+        aggregator = PartyAggregator(self.config, database)
 
-        admin = User(self.config.get('auth', 'root_username'), self.config.get('auth', 'root_password'), 'admin')
-        loop.run_until_complete(database.insert_user(admin, True))
-
-        priority = self.config.get('settings', 'priority').split()
-        loot_selector = LootSelector(party, priority)
-
-        web = setup_service(self.config, database, loot_selector, party)
+        web = setup_service(self.config, database, aggregator)
         run_server(web)

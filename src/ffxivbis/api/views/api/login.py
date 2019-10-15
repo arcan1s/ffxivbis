@@ -126,12 +126,13 @@ class LoginView(LoginBaseView, OpenApi):
         except Exception:
             data = dict(await self.request.post())
 
-        required = ['username', 'password']
+        required = ['username', 'password', 'party_id']
         if any(param not in data for param in required):
             return wrap_invalid_param(required, data)
 
         try:
-            await self.create_user(data['username'], data['password'], data.get('permission', 'get'))
+            await self.create_user(data['party_id'], data['username'],
+                                   data['password'], data.get('permission', 'get'))
         except Exception as e:
             self.request.app.logger.exception('cannot create user')
             return wrap_exception(e, data)

@@ -42,8 +42,8 @@ class PostgresDatabase(Database):
         self.pool = await asyncpg.create_pool(host=self.host, port=self.port, username=self.username,
                                               password=self.password, database=self.database)
 
-    async def delete_piece(self, player_id: PlayerId, piece: Union[Piece, Upgrade]) -> None:
-        player = await self.get_player(player_id)
+    async def delete_piece(self, party_id: str, player_id: PlayerId, piece: Union[Piece, Upgrade]) -> None:
+        player = await self.get_player(party_id, player_id)
         if player is None:
             return
 
@@ -57,8 +57,8 @@ class PostgresDatabase(Database):
                 player, piece.name, getattr(piece, 'is_tome', True)
             )
 
-    async def delete_piece_bis(self, player_id: PlayerId, piece: Piece) -> None:
-        player = await self.get_player(player_id)
+    async def delete_piece_bis(self, party_id: str, player_id: PlayerId, piece: Piece) -> None:
+        player = await self.get_player(party_id, player_id)
         if player is None:
             return
 
@@ -67,24 +67,29 @@ class PostgresDatabase(Database):
                 '''delete from bis where player_id = $1 and piece = $2''',
                 player, piece.name)
 
-    async def delete_player(self, player_id: PlayerId) -> None:
+    async def delete_player(self, party_id: str, player_id: PlayerId) -> None:
         async with self.pool.acquire() as conn:
-            await conn.execute('''delete from players where nick = $1 and job = $2''',
-                               player_id.nick, player_id.job.name)
+            await conn.execute('''delete from players where nick = $1 and job = $2 and party_id = $3''',
+                               player_id.nick, player_id.job.name, party_id)
 
-    async def delete_user(self, username: str) -> None:
+    async def delete_user(self, party_id: str, username: str) -> None:
         async with self.pool.acquire() as conn:
-            await conn.execute('''delete from users where username = $1''', username)
+            await conn.execute('''delete from users where username = $1 and party_id = $2''',
+                               (username, party_id))
 
-    async def get_party(self) -> List[Player]:
+    async def get_party(self, party_id: str) -> List[Player]:
+        players = await self.get_players(party_id)
+        if not players:
+            return []
+
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch('''select * from bis''')
+            rows = await conn.fetch('''select * from bis where player_id in $1''', players)
             bis_pieces = [Loot(row['player_id'], Piece.get(row)) for row in rows]
 
-            rows = await conn.fetch('''select * from loot''')
+            rows = await conn.fetch('''select * from loot where player_id in $1''', players)
             loot_pieces = [Loot(row['player_id'], Piece.get(row)) for row in rows]
 
-            rows = await conn.fetch('''select * from players''')
+            rows = await conn.fetch('''select * from players where party_id = $1''', party_id)
             party = {
                 row['player_id']: Player(Job[row['job']], row['nick'], BiS(), [], row['bis_link'], row['priority'])
                 for row in rows
@@ -92,24 +97,30 @@ class PostgresDatabase(Database):
 
         return self.set_loot(party, bis_pieces, loot_pieces)
 
-    async def get_player(self, player_id: PlayerId) -> Optional[int]:
+    async def get_player(self, party_id: str, player_id: PlayerId) -> Optional[int]:
         async with self.pool.acquire() as conn:
-            player = await conn.fetchrow('''select player_id from players where nick = $1 and job = $2''',
-                                         player_id.nick, player_id.job.name)
+            player = await conn.fetchrow('''select player_id from players where nick = $1 and job = $2 and party_id = $3''',
+                                         player_id.nick, player_id.job.name, party_id)
             return player['player_id'] if player is not None else None
 
-    async def get_user(self, username: str) -> Optional[User]:
+    async def get_players(self, party_id: str) -> List[int]:
         async with self.pool.acquire() as conn:
-            user = await conn.fetchrow('''select * from users where username = $1''', username)
+            players = await conn.fetch('''select player_id from players where party_id = $1''', (party_id,))
+            return [player['player_id'] for player in players]
+
+    async def get_user(self, party_id: str, username: str) -> Optional[User]:
+        async with self.pool.acquire() as conn:
+            user = await conn.fetchrow('''select * from users where username = $1 and party_id = $2''',
+                                       username, party_id)
             return User(user['username'], user['password'], user['permission']) if user is not None else None
 
-    async def get_users(self) -> List[User]:
+    async def get_users(self, party_id: str) -> List[User]:
         async with self.pool.acquire() as conn:
-            users = await conn.fetch('''select * from users''')
+            users = await conn.fetch('''select * from users where party_id = $1''', party_id)
             return [User(user['username'], user['password'], user['permission']) for user in users]
 
-    async def insert_piece(self, player_id: PlayerId, piece: Union[Piece, Upgrade]) -> None:
-        player = await self.get_player(player_id)
+    async def insert_piece(self, party_id: str, player_id: PlayerId, piece: Union[Piece, Upgrade]) -> None:
+        player = await self.get_player(party_id, player_id)
         if player is None:
             return
 
@@ -122,8 +133,8 @@ class PostgresDatabase(Database):
                 Database.now(), piece.name, getattr(piece, 'is_tome', True), player
             )
 
-    async def insert_piece_bis(self, player_id: PlayerId, piece: Piece) -> None:
-        player = await self.get_player(player_id)
+    async def insert_piece_bis(self, party_id: str, player_id: PlayerId, piece: Piece) -> None:
+        player = await self.get_player(party_id, player_id)
         if player is None:
             return
 
@@ -138,27 +149,27 @@ class PostgresDatabase(Database):
                 Database.now(), piece.name, piece.is_tome, player
             )
 
-    async def insert_player(self, player: Player) -> None:
+    async def insert_player(self, party_id: str, player: Player) -> None:
         async with self.pool.acquire() as conn:
             await conn.execute(
                 '''insert into players
-                (created, nick, job, bis_link, priority)
+                (party_id, created, nick, job, bis_link, priority)
                 values
-                ($1, $2, $3, $4, $5)
+                ($1, $2, $3, $4, $5, $6)
                 on conflict on constraint players_nick_job_idx do update set
                 created = $1, bis_link = $4, priority = $5''',
-                Database.now(), player.nick, player.job.name, player.link, player.priority
+                Database.now(), player.nick, player.job.name, player.link, player.priority, party_id
             )
 
-    async def insert_user(self, user: User, hashed_password: bool) -> None:
+    async def insert_user(self, party_id: str, user: User, hashed_password: bool) -> None:
         password = user.password if hashed_password else md5_crypt.hash(user.password)
         async with self.pool.acquire() as conn:
             await conn.execute(
                 '''insert into users
-                (username, password, permission)
+                (party_id, username, password, permission)
                 values
-                ($1, $2, $3)
+                ($1, $2, $3, $4)
                 on conflict on constraint users_username_idx do update set
                 password = $2, permission = $3''',
-                user.username, password, user.permission
+                party_id, user.username, password, user.permission
             )

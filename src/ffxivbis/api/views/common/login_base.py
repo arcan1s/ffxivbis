@@ -21,8 +21,8 @@ class LoginBaseView(View):
             return False
         return md5_crypt.verify(password, user.password)
 
-    async def create_user(self, username: str, password: str, permission: str) -> None:
-        await self.request.app['database'].insert_user(User(username, password, permission), False)
+    async def create_user(self, party_id: str, username: str, password: str, permission: str) -> None:
+        await self.request.app['database'].insert_user(party_id, User(username, password, permission), False)
 
     async def login(self, username: str, password: str) -> None:
         if await self.check_credentials(username, password):

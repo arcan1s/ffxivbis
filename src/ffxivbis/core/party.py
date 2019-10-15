@@ -20,8 +20,9 @@ from .database import Database
 
 class Party:
 
-    def __init__(self, database: Database) -> None:
+    def __init__(self, party_id: str, database: Database) -> None:
         self.lock = Lock()
+        self.party_id = party_id
         self.players: Dict[PlayerId, Player] = {}
         self.database = database
 
@@ -31,9 +32,9 @@ class Party:
             return list(self.players.values())
 
     @classmethod
-    async def get(cls: Type[Party], database: Database) -> Party:
-        obj = Party(database)
-        players = await database.get_party()
+    async def get(cls: Type[Party], party_id: str, database: Database) -> Party:
+        obj = cls(party_id, database)
+        players = await database.get_party(party_id)
         for player in players:
             obj.players[player.player_id] = player
         return obj
@@ -42,28 +43,28 @@ class Party:
         with self.lock:
             player = self.players[player_id]
         player.link = link
-        await self.database.insert_player(player)
+        await self.database.insert_player(self.party_id, player)
 
     async def remove_player(self, player_id: PlayerId) -> Optional[Player]:
-        await self.database.delete_player(player_id)
+        await self.database.delete_player(self.party_id, player_id)
         with self.lock:
             player = self.players.pop(player_id, None)
         return player
 
     async def set_player(self, player: Player) -> PlayerId:
         player_id = player.player_id
-        await self.database.insert_player(player)
+        await self.database.insert_player(self.party_id, player)
         with self.lock:
             self.players[player_id] = player
         return player_id
 
     async def set_item(self, player_id: PlayerId, piece: Union[Piece, Upgrade]) -> None:
-        await self.database.insert_piece(player_id, piece)
+        await self.database.insert_piece(self.party_id, player_id, piece)
         with self.lock:
             self.players[player_id].loot.append(piece)
 
     async def remove_item(self, player_id: PlayerId, piece: Union[Piece, Upgrade]) -> None:
-        await self.database.delete_piece(player_id, piece)
+        await self.database.delete_piece(self.party_id, player_id, piece)
         with self.lock:
             try:
                 self.players[player_id].loot.remove(piece)
@@ -71,11 +72,11 @@ class Party:
                 pass
 
     async def set_item_bis(self, player_id: PlayerId, piece: Piece) -> None:
-        await self.database.insert_piece_bis(player_id, piece)
+        await self.database.insert_piece_bis(self.party_id, player_id, piece)
         with self.lock:
             self.players[player_id].bis.set_item(piece)
 
     async def remove_item_bis(self, player_id: PlayerId, piece: Piece) -> None:
-        await self.database.delete_piece_bis(player_id, piece)
+        await self.database.delete_piece_bis(self.party_id, player_id, piece)
         with self.lock:
             self.players[player_id].bis.remove_item(piece)

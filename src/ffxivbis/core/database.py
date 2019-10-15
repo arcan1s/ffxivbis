@@ -59,40 +59,43 @@ class Database:
     async def init(self) -> None:
         pass
 
-    async def delete_piece(self, player_id: PlayerId, piece: Union[Piece, Upgrade]) -> None:
+    async def delete_piece(self, party_id: str, player_id: PlayerId, piece: Union[Piece, Upgrade]) -> None:
         raise NotImplementedError
 
-    async def delete_piece_bis(self, player_id: PlayerId, piece: Piece) -> None:
+    async def delete_piece_bis(self, party_id: str, player_id: PlayerId, piece: Piece) -> None:
         raise NotImplementedError
 
-    async def delete_player(self, player_id: PlayerId) -> None:
+    async def delete_player(self, party_id: str, player_id: PlayerId) -> None:
         raise NotImplementedError
 
-    async def delete_user(self, username: str) -> None:
+    async def delete_user(self, party_id: str, username: str) -> None:
         raise NotImplementedError
 
-    async def get_party(self) -> List[Player]:
+    async def get_party(self, party_id: str) -> List[Player]:
         raise NotImplementedError
 
-    async def get_player(self, player_id: PlayerId) -> Optional[int]:
+    async def get_player(self, party_id: str, player_id: PlayerId) -> Optional[int]:
         raise NotImplementedError
 
-    async def get_user(self, username: str) -> Optional[User]:
+    async def get_players(self, party_id: str) -> List[int]:
         raise NotImplementedError
 
-    async def get_users(self) -> List[User]:
+    async def get_user(self, party_id: str, username: str) -> Optional[User]:
         raise NotImplementedError
 
-    async def insert_piece(self, player_id: PlayerId, piece: Union[Piece, Upgrade]) -> None:
+    async def get_users(self, party_id: str) -> List[User]:
         raise NotImplementedError
 
-    async def insert_piece_bis(self, player_id: PlayerId, piece: Piece) -> None:
+    async def insert_piece(self, party_id: str, player_id: PlayerId, piece: Union[Piece, Upgrade]) -> None:
         raise NotImplementedError
 
-    async def insert_player(self, player: Player) -> None:
+    async def insert_piece_bis(self, party_id: str, player_id: PlayerId, piece: Piece) -> None:
         raise NotImplementedError
 
-    async def insert_user(self, user: User, hashed_password: bool) -> None:
+    async def insert_player(self, party_id: str, player: Player) -> None:
+        raise NotImplementedError
+
+    async def insert_user(self, party_id: str, user: User, hashed_password: bool) -> None:
         raise NotImplementedError
 
     def migration(self) -> None:
