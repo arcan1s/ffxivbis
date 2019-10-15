@@ -1,0 +1,62 @@
+package me.arcanis.ffxivbis.storage
+
+import java.time.Instant
+
+import com.typesafe.config.Config
+import me.arcanis.ffxivbis.models.{Loot, Piece, PlayerId}
+import slick.basic.DatabaseConfig
+import slick.jdbc.JdbcProfile
+
+import scala.concurrent.{ExecutionContext, Future}
+
+class DatabaseProfile(context: ExecutionContext, config: Config)
+  extends BiSProfile with LootProfile with PlayersProfile with UsersProfile {
+
+  implicit val executionContext: ExecutionContext = context
+
+  val dbConfig: DatabaseConfig[JdbcProfile] =
+    DatabaseConfig.forConfig[JdbcProfile]("", DatabaseProfile.getSection(config))
+  import dbConfig.profile.api._
+  val db = dbConfig.db
+
+  val bisTable: TableQuery[BiSPieces] = TableQuery[BiSPieces]
+  val lootTable: TableQuery[LootPieces] = TableQuery[LootPieces]
+  val playersTable: TableQuery[Players] = TableQuery[Players]
+  val usersTable: TableQuery[Users] = TableQuery[Users]
+
+  // generic bis api
+  def deletePieceBiS(playerId: PlayerId, piece: Piece): Future[Int] =
+    byPlayerId(playerId, deletePieceBiSById(piece))
+  def getPiecesBiS(playerId: PlayerId): Future[Seq[Loot]] =
+    byPlayerId(playerId, getPiecesBiSById)
+  def getPiecesBiS(partyId: String): Future[Seq[Loot]] =
+    byPartyId(partyId, getPiecesBiSById)
+  def insertPieceBiS(playerId: PlayerId, piece: Piece): Future[Int] =
+    byPlayerId(playerId, insertPieceBiSById(piece))
+
+  // generic loot api
+  def deletePiece(playerId: PlayerId, piece: Piece): Future[Int] =
+    byPlayerId(playerId, deletePieceById(piece))
+  def getPieces(playerId: PlayerId): Future[Seq[Loot]] =
+    byPlayerId(playerId, getPiecesById)
+  def getPieces(partyId: String): Future[Seq[Loot]] =
+    byPartyId(partyId, getPiecesById)
+  def insertPiece(playerId: PlayerId, piece: Piece): Future[Int] =
+    byPlayerId(playerId, insertPieceById(piece))
+
+  private def byPartyId[T](partyId: String, callback: Seq[Long] => Future[T]): Future[T] =
+    getPlayers(partyId).map(callback).flatten
+  private def byPlayerId[T](playerId: PlayerId, callback: Long => Future[T]): Future[T] =
+    getPlayer(playerId).map {
+      case Some(id) => callback(id)
+      case None => Future.failed(new Error(s"Could not find player $playerId"))
+    }.flatten
+}
+
+object DatabaseProfile {
+  def now: Long = Instant.now.toEpochMilli
+  def getSection(config: Config): Config = {
+    val section = config.getString("me.arcanis.ffxivbis.database.mode")
+    config.getConfig("me.arcanis.ffxivbis.database").getConfig(section)
+  }
+}
