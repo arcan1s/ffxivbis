@@ -9,9 +9,11 @@ import akka.util.Timeout
 class RootView(storage: ActorRef, ariyala: ActorRef)(implicit timeout: Timeout) {
 
   private val biSView = new BiSView(storage, ariyala)
+  private val lootView = new LootView(storage)
+  private val userView = new UserView(storage)
 
   def route: Route =
-    biSView.route
+    biSView.route ~ lootView.route ~ userView.route
 }
 
 object RootView {
