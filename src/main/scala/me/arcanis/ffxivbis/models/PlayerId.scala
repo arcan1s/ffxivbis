@@ -1,5 +1,7 @@
 package me.arcanis.ffxivbis.models
 
+import scala.util.matching.Regex
+
 trait PlayerIdBase {
   def job: Job.Job
   def nick: String
@@ -15,4 +17,10 @@ object PlayerId {
       case (Some(nick), Some(job)) => Some(PlayerId(partyId, Job.fromString(job), nick))
       case _ => None
     }
+
+  private val prettyPlayerIdRegex: Regex = "^(.*) \\(([A-Z]{3})\\)$".r
+  def apply(partyId: String, player: String): Option[PlayerId] = player match {
+    case s"${prettyPlayerIdRegex(nick, job)}" => Some(PlayerId(partyId, Job.fromString(job), nick))
+    case _ => None
+  }
 }

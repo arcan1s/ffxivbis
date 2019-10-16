@@ -12,16 +12,16 @@ import scala.concurrent.{ExecutionContext, Future}
 class LootHelper(storage: ActorRef) {
 
   def addPieceLoot(playerId: PlayerId, piece: Piece)
-                  (implicit executionContext: ExecutionContext): Future[Unit] =
-    Future { storage ! DatabaseLootHandler.AddPieceTo(playerId, piece) }
+                  (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
+    (storage ? DatabaseLootHandler.AddPieceTo(playerId, piece)).mapTo[Int]
 
   def loot(partyId: String, playerId: Option[PlayerId])
           (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Seq[Player]] =
     (storage ? DatabaseLootHandler.GetLoot(partyId, playerId)).mapTo[Seq[Player]]
 
   def removePieceLoot(playerId: PlayerId, piece: Piece)
-                     (implicit executionContext: ExecutionContext): Future[Unit] =
-    Future { storage ! DatabaseLootHandler.RemovePieceFrom(playerId, piece) }
+                     (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
+    (storage ? DatabaseLootHandler.RemovePieceFrom(playerId, piece)).mapTo[Int]
 
   def suggestPiece(partyId: String, piece: Piece)
                   (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Seq[PlayerIdWithCounters]] =

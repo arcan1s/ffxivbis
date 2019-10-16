@@ -1,12 +1,12 @@
 package me.arcanis.ffxivbis.http
 
 import akka.actor.{ActorRef, ActorSystem}
-import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.util.Timeout
 import com.typesafe.scalalogging.StrictLogging
-import me.arcanis.ffxivbis.http.api.v1.ApiV1Endpoint
+import me.arcanis.ffxivbis.http.api.v1.RootApiV1Endpoint
+import me.arcanis.ffxivbis.http.view.RootView
 
 class RootEndpoint(system: ActorSystem, storage: ActorRef, ariyala: ActorRef)
   extends StrictLogging {
@@ -17,7 +17,8 @@ class RootEndpoint(system: ActorSystem, storage: ActorRef, ariyala: ActorRef)
   implicit val timeout: Timeout =
     config.getDuration("me.arcanis.ffxivbis.settings.request-timeout")
 
-  private val apiV1Endpoint: ApiV1Endpoint = new ApiV1Endpoint(storage, ariyala)
+  private val rootApiV1Endpoint: RootApiV1Endpoint = new RootApiV1Endpoint(storage, ariyala)
+  private val rootView: RootView = new RootView(storage, ariyala)
 
   def route: Route = apiRoute ~ htmlRoute ~ Swagger.routes ~ swaggerUIRoute
 
@@ -25,7 +26,7 @@ class RootEndpoint(system: ActorSystem, storage: ActorRef, ariyala: ActorRef)
     ignoreTrailingSlash {
       pathPrefix("api") {
         pathPrefix(Segment) {
-          case "v1" => apiV1Endpoint.route
+          case "v1" => rootApiV1Endpoint.route
           case _ => reject
         }
       }
@@ -33,9 +34,9 @@ class RootEndpoint(system: ActorSystem, storage: ActorRef, ariyala: ActorRef)
 
   private def htmlRoute: Route =
     ignoreTrailingSlash {
-      pathEndOrSingleSlash {
-        complete(StatusCodes.OK)
-      }
+      pathPrefix("static") {
+        getFromResourceDirectory("static")
+      } ~ rootView.route
     }
 
   private def swaggerUIRoute: Route =

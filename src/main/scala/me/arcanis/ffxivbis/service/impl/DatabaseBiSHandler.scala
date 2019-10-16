@@ -9,7 +9,8 @@ trait DatabaseBiSHandler { this: Database  =>
 
   def bisHandler: Receive = {
     case AddPieceToBis(playerId, piece) =>
-      profile.insertPieceBiS(playerId, piece)
+      val client = sender()
+      profile.insertPieceBiS(playerId, piece).pipeTo(client)
 
     case GetBiS(partyId, maybePlayerId) =>
       val client = sender()
@@ -18,7 +19,8 @@ trait DatabaseBiSHandler { this: Database  =>
         .pipeTo(client)
 
     case RemovePieceFromBiS(playerId, piece) =>
-      profile.deletePieceBiS(playerId, piece)
+      val client = sender()
+      profile.deletePieceBiS(playerId, piece).pipeTo(client)
   }
 }
 

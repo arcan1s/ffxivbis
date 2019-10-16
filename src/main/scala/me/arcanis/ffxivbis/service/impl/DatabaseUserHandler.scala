@@ -9,7 +9,8 @@ trait DatabaseUserHandler { this: Database =>
 
   def userHandler: Receive = {
     case DeleteUser(partyId, username) =>
-      profile.deleteUser(partyId, username)
+      val client = sender()
+      profile.deleteUser(partyId, username).pipeTo(client)
 
     case GetUser(partyId, username) =>
       val client = sender()
@@ -20,8 +21,9 @@ trait DatabaseUserHandler { this: Database =>
       profile.getUsers(partyId).pipeTo(client)
 
     case InsertUser(user, isHashedPassword) =>
+      val client = sender()
       val toInsert = if (isHashedPassword) user else user.copy(password = user.hash)
-      profile.insertUser(toInsert)
+      profile.insertUser(toInsert).pipeTo(client)
   }
 }
 

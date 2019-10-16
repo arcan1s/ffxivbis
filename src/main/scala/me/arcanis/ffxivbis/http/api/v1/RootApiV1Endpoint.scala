@@ -5,7 +5,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
 
-class ApiV1Endpoint(storage: ActorRef, ariyala: ActorRef)(implicit timeout: Timeout) {
+class RootApiV1Endpoint(storage: ActorRef, ariyala: ActorRef)(implicit timeout: Timeout) {
 
   private val biSEndpoint = new BiSEndpoint(storage, ariyala)
   private val lootEndpoint = new LootEndpoint(storage)

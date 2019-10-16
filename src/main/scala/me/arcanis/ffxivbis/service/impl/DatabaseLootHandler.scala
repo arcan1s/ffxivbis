@@ -9,7 +9,8 @@ trait DatabaseLootHandler { this: Database =>
 
   def lootHandler: Receive = {
     case AddPieceTo(playerId, piece) =>
-      profile.insertPiece(playerId, piece)
+      val client = sender()
+      profile.insertPiece(playerId, piece).pipeTo(client)
 
     case GetLoot(partyId, maybePlayerId) =>
       val client = sender()
@@ -18,7 +19,8 @@ trait DatabaseLootHandler { this: Database =>
         .pipeTo(client)
 
     case RemovePieceFrom(playerId, piece) =>
-      profile.deletePiece(playerId, piece)
+      val client = sender()
+      profile.deletePiece(playerId, piece).pipeTo(client)
 
     case SuggestLoot(partyId, piece) =>
       val client = sender()

@@ -11,7 +11,8 @@ trait DatabasePartyHandler { this: Actor with StrictLogging with Database  =>
 
   def partyHandler: Receive = {
     case AddPlayer(player) =>
-      profile.insertPlayer(player)
+      val client = sender()
+      profile.insertPlayer(player).pipeTo(client)
 
     case GetParty(partyId) =>
       val client = sender()
@@ -27,7 +28,8 @@ trait DatabasePartyHandler { this: Actor with StrictLogging with Database  =>
       player.pipeTo(client)
 
     case RemovePlayer(playerId) =>
-      profile.deletePlayer(playerId)
+      val client = sender()
+      profile.deletePlayer(playerId).pipeTo(client)
   }
 }
 

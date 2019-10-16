@@ -13,15 +13,16 @@ import scala.util.{Failure, Success}
 class PlayerHelper(storage: ActorRef, ariyala: ActorRef) extends AriyalaHelper(ariyala) {
 
   def addPlayer(player: Player)
-               (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Unit] =
-    Future { storage ! DatabasePartyHandler.AddPlayer(player) }.andThen {
-      case Success(_) if player.link.isDefined =>
-        downloadBiS(player.link.get, player.job).map { bis =>
-          bis.pieces.map(storage ! DatabaseBiSHandler.AddPieceToBis(player.playerId, _))
-        }.map(_ => ())
-      case Success(_) => Future.successful(())
-      case Failure(exception) => Future.failed(exception)
-    }
+               (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
+    (storage ? DatabasePartyHandler.AddPlayer(player)).mapTo[Int].map { res =>
+      player.link match {
+        case Some(link) =>
+          downloadBiS(link, player.job).map { bis =>
+            bis.pieces.map(storage ? DatabaseBiSHandler.AddPieceToBis(player.playerId, _))
+          }.map(_ => res)
+        case None => Future.successful(res)
+      }
+    }.flatten
 
   def getPlayers(partyId: String, maybePlayerId: Option[PlayerId])
                 (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Seq[Player]] =
@@ -32,6 +33,7 @@ class PlayerHelper(storage: ActorRef, ariyala: ActorRef) extends AriyalaHelper(a
         (storage ? DatabasePartyHandler.GetParty(partyId)).mapTo[Party].map(_.players.values.toSeq)
     }
 
-  def removePlayer(playerId: PlayerId)(implicit executionContext: ExecutionContext): Future[Unit] =
-    Future { storage ! DatabasePartyHandler.RemovePlayer(playerId) }
+  def removePlayer(playerId: PlayerId)
+                  (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
+    (storage ? DatabasePartyHandler.RemovePlayer(playerId)).mapTo[Int]
 }

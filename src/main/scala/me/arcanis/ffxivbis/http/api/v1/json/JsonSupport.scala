@@ -4,8 +4,7 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import me.arcanis.ffxivbis.models.Permission
 import spray.json._
 
-trait JsonSupport extends SprayJsonSupport {
-  import DefaultJsonProtocol._
+trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 
   private def enumFormat[E <: Enumeration](enum: E): RootJsonFormat[E#Value] =
     new RootJsonFormat[E#Value] {

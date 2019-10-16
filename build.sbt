@@ -9,13 +9,14 @@ scalacOptions ++= Seq("-deprecation", "-feature")
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
 libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2"
 
-libraryDependencies += "io.spray" %%  "spray-json" % "1.3.5"
-
 libraryDependencies += "com.typesafe.akka" %% "akka-http"   % "10.1.10"
 libraryDependencies += "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.10"
 libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.5.23"
 libraryDependencies += "com.github.swagger-akka-http" %% "swagger-akka-http" % "2.0.4"
 libraryDependencies += "javax.ws.rs" % "javax.ws.rs-api" % "2.1.1"
+
+libraryDependencies += "io.spray" %%  "spray-json" % "1.3.5"
+libraryDependencies += "com.lihaoyi" %% "scalatags" % "0.7.0"
 
 libraryDependencies += "com.typesafe.slick" %% "slick" % "3.3.2"
 libraryDependencies += "com.typesafe.slick" %% "slick-hikaricp" % "3.3.2"

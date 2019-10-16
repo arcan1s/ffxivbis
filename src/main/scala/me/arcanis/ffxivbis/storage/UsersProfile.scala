@@ -1,7 +1,7 @@
 package me.arcanis.ffxivbis.storage
 
 import me.arcanis.ffxivbis.models.{Permission, User}
-import slick.lifted.Index
+import slick.lifted.{Index, PrimaryKey}
 
 import scala.concurrent.Future
 
@@ -13,7 +13,7 @@ trait UsersProfile { this: DatabaseProfile =>
     def toUser: User = User(partyId, username, password, Permission.withName(permission))
   }
   object UserRep {
-    def fromUser(user: User): UserRep =
+    def fromUser(user: User, id: Option[Long]): UserRep =
       UserRep(user.partyId, None, user.username, user.password, user.permission.toString)
   }
 
@@ -27,6 +27,7 @@ trait UsersProfile { this: DatabaseProfile =>
     def * =
       (partyId, userId.?, username, password, permission) <> ((UserRep.apply _).tupled, UserRep.unapply)
 
+    def pk: PrimaryKey = primaryKey("users_username_idx", (partyId, username))
     def usersUsernameIdx: Index =
       index("users_username_idx", (partyId, username), unique = true)
   }
@@ -37,9 +38,11 @@ trait UsersProfile { this: DatabaseProfile =>
     db.run(user(partyId, Some(username)).result.headOption).map(_.map(_.toUser))
   def getUsers(partyId: String): Future[Seq[User]] =
     db.run(user(partyId, None).result).map(_.map(_.toUser))
-  def insertUser(user: User): Future[Int] = {
-    db.run(usersTable.insertOrUpdate(UserRep.fromUser(user)))
-  }
+  def insertUser(userObj: User): Future[Int] =
+    db.run(user(userObj.partyId, Some(userObj.username)).result.headOption).map {
+      case Some(user) => db.run(usersTable.update(UserRep.fromUser(userObj, user.userId)))
+      case _ => db.run(usersTable.insertOrUpdate(UserRep.fromUser(userObj, None)))
+    }.flatten
 
   private def user(partyId: String, username: Option[String]) =
     usersTable

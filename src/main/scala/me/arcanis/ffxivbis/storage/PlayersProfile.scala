@@ -1,7 +1,7 @@
 package me.arcanis.ffxivbis.storage
 
 import me.arcanis.ffxivbis.models.{BiS, Job, Player, PlayerId}
-import slick.lifted.Index
+import slick.lifted.{Index, PrimaryKey}
 
 import scala.concurrent.Future
 
@@ -14,8 +14,8 @@ trait PlayersProfile { this: DatabaseProfile =>
       Player(partyId, Job.fromString(job), nick, BiS(Seq.empty), List.empty, link, priority)
   }
   object PlayerRep {
-    def fromPlayer(player: Player): PlayerRep =
-      PlayerRep(player.partyId, None, DatabaseProfile.now, player.nick,
+    def fromPlayer(player: Player, id: Option[Long]): PlayerRep =
+      PlayerRep(player.partyId, id, DatabaseProfile.now, player.nick,
         player.job.toString, player.link, player.priority)
   }
 
@@ -30,10 +30,8 @@ trait PlayersProfile { this: DatabaseProfile =>
 
     def * =
       (partyId, playerId.?, created, nick, job, bisLink, priority) <> ((PlayerRep.apply _).tupled, PlayerRep.unapply)
-
-    def playersNickJobIdx: Index =
-      index("players_nick_job_idx", (partyId, nick, job), unique = true)
   }
+
 
   def deletePlayer(playerId: PlayerId): Future[Int] = db.run(player(playerId).delete)
   def getParty(partyId: String): Future[Map[Long, Player]] =
@@ -45,8 +43,11 @@ trait PlayersProfile { this: DatabaseProfile =>
     db.run(player(playerId).map(_.playerId).result.headOption)
   def getPlayers(partyId: String): Future[Seq[Long]] =
     db.run(players(partyId).map(_.playerId).result)
-  def insertPlayer(player: Player): Future[Int] =
-    db.run(playersTable.insertOrUpdate(PlayerRep.fromPlayer(player)))
+  def insertPlayer(playerObj: Player): Future[Int] =
+    getPlayer(playerObj.playerId).map {
+      case Some(id) => db.run(playersTable.update(PlayerRep.fromPlayer(playerObj, Some(id))))
+      case _ => db.run(playersTable.insertOrUpdate(PlayerRep.fromPlayer(playerObj, None)))
+    }.flatten
 
   private def player(playerId: PlayerId) =
     playersTable

@@ -5,6 +5,7 @@ trait Piece {
   def job: Job.Job
   def piece: String
 
+  def isTomeToString: String = if (isTome) "yes" else "no"
   def upgrade: Option[PieceUpgrade] = this match {
     case _ if !isTome => None
     case _: Waist => Some(AccessoryUpgrade)
@@ -94,4 +95,8 @@ object Piece {
       case "weapon upgrade" => WeaponUpgrade
       case other => throw new Error(s"Unknown item type $other")
     }
+
+  def available: Seq[String] = Seq("weapon",
+    "head", "body", "hands", "waist", "legs", "feet",
+    "ears", "neck", "wrist", "leftRing", "rightRing")
 }

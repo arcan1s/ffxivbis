@@ -11,8 +11,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class UserHelper(storage: ActorRef) {
 
   def addUser(user: User, isHashedPassword: Boolean)
-             (implicit executionContext: ExecutionContext): Future[Unit] =
-    Future { storage ! DatabaseUserHandler.InsertUser(user, isHashedPassword) }
+             (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
+    (storage ? DatabaseUserHandler.InsertUser(user, isHashedPassword)).mapTo[Int]
 
   def user(partyId: String, username: String)
           (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Option[User]] =
@@ -23,6 +23,6 @@ class UserHelper(storage: ActorRef) {
     (storage ? DatabaseUserHandler.GetUsers(partyId)).mapTo[Seq[User]]
 
   def removeUser(partyId: String, username: String)
-                (implicit executionContext: ExecutionContext): Future[Unit] =
-    Future { storage ! DatabaseUserHandler.DeleteUser(partyId, username) }
+                (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
+    (storage ? DatabaseUserHandler.DeleteUser(partyId, username)).mapTo[Int]
 }

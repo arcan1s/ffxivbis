@@ -11,8 +11,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class BiSHelper(storage: ActorRef, ariyala: ActorRef) extends AriyalaHelper(ariyala) {
 
   def addPieceBiS(playerId: PlayerId, piece: Piece)
-                 (implicit executionContext: ExecutionContext): Future[Unit] =
-    Future { storage ! DatabaseBiSHandler.AddPieceToBis(playerId, piece) }
+                 (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
+    (storage ? DatabaseBiSHandler.AddPieceToBis(playerId, piece)).mapTo[Int]
 
   def bis(partyId: String, playerId: Option[PlayerId])
          (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Seq[Player]] =
@@ -23,7 +23,7 @@ class BiSHelper(storage: ActorRef, ariyala: ActorRef) extends AriyalaHelper(ariy
     downloadBiS(link, playerId.job).map(_.pieces.map(addPieceBiS(playerId, _)))
 
   def removePieceBiS(playerId: PlayerId, piece: Piece)
-                    (implicit executionContext: ExecutionContext): Future[Unit] =
-    Future { storage ! DatabaseBiSHandler.RemovePieceFromBiS(playerId, piece) }
+                    (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
+    (storage ? DatabaseBiSHandler.RemovePieceFromBiS(playerId, piece)).mapTo[Int]
 
 }

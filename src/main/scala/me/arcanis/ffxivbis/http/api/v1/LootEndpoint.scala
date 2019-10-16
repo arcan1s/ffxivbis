@@ -1,7 +1,7 @@
 package me.arcanis.ffxivbis.http.api.v1
 
 import akka.actor.ActorRef
-import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.model.{HttpEntity, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.util.Timeout
@@ -19,7 +19,6 @@ import me.arcanis.ffxivbis.models.PlayerId
 @Path("api/v1")
 class LootEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
   extends LootHelper(storage) with Authorization with JsonSupport {
-  import spray.json.DefaultJsonProtocol._
 
   def route: Route = getLoot ~ modifyLoot
 
@@ -89,7 +88,7 @@ class LootEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
                   case ApiAction.add => addPieceLoot(playerId, action.piece.toPiece)
                   case ApiAction.remove => removePieceLoot(playerId, action.piece.toPiece)
                 }
-                result.map(_ => StatusCodes.Accepted)
+                result.map(_ => (StatusCodes.Accepted, HttpEntity.Empty))
               }
             }
           }

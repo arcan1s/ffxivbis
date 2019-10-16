@@ -1,7 +1,7 @@
 package me.arcanis.ffxivbis.http.api.v1
 
 import akka.actor.ActorRef
-import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.model.{HttpEntity, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.util.Timeout
@@ -19,7 +19,6 @@ import me.arcanis.ffxivbis.models.PlayerId
 @Path("api/v1")
 class PlayerEndpoint(override val storage: ActorRef, ariyala: ActorRef)(implicit timeout: Timeout)
   extends PlayerHelper(storage, ariyala) with Authorization with JsonSupport {
-  import spray.json.DefaultJsonProtocol._
 
   def route: Route = getParty ~ modifyParty
 
@@ -88,7 +87,7 @@ class PlayerEndpoint(override val storage: ActorRef, ariyala: ActorRef)(implicit
                 case ApiAction.add => addPlayer(player)
                 case ApiAction.remove => removePlayer(player.playerId)
               }
-              result.map(_ => StatusCodes.Accepted)
+              result.map(_ => (StatusCodes.Accepted, HttpEntity.Empty))
             }
           }
         }

@@ -1,7 +1,7 @@
 package me.arcanis.ffxivbis.storage
 
 import me.arcanis.ffxivbis.models.{Job, Loot, Piece}
-import slick.lifted.{ForeignKeyQuery, Index}
+import slick.lifted.{ForeignKeyQuery, Index, PrimaryKey}
 
 import scala.concurrent.Future
 
@@ -18,9 +18,9 @@ trait BiSProfile { this: DatabaseProfile =>
   }
 
   class BiSPieces(tag: Tag) extends Table[BiSRep](tag, "bis") {
-    def playerId: Rep[Long] = column[Long]("player_id")
+    def playerId: Rep[Long] = column[Long]("player_id", O.PrimaryKey)
     def created: Rep[Long] = column[Long]("created")
-    def piece: Rep[String] = column[String]("piece")
+    def piece: Rep[String] = column[String]("piece", O.PrimaryKey)
     def isTome: Rep[Int] = column[Int]("is_tome")
     def job: Rep[String] = column[String]("job")
 
@@ -29,8 +29,6 @@ trait BiSProfile { this: DatabaseProfile =>
 
     def fkPlayerId: ForeignKeyQuery[Players, PlayerRep] =
       foreignKey("player_id", playerId, playersTable)(_.playerId, onDelete = ForeignKeyAction.Cascade)
-    def bisPiecePlayerIdIdx: Index =
-      index("bis_piece_player_id_idx", (playerId, piece), unique = true)
   }
 
   def deletePieceBiSById(piece: Piece)(playerId: Long): Future[Int] =

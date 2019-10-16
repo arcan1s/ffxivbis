@@ -1,7 +1,7 @@
 package me.arcanis.ffxivbis.http.api.v1
 
 import akka.actor.ActorRef
-import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.model.{HttpEntity, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.util.Timeout
@@ -19,12 +19,11 @@ import me.arcanis.ffxivbis.models.Permission
 @Path("api/v1")
 class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
   extends UserHelper(storage) with Authorization with JsonSupport {
-  import spray.json.DefaultJsonProtocol._
 
   def route: Route = createParty ~ createUser ~ deleteUser ~ getUsers
 
   @PUT
-  @Path("party/{partyId}")
+  @Path("party/{partyId}/create")
   @Consumes(value = Array("application/json"))
   @Operation(summary = "create new party", description = "Create new party with specified ID",
     parameters = Array(
@@ -41,13 +40,13 @@ class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
     tags = Array("party"),
   )
   def createParty: Route =
-    path("party" / Segment) { partyId: String =>
+    path("party" / Segment / "create") { partyId: String =>
       extractExecutionContext { implicit executionContext =>
         put {
           entity(as[UserResponse]) { user =>
             val admin = user.toUser.copy(partyId = partyId, permission = Permission.admin)
             complete {
-              addUser(admin, isHashedPassword = false).map(_ => StatusCodes.Created)
+              addUser(admin, isHashedPassword = false).map(_ => (StatusCodes.Created, HttpEntity.Empty))
             }
           }
         }
@@ -81,7 +80,7 @@ class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
             entity(as[UserResponse]) { user =>
               val withPartyId = user.toUser.copy(partyId = partyId)
               complete {
-                addUser(withPartyId, isHashedPassword = false).map(_ => StatusCodes.Created)
+                addUser(withPartyId, isHashedPassword = false).map(_ => (StatusCodes.Created, HttpEntity.Empty))
               }
             }
           }
@@ -111,7 +110,7 @@ class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
         authenticateBasicBCrypt(s"party $partyId", authAdmin(partyId)) { _ =>
           delete {
             complete {
-              removeUser(partyId, username).map(_ => StatusCodes.Accepted)
+              removeUser(partyId, username).map(_ => (StatusCodes.Accepted, HttpEntity.Empty))
             }
           }
         }
