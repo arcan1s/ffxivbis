@@ -40,7 +40,7 @@ class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
     tags = Array("party"),
   )
   def createParty: Route =
-    path("party" / Segment / "create") { partyId: String =>
+    path("party" / Segment / "create") { partyId =>
       extractExecutionContext { implicit executionContext =>
         put {
           entity(as[UserResponse]) { user =>
@@ -73,7 +73,7 @@ class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
     tags = Array("users"),
   )
   def createUser: Route =
-    path("party" / Segment / "users") { partyId: String =>
+    path("party" / Segment / "users") { partyId =>
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authAdmin(partyId)) { _ =>
           post {
@@ -105,7 +105,7 @@ class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
     tags = Array("users"),
   )
   def deleteUser: Route =
-    path("party" / Segment / "users" / Segment) { (partyId: String, username: String) =>
+    path("party" / Segment / "users" / Segment) { (partyId, username) =>
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authAdmin(partyId)) { _ =>
           delete {
@@ -137,7 +137,7 @@ class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
     tags = Array("users"),
   )
   def getUsers: Route =
-    path("party" / Segment / "users") { partyId: String =>
+    path("party" / Segment / "users") { partyId =>
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authAdmin(partyId)) { _ =>
           get {

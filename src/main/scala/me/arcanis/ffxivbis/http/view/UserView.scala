@@ -112,6 +112,7 @@ object UserView {
           ),
 
           ExportToCSVView.template,
+          BasePartyView.root(partyId),
           script(src:="/static/table_search.js", `type`:="text/javascript")
         )
       )

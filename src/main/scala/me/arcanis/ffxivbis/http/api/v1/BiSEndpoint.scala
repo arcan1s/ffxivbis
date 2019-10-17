@@ -42,7 +42,7 @@ class BiSEndpoint(override val storage: ActorRef, ariyala: ActorRef)(implicit ti
     tags = Array("best in slot"),
   )
   def createBiS: Route =
-    path("party" / Segment / "bis") { partyId: String =>
+    path("party" / Segment / "bis") { partyId =>
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
           put {
@@ -77,7 +77,7 @@ class BiSEndpoint(override val storage: ActorRef, ariyala: ActorRef)(implicit ti
     tags = Array("best in slot"),
   )
   def getBiS: Route =
-    path("party" / Segment / "bis") { partyId: String =>
+    path("party" / Segment / "bis") { partyId =>
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
           get {
@@ -110,7 +110,7 @@ class BiSEndpoint(override val storage: ActorRef, ariyala: ActorRef)(implicit ti
     tags = Array("best in slot"),
   )
   def modifyBiS: Route =
-    path("party" / Segment / "bis") { partyId: String =>
+    path("party" / Segment / "bis") { partyId =>
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
           post {

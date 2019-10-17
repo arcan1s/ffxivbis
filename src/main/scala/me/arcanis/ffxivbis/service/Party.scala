@@ -31,7 +31,7 @@ case class Party(partyId: String, config: Config, players: Map[PlayerId, Player]
 
 object Party {
   def apply(partyId: Option[String], config: Config): Party =
-    new Party(partyId.getOrElse(Random.alphanumeric.take(20).mkString), config, Map.empty)
+    new Party(partyId.getOrElse(randomPartyId), config, Map.empty)
 
   def apply(partyId: String, config: Config,
             players: Map[Long, Player], bis: Seq[Loot], loot: Seq[Loot]): Party = {
@@ -45,4 +45,6 @@ object Party {
     }
     Party(partyId, config, playersWithItems)
   }
+
+  def randomPartyId: String = Random.alphanumeric.take(20).mkString
 }

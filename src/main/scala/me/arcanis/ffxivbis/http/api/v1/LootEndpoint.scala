@@ -44,7 +44,7 @@ class LootEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
     tags = Array("loot"),
   )
   def getLoot: Route =
-    path("party" / Segment / "loot") { partyId: String =>
+    path("party" / Segment / "loot") { partyId =>
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
           get {
@@ -77,7 +77,7 @@ class LootEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
     tags = Array("loot"),
   )
   def modifyLoot: Route =
-    path("party" / Segment / "loot") { partyId: String =>
+    path("party" / Segment / "loot") { partyId =>
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
           post {
@@ -120,7 +120,7 @@ class LootEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
     tags = Array("loot"),
   )
   def suggestLoot: Route =
-    path("party" / Segment / "loot") { partyId: String =>
+    path("party" / Segment / "loot") { partyId =>
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
           put {

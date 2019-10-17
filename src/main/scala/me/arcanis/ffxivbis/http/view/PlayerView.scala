@@ -16,7 +16,7 @@ class PlayerView(override val storage: ActorRef, ariyala: ActorRef)(implicit tim
   def route: Route = getParty ~ modifyParty
 
   def getParty: Route =
-    path("party" / Segment) { partyId: String =>
+    path("party" / Segment / "players") { partyId: String =>
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
           get {
@@ -33,14 +33,14 @@ class PlayerView(override val storage: ActorRef, ariyala: ActorRef)(implicit tim
     }
 
   def modifyParty: Route =
-    path("party" / Segment) { partyId: String =>
+    path("party" / Segment / "players") { partyId: String =>
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
           post {
             formFields("nick".as[String], "job".as[String], "priority".as[Int].?, "link".as[String].?, "action".as[String]) {
               (nick, job, maybePriority, maybeLink, action) =>
                 onComplete(modifyPartyCall(partyId, nick, job, maybePriority, maybeLink, action)) {
-                  case _ => redirect(s"/party/$partyId", StatusCodes.Found)
+                  case _ => redirect(s"/party/$partyId/players", StatusCodes.Found)
                 }
             }
           }
@@ -81,7 +81,7 @@ object PlayerView {
           ErrorView.template(error),
           SearchLineView.template,
 
-          form(action:=s"/party/$partyId", method:="post")(
+          form(action:=s"/party/$partyId/players", method:="post")(
             input(name:="nick", id:="nick", placeholder:="nick", title:="nick", `type`:="nick"),
             select(name:="job", id:="job", title:="job")
                   (for (job <- Job.groupAll) yield option(job.toString)),
@@ -107,7 +107,7 @@ object PlayerView {
               td(player.lootCountTotal),
               td(player.priority),
               td(
-                form(action:=s"/party/$partyId", method:="post")(
+                form(action:=s"/party/$partyId/players", method:="post")(
                   input(name:="nick", id:="nick", `type`:="hidden", value:=player.nick),
                   input(name:="job", id:="job", `type`:="hidden", value:=player.job.toString),
                   input(name:="action", id:="action", `type`:="hidden", value:="remove"),
@@ -118,6 +118,7 @@ object PlayerView {
           ),
 
           ExportToCSVView.template,
+          BasePartyView.root(partyId),
           script(src:="/static/table_search.js", `type`:="text/javascript")
         )
       )

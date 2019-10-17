@@ -44,7 +44,7 @@ class PlayerEndpoint(override val storage: ActorRef, ariyala: ActorRef)(implicit
     tags = Array("party"),
   )
   def getParty: Route =
-    path("party" / Segment) { partyId: String =>
+    path("party" / Segment) { partyId =>
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
           get {
@@ -77,7 +77,7 @@ class PlayerEndpoint(override val storage: ActorRef, ariyala: ActorRef)(implicit
     tags = Array("party"),
   )
   def modifyParty: Route =
-    path("party" / Segment) { partyId: String =>
+    path("party" / Segment) { partyId =>
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
           entity(as[PlayerActionResponse]) { action =>
