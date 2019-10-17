@@ -14,7 +14,7 @@ import scala.util.Try
 class UserView(override val storage: ActorRef)(implicit timeout: Timeout)
   extends UserHelper(storage) with Authorization {
 
-  def route: Route = getUsers
+  def route: Route = getUsers ~ modifyUsers
 
   def getUsers: Route =
     path("party" / Segment / "users") { partyId: String =>
@@ -85,8 +85,8 @@ object UserView {
           SearchLineView.template,
 
           form(action:=s"/party/$partyId/users", method:="post")(
-            input(name:="username", id:="username", title:="username", placeholder:="username", `type`:="text"),
-            input(name:="password", id:="password", title:="password", placeholder:="password", `type`:="password"),
+            input(name:="username", id:="username", placeholder:="username", title:="username", `type`:="text"),
+            input(name:="password", id:="password", placeholder:="password", title:="password", `type`:="password"),
             select(name:="permission", id:="permission", title:="permission")(option("get"), option("post")),
             input(name:="action", id:="action", `type`:="hidden", value:="add"),
             input(name:="add", id:="add", `type`:="submit", value:="add")

@@ -10,10 +10,12 @@ class RootView(storage: ActorRef, ariyala: ActorRef)(implicit timeout: Timeout) 
 
   private val biSView = new BiSView(storage, ariyala)
   private val lootView = new LootView(storage)
+  private val lootSuggestView = new LootSuggestView(storage)
+  private val playerView = new PlayerView(storage, ariyala)
   private val userView = new UserView(storage)
 
   def route: Route =
-    biSView.route ~ lootView.route ~ userView.route
+    biSView.route ~ lootView.route ~ lootSuggestView.route ~ playerView.route ~ userView.route
 }
 
 object RootView {

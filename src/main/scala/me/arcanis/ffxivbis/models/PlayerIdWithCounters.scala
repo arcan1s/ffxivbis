@@ -12,10 +12,10 @@ case class PlayerIdWithCounters(partyId: String,
   extends PlayerIdBase {
   import PlayerIdWithCounters._
 
-  def playerId: PlayerId = PlayerId(partyId, job, nick)
-
   def gt(that: PlayerIdWithCounters, orderBy: Seq[String]): Boolean =
     withCounters(orderBy) > that.withCounters(orderBy)
+  def isRequiredToString: String = if (isRequired) "yes" else "no"
+  def playerId: PlayerId = PlayerId(partyId, job, nick)
 
   private val counters: Map[String, Int] = Map(
     "isRequired" -> (if (isRequired) 1 else 0),

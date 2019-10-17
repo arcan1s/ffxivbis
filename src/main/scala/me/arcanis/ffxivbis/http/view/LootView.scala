@@ -23,7 +23,7 @@ class LootView (override val storage: ActorRef)(implicit timeout: Timeout)
           get {
             complete {
               loot(partyId, None).map { players =>
-                LootView.template(partyId, players, Piece.available, None)
+                LootView.template(partyId, players, None)
               }.map { text =>
                 (StatusCodes.OK, RootView.toHtml(text))
               }
@@ -53,8 +53,10 @@ class LootView (override val storage: ActorRef)(implicit timeout: Timeout)
                              maybePiece: String, maybeIsTome: Option[String],
                              action: String)
                             (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Unit] = {
+    import me.arcanis.ffxivbis.utils.Implicits._
+
     def getPiece(playerId: PlayerId) =
-      Try(Piece(maybePiece, maybeIsTome.isDefined, playerId.job)).toOption
+      Try(Piece(maybePiece, maybeIsTome, playerId.job)).toOption
 
     PlayerId(partyId, player) match {
       case Some(playerId) => (getPiece(playerId), action) match {
@@ -70,7 +72,7 @@ class LootView (override val storage: ActorRef)(implicit timeout: Timeout)
 object LootView {
   import scalatags.Text.all._
 
-  def template(partyId: String, party: Seq[Player], pieces: Seq[String], error: Option[String]): String =
+  def template(partyId: String, party: Seq[Player], error: Option[String]): String =
     "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">" +
       html(lang:="en",
         head(
@@ -88,7 +90,7 @@ object LootView {
             select(name:="player", id:="player", title:="player")
                   (for (player <- party) yield option(player.playerId.toString)),
             select(name:="piece", id:="piece", title:="piece")
-                  (for (piece <- pieces) yield option(piece)),
+                  (for (piece <- Piece.available) yield option(piece)),
             input(name:="is_tome", id:="is_tome", title:="is tome", `type`:="checkbox"),
             label(`for`:="is_tome")("is tome gear"),
             input(name:="action", id:="action", `type`:="hidden", value:="add"),
