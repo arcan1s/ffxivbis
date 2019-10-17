@@ -1,4 +1,4 @@
-name := "ffxivbis-scala"
+name := "ffxivbis"
 
 version := "0.9.0"
 

@@ -17,7 +17,7 @@ function exportTableToCsv(filename) {
     var csv = [];
     for (var i = 0; i < rows.length; i++) {
         if (rows[i].style.display === "none")
-            continue
+            continue;
         var cols = rows[i].querySelectorAll("td, th");
 
         var row = [];

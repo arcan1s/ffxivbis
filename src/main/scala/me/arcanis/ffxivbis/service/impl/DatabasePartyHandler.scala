@@ -1,12 +1,18 @@
+/*
+ * Copyright (c) 2019 Evgeniy Alekseev.
+ *
+ * This file is part of ffxivbis
+ * (see https://github.com/arcan1s/ffxivbis).
+ *
+ * License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
+ */
 package me.arcanis.ffxivbis.service.impl
 
-import akka.actor.Actor
 import akka.pattern.pipe
-import com.typesafe.scalalogging.StrictLogging
 import me.arcanis.ffxivbis.models.{BiS, Player, PlayerId}
 import me.arcanis.ffxivbis.service.Database
 
-trait DatabasePartyHandler { this: Actor with StrictLogging with Database  =>
+trait DatabasePartyHandler { this: Database  =>
   import DatabasePartyHandler._
 
   def partyHandler: Receive = {
