@@ -20,7 +20,7 @@ class UserHelper(storage: ActorRef) {
 
   def addUser(user: User, isHashedPassword: Boolean)
              (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
-    (storage ? DatabaseUserHandler.InsertUser(user, isHashedPassword)).mapTo[Int]
+    (storage ? DatabaseUserHandler.AddUser(user, isHashedPassword)).mapTo[Int]
 
   def user(partyId: String, username: String)
           (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Option[User]] =

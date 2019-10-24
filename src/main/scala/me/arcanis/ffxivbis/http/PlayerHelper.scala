@@ -36,7 +36,7 @@ class PlayerHelper(storage: ActorRef, ariyala: ActorRef) extends AriyalaHelper(a
                 (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Seq[Player]] =
     maybePlayerId match {
       case Some(playerId) =>
-        (storage ? DatabasePartyHandler.GetPlayer(playerId)).mapTo[Player].map(Seq(_))
+        (storage ? DatabasePartyHandler.GetPlayer(playerId)).mapTo[Option[Player]].map(_.toSeq)
       case None =>
         (storage ? DatabasePartyHandler.GetParty(partyId)).mapTo[Party].map(_.players.values.toSeq)
     }

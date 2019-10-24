@@ -44,7 +44,10 @@ trait LootProfile { this: DatabaseProfile =>
   }
 
   def deletePieceById(piece: Piece)(playerId: Long): Future[Int] =
-    db.run(pieceLoot(LootRep.fromPiece(playerId, piece)).take(1).delete)
+    db.run(pieceLoot(LootRep.fromPiece(playerId, piece)).map(_.lootId).max.result).flatMap {
+      case Some(id) => db.run(lootTable.filter(_.lootId === id).delete)
+      case _ => throw new IllegalArgumentException(s"Could not find piece $piece belong to $playerId")
+    }
   def getPiecesById(playerId: Long): Future[Seq[Loot]] = getPiecesById(Seq(playerId))
   def getPiecesById(playerIds: Seq[Long]): Future[Seq[Loot]] =
     db.run(piecesLoot(playerIds).result).map(_.map(_.toLoot))

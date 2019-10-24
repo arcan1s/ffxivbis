@@ -18,7 +18,7 @@ import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Sink}
 import akka.util.ByteString
 import com.typesafe.scalalogging.StrictLogging
-import me.arcanis.ffxivbis.models.{Job, Piece}
+import me.arcanis.ffxivbis.models.{BiS, Job, Piece}
 import spray.json._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,7 +39,7 @@ class Ariyala extends Actor with StrictLogging {
   override def receive: Receive = {
     case GetBiS(link, job) =>
       val client = sender()
-      get(link, job).pipeTo(client)
+      get(link, job).map(BiS(_)).pipeTo(client)
   }
 
   private def get(link: String, job: Job.Job): Future[Seq[Piece]] = {

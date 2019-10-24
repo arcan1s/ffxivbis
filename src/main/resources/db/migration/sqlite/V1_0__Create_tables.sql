@@ -1,6 +1,6 @@
 create table players (
     party_id text not null,
-    player_id integer primary key,
+    player_id integer primary key autoincrement,
     created integer not null,
     nick text not null,
     job text not null,
@@ -9,7 +9,7 @@ create table players (
 create unique index players_nick_job_idx on players(party_id, nick, job);
 
 create table loot (
-    loot_id integer primary key,
+    loot_id integer primary key autoincrement,
     player_id integer not null,
     created integer not null,
     piece text not null,
@@ -29,7 +29,7 @@ create unique index bis_piece_player_id_idx on bis(player_id, piece);
 
 create table users (
     party_id text not null,
-    user_id integer primary key,
+    user_id integer primary key autoincrement,
     username text not null,
     password text not null,
     permission text not null);

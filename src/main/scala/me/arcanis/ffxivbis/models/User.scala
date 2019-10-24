@@ -22,4 +22,5 @@ case class User(partyId: String,
   def hash: String = BCrypt.hashpw(password, BCrypt.gensalt)
   def verify(plain: String): Boolean = BCrypt.checkpw(plain, password)
   def verityScope(scope: Permission.Value): Boolean = permission >= scope
+  def withHashedPassword: User = copy(password = hash)
 }

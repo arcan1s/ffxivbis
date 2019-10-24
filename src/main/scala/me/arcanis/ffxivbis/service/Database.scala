@@ -19,6 +19,11 @@ trait Database extends Actor with StrictLogging {
   implicit def executionContext: ExecutionContext
   def profile: DatabaseProfile
 
+  override def postStop(): Unit = {
+    profile.db.close()
+    super.postStop()
+  }
+
   def filterParty(party: Party, maybePlayerId: Option[PlayerId]): Seq[Player] =
     (party, maybePlayerId) match {
       case (_, Some(playerId)) => party.player(playerId).map(Seq(_)).getOrElse(Seq.empty)

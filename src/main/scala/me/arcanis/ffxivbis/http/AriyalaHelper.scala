@@ -20,5 +20,5 @@ class AriyalaHelper(ariyala: ActorRef) {
 
   def downloadBiS(link: String, job: Job.Job)
                  (implicit executionContext: ExecutionContext, timeout: Timeout): Future[BiS] =
-    (ariyala ? Ariyala.GetBiS(link, job)).mapTo[Seq[Piece]].map(BiS(_))
+    (ariyala ? Ariyala.GetBiS(link, job)).mapTo[BiS]
 }

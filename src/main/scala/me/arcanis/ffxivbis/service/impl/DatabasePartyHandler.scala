@@ -12,6 +12,8 @@ import akka.pattern.pipe
 import me.arcanis.ffxivbis.models.{BiS, Player, PlayerId}
 import me.arcanis.ffxivbis.service.Database
 
+import scala.concurrent.Future
+
 trait DatabasePartyHandler { this: Database  =>
   import DatabasePartyHandler._
 
@@ -26,11 +28,16 @@ trait DatabasePartyHandler { this: Database  =>
 
     case GetPlayer(playerId) =>
       val client = sender()
-      val player = for {
-        bis <- profile.getPiecesBiS(playerId)
-        loot <- profile.getPieces(playerId)
-      } yield Player(playerId.partyId, playerId.job, playerId.nick,
-        BiS(bis.map(_.piece)), loot.map(_.piece))
+      val player = profile.getPlayerFull(playerId).flatMap { maybePlayerData =>
+        Future.traverse(maybePlayerData.toSeq) { playerData =>
+          for {
+            bis <- profile.getPiecesBiS(playerId)
+            loot <- profile.getPieces(playerId)
+          } yield Player(playerId.partyId, playerId.job, playerId.nick,
+            BiS(bis.map(_.piece)), loot.map(_.piece),
+            playerData.link, playerData.priority)
+        }
+      }.map(_.headOption)
       player.pipeTo(client)
 
     case RemovePlayer(playerId) =>

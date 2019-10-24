@@ -49,6 +49,8 @@ trait PlayersProfile { this: DatabaseProfile =>
     })
   def getPlayer(playerId: PlayerId): Future[Option[Long]] =
     db.run(player(playerId).map(_.playerId).result.headOption)
+  def getPlayerFull(playerId: PlayerId): Future[Option[Player]] =
+    db.run(player(playerId).result.headOption.map(_.map(_.toPlayer)))
   def getPlayers(partyId: String): Future[Seq[Long]] =
     db.run(players(partyId).map(_.playerId).result)
   def insertPlayer(playerObj: Player): Future[Int] =

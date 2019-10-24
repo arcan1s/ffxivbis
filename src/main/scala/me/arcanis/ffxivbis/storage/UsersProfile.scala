@@ -22,7 +22,7 @@ trait UsersProfile { this: DatabaseProfile =>
   }
   object UserRep {
     def fromUser(user: User, id: Option[Long]): UserRep =
-      UserRep(user.partyId, None, user.username, user.password, user.permission.toString)
+      UserRep(user.partyId, id, user.username, user.password, user.permission.toString)
   }
 
   class Users(tag: Tag) extends Table[UserRep](tag, "users") {
@@ -47,8 +47,8 @@ trait UsersProfile { this: DatabaseProfile =>
   def getUsers(partyId: String): Future[Seq[User]] =
     db.run(user(partyId, None).result).map(_.map(_.toUser))
   def insertUser(userObj: User): Future[Int] =
-    db.run(user(userObj.partyId, Some(userObj.username)).result.headOption).map {
-      case Some(user) => db.run(usersTable.update(UserRep.fromUser(userObj, user.userId)))
+    db.run(user(userObj.partyId, Some(userObj.username)).map(_.userId).result.headOption).map {
+      case Some(id) => db.run(usersTable.insertOrUpdate(UserRep.fromUser(userObj, Some(id))))
       case _ => db.run(usersTable.insertOrUpdate(UserRep.fromUser(userObj, None)))
     }.flatten
 
