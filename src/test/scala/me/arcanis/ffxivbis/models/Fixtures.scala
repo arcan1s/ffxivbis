@@ -1,7 +1,5 @@
 package me.arcanis.ffxivbis.models
 
-import me.arcanis.ffxivbis.service.Party
-
 object Fixtures {
   lazy val bis: BiS = BiS(
     Seq(
@@ -22,9 +20,15 @@ object Fixtures {
 
   lazy val link: String = "https://ffxiv.ariyala.com/19V5R"
 
-  lazy val lootBody: Piece = Body(isTome = false, Job.DNC)
-  lazy val lootHands: Piece = Hands(isTome = true, Job.DNC)
-  lazy val lootLegs: Piece = Legs(isTome = false, Job.DNC)
+  lazy val lootWeapon: Piece = Weapon(isTome = true, Job.AnyJob)
+  lazy val lootBody: Piece = Body(isTome = false, Job.AnyJob)
+  lazy val lootHands: Piece = Hands(isTome = true, Job.AnyJob)
+  lazy val lootWaist: Piece = Waist(isTome = true, Job.AnyJob)
+  lazy val lootLegs: Piece = Legs(isTome = false, Job.AnyJob)
+  lazy val lootEars: Piece = Ears(isTome = false, Job.AnyJob)
+  lazy val lootRing: Piece = Ring(isTome = true, Job.AnyJob)
+  lazy val lootLeftRing: Piece = Ring(isTome = true, Job.AnyJob, "leftRing")
+  lazy val lootRightRing: Piece = Ring(isTome = true, Job.AnyJob, "rightRing")
   lazy val lootUpgrade: Piece = BodyUpgrade
   lazy val loot: Seq[Piece] = Seq(lootBody, lootHands, lootLegs, lootUpgrade)
 

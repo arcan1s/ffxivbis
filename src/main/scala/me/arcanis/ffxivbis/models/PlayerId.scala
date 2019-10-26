@@ -23,13 +23,13 @@ case class PlayerId(partyId: String, job: Job.Job, nick: String) extends PlayerI
 object PlayerId {
   def apply(partyId: String, maybeNick: Option[String], maybeJob: Option[String]): Option[PlayerId] =
     (maybeNick, maybeJob) match {
-      case (Some(nick), Some(job)) => Try(PlayerId(partyId, Job.fromString(job), nick)).toOption
+      case (Some(nick), Some(job)) => Try(PlayerId(partyId, Job.withName(job), nick)).toOption
       case _ => None
     }
 
   private val prettyPlayerIdRegex: Regex = "^(.*) \\(([A-Z]{3})\\)$".r
   def apply(partyId: String, player: String): Option[PlayerId] = player match {
-    case s"${prettyPlayerIdRegex(nick, job)}" => Try(PlayerId(partyId, Job.fromString(job), nick)).toOption
+    case s"${prettyPlayerIdRegex(nick, job)}" => Try(PlayerId(partyId, Job.withName(job), nick)).toOption
     case _ => None
   }
 }

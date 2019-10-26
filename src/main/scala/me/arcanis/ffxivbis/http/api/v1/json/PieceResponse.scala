@@ -15,7 +15,7 @@ case class PieceResponse(
   @Schema(description = "is piece tome gear", required = true) isTome: Boolean,
   @Schema(description = "job name to which piece belong or AnyJob", required = true, example = "DNC") job: String,
   @Schema(description = "piece name", required = true, example = "body") piece: String) {
-  def toPiece: Piece = Piece(piece, isTome, Job.fromString(job))
+  def toPiece: Piece = Piece(piece, isTome, Job.withName(job))
 }
 
 object PieceResponse {

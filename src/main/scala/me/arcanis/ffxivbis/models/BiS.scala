@@ -76,5 +76,5 @@ object BiS {
   def apply(): BiS = BiS(Seq.empty)
 
   def apply(pieces: Seq[Piece]): BiS =
-    BiS(pieces.map { piece => piece.piece -> Some(piece) }.toMap)
+    BiS(pieces.map(piece => piece.piece -> Some(piece)).toMap)
 }

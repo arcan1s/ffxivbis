@@ -104,7 +104,7 @@ object Piece {
       case other => throw new Error(s"Unknown item type $other")
     }
 
-  def available: Seq[String] = Seq("weapon",
+  lazy val available: Seq[String] = Seq("weapon",
     "head", "body", "hands", "waist", "legs", "feet",
     "ears", "neck", "wrist", "leftRing", "rightRing")
 }

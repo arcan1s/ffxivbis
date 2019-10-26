@@ -11,8 +11,7 @@ package me.arcanis.ffxivbis.http
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
-import me.arcanis.ffxivbis.models.{Player, PlayerId}
-import me.arcanis.ffxivbis.service.Party
+import me.arcanis.ffxivbis.models.{Party, Player, PlayerId}
 import me.arcanis.ffxivbis.service.impl.{DatabaseBiSHandler, DatabasePartyHandler}
 
 import scala.concurrent.{ExecutionContext, Future}

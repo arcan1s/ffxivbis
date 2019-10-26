@@ -19,7 +19,7 @@ trait PlayersProfile { this: DatabaseProfile =>
   case class PlayerRep(partyId: String, playerId: Option[Long], created: Long, nick: String,
                        job: String, link: Option[String], priority: Int) {
     def toPlayer: Player =
-      Player(partyId, Job.fromString(job), nick, BiS(Seq.empty), List.empty, link, priority)
+      Player(partyId, Job.withName(job), nick, BiS(Seq.empty), List.empty, link, priority)
   }
   object PlayerRep {
     def fromPlayer(player: Player, id: Option[Long]): PlayerRep =

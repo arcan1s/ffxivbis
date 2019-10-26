@@ -15,7 +15,7 @@ case class Player(partyId: String,
                   loot: Seq[Piece],
                   link: Option[String] = None,
                   priority: Int = 0) {
-  require(job != Job.AnyJob, "AnyJob is not allowed")
+  require(job ne Job.AnyJob, "AnyJob is not allowed")
 
   val playerId: PlayerId = PlayerId(partyId, job, nick)
   def withBiS(set: Option[BiS]): Player = set match {

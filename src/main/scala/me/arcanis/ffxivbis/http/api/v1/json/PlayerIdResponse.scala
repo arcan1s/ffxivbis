@@ -16,5 +16,5 @@ case class PlayerIdResponse(
   @Schema(description = "job name", required = true, example = "DNC") job: String,
   @Schema(description = "player nick name", required = true, example = "Siuan Sanche") nick: String) {
   def withPartyId(partyId: String): PlayerId =
-    PlayerId(partyId, Job.fromString(job), nick)
+    PlayerId(partyId, Job.withName(job), nick)
 }

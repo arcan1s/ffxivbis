@@ -17,7 +17,7 @@ trait BiSProfile { this: DatabaseProfile =>
   import dbConfig.profile.api._
 
   case class BiSRep(playerId: Long, created: Long, piece: String, isTome: Int, job: String) {
-    def toLoot: Loot = Loot(playerId, Piece(piece, isTome == 1, Job.fromString(job)))
+    def toLoot: Loot = Loot(playerId, Piece(piece, isTome == 1, Job.withName(job)))
   }
   object BiSRep {
     def fromPiece(playerId: Long, piece: Piece) =

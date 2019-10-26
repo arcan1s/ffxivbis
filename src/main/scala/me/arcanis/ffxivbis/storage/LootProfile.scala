@@ -18,7 +18,7 @@ trait LootProfile { this: DatabaseProfile =>
 
   case class LootRep(lootId: Option[Long], playerId: Long, created: Long, piece: String,
                      isTome: Int, job: String) {
-    def toLoot: Loot = Loot(playerId, Piece(piece, isTome == 1, Job.fromString(job)))
+    def toLoot: Loot = Loot(playerId, Piece(piece, isTome == 1, Job.withName(job)))
   }
   object LootRep {
     def fromPiece(playerId: Long, piece: Piece) =

@@ -14,8 +14,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.util.Timeout
 import me.arcanis.ffxivbis.http.UserHelper
-import me.arcanis.ffxivbis.models.{Permission, User}
-import me.arcanis.ffxivbis.service.Party
+import me.arcanis.ffxivbis.models.{Party, Permission, User}
 
 class IndexView(storage: ActorRef)(implicit timeout: Timeout)
   extends UserHelper(storage) {

@@ -6,20 +6,18 @@
  *
  * License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
  */
-package me.arcanis.ffxivbis.service
+package me.arcanis.ffxivbis.models
 
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
-import me.arcanis.ffxivbis.models.{BiS, Loot, Piece, Player, PlayerId}
+import me.arcanis.ffxivbis.service.LootSelector
 
 import scala.jdk.CollectionConverters._
 import scala.util.Random
 
-case class Party(partyId: String, config: Config, players: Map[PlayerId, Player])
+case class Party(partyId: String, rules: Seq[String], players: Map[PlayerId, Player])
   extends StrictLogging {
-
-  private val rules =
-    config.getStringList("me.arcanis.ffxivbis.settings.priority").asScala.toSeq
+  require(players.keys.forall(_.partyId == partyId), "party id must be same")
 
   def getPlayers: Seq[Player] = players.values.toSeq
   def player(playerId: PlayerId): Option[Player] = players.get(playerId)
@@ -38,8 +36,11 @@ case class Party(partyId: String, config: Config, players: Map[PlayerId, Player]
 }
 
 object Party {
+  private def getRules(config: Config): Seq[String] =
+    config.getStringList("me.arcanis.ffxivbis.settings.priority").asScala.toSeq
+
   def apply(partyId: Option[String], config: Config): Party =
-    new Party(partyId.getOrElse(randomPartyId), config, Map.empty)
+    new Party(partyId.getOrElse(randomPartyId), getRules(config), Map.empty)
 
   def apply(partyId: String, config: Config,
             players: Map[Long, Player], bis: Seq[Loot], loot: Seq[Loot]): Party = {
@@ -51,7 +52,7 @@ object Party {
           .withBiS(bisByPlayer.get(playerId))
           .withLoot(lootByPlayer.get(playerId)))
     }
-    Party(partyId, config, playersWithItems)
+    Party(partyId, getRules(config), playersWithItems)
   }
 
   def randomPartyId: String = Random.alphanumeric.take(20).mkString

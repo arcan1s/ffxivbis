@@ -20,7 +20,7 @@ case class PlayerResponse(
   @Schema(description = "link to best in slot", example = "https://ffxiv.ariyala.com/19V5R") link: Option[String],
   @Schema(description = "player loot priority") priority: Option[Int]) {
   def toPlayer: Player =
-    Player(partyId, Job.fromString(job), nick,
+    Player(partyId, Job.withName(job), nick,
       BiS(bis.getOrElse(Seq.empty).map(_.toPiece)), loot.getOrElse(Seq.empty).map(_.toPiece),
       link, priority.getOrElse(0))
 }

@@ -10,7 +10,7 @@ package me.arcanis.ffxivbis.service
 
 import akka.actor.Actor
 import com.typesafe.scalalogging.StrictLogging
-import me.arcanis.ffxivbis.models.{Player, PlayerId}
+import me.arcanis.ffxivbis.models.{Party, Player, PlayerId}
 import me.arcanis.ffxivbis.storage.DatabaseProfile
 
 import scala.concurrent.{ExecutionContext, Future}

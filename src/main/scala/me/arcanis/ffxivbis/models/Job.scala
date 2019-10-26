@@ -9,65 +9,95 @@
 package me.arcanis.ffxivbis.models
 
 object Job {
-  sealed trait Job
+  sealed trait RightSide
+  object AccessoriesDex extends RightSide
+  object AccessoriesInt extends RightSide
+  object AccessoriesMnd extends RightSide
+  object AccessoriesStr extends RightSide
+  object AccessoriesVit extends RightSide
+
+  sealed trait LeftSide
+  object BodyCasters extends LeftSide
+  object BodyDrgs extends LeftSide
+  object BodyHealers extends LeftSide
+  object BodyMnks extends LeftSide
+  object BodyNins extends LeftSide
+  object BodyTanks extends LeftSide
+  object BodyRanges extends LeftSide
+
+  sealed trait Job {
+    def leftSide: LeftSide
+    def rightSide: RightSide
+
+    // conversion to string to avoid recursion
+    override def equals(obj: Any): Boolean = {
+      def canEqual(obj: Any): Boolean = obj.isInstanceOf[Job]
+      def equality(objRepr: String): Boolean = objRepr match {
+        case _ if objRepr == AnyJob.toString => true
+        case _ if this.toString == AnyJob.toString => true
+        case _ => this.toString == obj.toString
+      }
+
+      canEqual(obj) && equality(obj.toString)
+    }
+  }
 
   case object AnyJob extends Job {
-    override def equals(obj: Any): Boolean = obj match {
-      case Job => true
-      case _ => false
-    }
+    val leftSide: LeftSide = null
+    val rightSide: RightSide = null
   }
 
-  case object PLD extends Job
-  case object WAR extends Job
-  case object DRK extends Job
-  case object GNB extends Job
-
-  case object WHM extends Job
-  case object SCH extends Job
-  case object AST extends Job
-
-  case object MNK extends Job
-  case object DRG extends Job
-  case object NIN extends Job
-  case object SAM extends Job
-
-  case object BRD extends Job
-  case object MCH extends Job
-  case object DNC extends Job
-
-  case object BLM extends Job
-  case object SMN extends Job
-  case object RDM extends Job
-
-  def groupAccessoriesDex: Seq[Job.Job] = groupRanges :+ NIN
-  def groupAccessoriesStr: Seq[Job.Job] = groupMnk :+ DRG
-  def groupAll: Seq[Job.Job] = groupCasters ++ groupHealers ++ groupRanges ++ groupTanks
-  def groupCasters: Seq[Job.Job] = Seq(BLM, SMN, RDM)
-  def groupHealers: Seq[Job.Job] = Seq(WHM, SCH, AST)
-  def groupMnk: Seq[Job.Job] = Seq(MNK, SAM)
-  def groupRanges: Seq[Job.Job] = Seq(BRD, MCH, DNC)
-  def groupTanks: Seq[Job.Job] = Seq(PLD, WAR, DRK, GNB)
-
-  def groupFull: Seq[Seq[Job.Job]] = Seq(groupCasters, groupHealers, groupMnk, groupRanges, groupTanks)
-  def groupRight: Seq[Seq[Job.Job]] = Seq(groupAccessoriesDex, groupAccessoriesStr)
-
-  def fromString(job: String): Job.Job = groupAll.find(_.toString == job.toUpperCase).orNull
-
-  def hasSameLoot(left: Job, right: Job, piece: Piece): Boolean = {
-    def isAccessory(piece: Piece): Boolean = piece match {
-      case _: PieceAccessory => true
-      case _ => false
-    }
-    def isWeapon(piece: Piece): Boolean = piece match {
-      case _: PieceWeapon => true
-      case _ => false
-    }
-
-    if (left == right) true
-    else if (isWeapon(piece)) false
-    else if (groupFull.exists(group => group.contains(left) && group.contains(right))) true
-    else if (isAccessory(piece) && groupRight.exists(group => group.contains(left) && group.contains(right))) true
-    else false
+  trait Casters extends Job {
+    val leftSide: LeftSide = BodyCasters
+    val rightSide: RightSide = AccessoriesInt
   }
+  trait Healers extends Job {
+    val leftSide: LeftSide = BodyHealers
+    val rightSide: RightSide = AccessoriesMnd
+  }
+  trait Mnks extends Job {
+    val leftSide: LeftSide = BodyMnks
+    val rightSide: RightSide = AccessoriesStr
+  }
+  trait Tanks extends Job {
+    val leftSide: LeftSide = BodyTanks
+    val rightSide: RightSide = AccessoriesVit
+  }
+  trait Ranges extends Job {
+    val leftSide: LeftSide = BodyRanges
+    val rightSide: RightSide = AccessoriesDex
+  }
+
+  case object PLD extends Tanks
+  case object WAR extends Tanks
+  case object DRK extends Tanks
+  case object GNB extends Tanks
+
+  case object WHM extends Healers
+  case object SCH extends Healers
+  case object AST extends Healers
+
+  case object MNK extends Mnks
+  case object DRG extends Job {
+    val leftSide: LeftSide = BodyDrgs
+    val rightSide: RightSide = AccessoriesStr
+  }
+  case object NIN extends Job {
+    val leftSide: LeftSide = BodyNins
+    val rightSide: RightSide = AccessoriesDex
+  }
+  case object SAM extends Mnks
+
+  case object BRD extends Ranges
+  case object MCH extends Ranges
+  case object DNC extends Ranges
+
+  case object BLM extends Casters
+  case object SMN extends Casters
+  case object RDM extends Casters
+
+  lazy val jobs: Seq[Job] =
+    Seq(PLD, WAR, DRK, GNB, WHM, SCH, AST, MNK, DRG, NIN, SAM, BRD, MCH, DNC, BLM, SMN, RDM)
+
+  def withName(job: String): Job.Job = jobs.find(_.toString == job.toUpperCase).getOrElse(AnyJob)
 }
