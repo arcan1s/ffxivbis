@@ -1,4 +1,6 @@
-package me.arcanis.ffxivbis.models
+package me.arcanis.ffxivbis
+
+import me.arcanis.ffxivbis.models._
 
 object Fixtures {
   lazy val bis: BiS = BiS(
@@ -19,6 +21,7 @@ object Fixtures {
   )
 
   lazy val link: String = "https://ffxiv.ariyala.com/19V5R"
+  lazy val link2: String = "https://ffxiv.ariyala.com/1A0WM"
 
   lazy val lootWeapon: Piece = Weapon(isTome = true, Job.AnyJob)
   lazy val lootBody: Piece = Body(isTome = false, Job.AnyJob)

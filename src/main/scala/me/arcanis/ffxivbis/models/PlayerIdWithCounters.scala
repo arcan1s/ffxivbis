@@ -26,12 +26,12 @@ case class PlayerIdWithCounters(partyId: String,
   def playerId: PlayerId = PlayerId(partyId, job, nick)
 
   private val counters: Map[String, Int] = Map(
-    "isRequired" -> (if (isRequired) 1 else 0),
-    "priority" -> priority,
-    "bisCountTotal" -> bisCountTotal,
-    "lootCount" -> lootCount,
-    "lootCountBiS" -> lootCountBiS,
-    "lootCountTotal" -> lootCountTotal) withDefaultValue 0
+    "isRequired" -> (if (isRequired) 1 else 0), // true has more priority
+    "priority" -> -priority, // the less value the more priority
+    "bisCountTotal" -> bisCountTotal, // the more pieces in bis the more priority
+    "lootCount" -> -lootCount, // the less loot got the more priority
+    "lootCountBiS" -> -lootCountBiS, // the less bis pieces looted the more priority
+    "lootCountTotal" -> -lootCountTotal) withDefaultValue 0 // the less pieces looted the more priority
 
   private def withCounters(orderBy: Seq[String]): PlayerCountersComparator =
     PlayerCountersComparator(orderBy.map(counters): _*)

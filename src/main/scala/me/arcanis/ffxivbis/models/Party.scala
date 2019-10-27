@@ -50,7 +50,7 @@ object Party {
       case (acc, (playerId, player)) =>
         acc + (player.playerId -> player
           .withBiS(bisByPlayer.get(playerId))
-          .withLoot(lootByPlayer.get(playerId)))
+          .withLoot(lootByPlayer.getOrElse(playerId, Seq.empty)))
     }
     Party(partyId, getRules(config), playersWithItems)
   }

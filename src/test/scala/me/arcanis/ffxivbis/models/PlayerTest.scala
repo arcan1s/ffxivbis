@@ -1,5 +1,6 @@
 package me.arcanis.ffxivbis.models
 
+import me.arcanis.ffxivbis.Fixtures
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 class PlayerTest extends WordSpecLike with Matchers with BeforeAndAfterAll {
@@ -11,7 +12,7 @@ class PlayerTest extends WordSpecLike with Matchers with BeforeAndAfterAll {
     }
 
     "add loot" in {
-      Fixtures.playerEmpty.withLoot(Some(Fixtures.loot)).loot shouldEqual Fixtures.loot
+      Fixtures.playerEmpty.withLoot(Fixtures.loot).loot shouldEqual Fixtures.loot
     }
 
   }

@@ -1,5 +1,6 @@
 package me.arcanis.ffxivbis.models
 
+import me.arcanis.ffxivbis.Fixtures
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 class UserTest extends WordSpecLike with Matchers with BeforeAndAfterAll {

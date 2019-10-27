@@ -2,7 +2,8 @@ package me.arcanis.ffxivbis.service
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
-import me.arcanis.ffxivbis.models.{Fixtures, Job}
+import me.arcanis.ffxivbis.Fixtures
+import me.arcanis.ffxivbis.models._
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.duration._

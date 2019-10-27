@@ -27,9 +27,10 @@ case class Player(partyId: String,
       partyId, job, nick, isRequired(piece), priority,
       bisCountTotal(piece), lootCount(piece),
       lootCountBiS(piece), lootCountTotal(piece))
-  def withLoot(list: Option[Seq[Piece]]): Player = list match {
-    case Some(value) => copy(loot = value)
-    case None => this
+  def withLoot(piece: Piece): Player = withLoot(Seq(piece))
+  def withLoot(list: Seq[Piece]): Player = list match {
+    case Nil => this
+    case _ => copy(loot = list)
   }
 
   def isRequired(piece: Option[Piece]): Boolean = {

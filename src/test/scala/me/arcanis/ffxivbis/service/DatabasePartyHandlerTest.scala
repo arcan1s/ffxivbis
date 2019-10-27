@@ -2,7 +2,8 @@ package me.arcanis.ffxivbis.service
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
-import me.arcanis.ffxivbis.models.{Fixtures, Party, Settings}
+import me.arcanis.ffxivbis.{Fixtures, Settings}
+import me.arcanis.ffxivbis.models._
 import me.arcanis.ffxivbis.storage.Migration
 import me.arcanis.ffxivbis.utils.Compare
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}

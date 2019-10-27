@@ -1,0 +1,9 @@
+sudo: required
+language: generic
+
+services:
+  - docker
+
+script:
+  - docker run -it --rm mozilla/sbt sbt compile
+  - docker run -it --rm mozilla/sbt sbt test

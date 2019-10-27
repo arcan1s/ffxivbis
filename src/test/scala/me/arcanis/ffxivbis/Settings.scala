@@ -1,4 +1,4 @@
-package me.arcanis.ffxivbis.models
+package me.arcanis.ffxivbis
 
 import java.io.File
 

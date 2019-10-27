@@ -1,5 +1,6 @@
 package me.arcanis.ffxivbis.models
 
+import me.arcanis.ffxivbis.Fixtures
 import me.arcanis.ffxivbis.utils.Compare
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 

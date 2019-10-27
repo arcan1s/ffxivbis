@@ -22,7 +22,7 @@ import me.arcanis.ffxivbis.models.{BiS, Job, Piece}
 import spray.json._
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 class Ariyala extends Actor with StrictLogging {
   import Ariyala._
@@ -51,12 +51,16 @@ class Ariyala extends Actor with StrictLogging {
     sendRequest(uri, Ariyala.parseAriyalaJsonToPieces(job, getIsTome))
   }
 
-  private def getIsTome(itemId: Long): Future[Boolean] = {
-    val uri = Try(Uri(xivapiUrl)
-      .withPath(Uri.Path / "item" / itemId.toString)
-      .withQuery(Uri.Query(Map("columns" -> "IsEquippable", "private_key" -> xivapiKey.getOrElse("")))))
+  private def getIsTome(itemIds: Seq[Long]): Future[Map[Long, Boolean]] = {
+    val uri = Uri(xivapiUrl)
+      .withPath(Uri.Path / "item")
+      .withQuery(Uri.Query(Map(
+        "columns" -> Seq("ID", "IsEquippable").mkString(","),
+        "ids" -> itemIds.mkString(","),
+        "private_key" -> xivapiKey.getOrElse("")
+      )))
 
-    sendRequest(uri.toOption.get, Ariyala.parseXivapiJson)
+    sendRequest(uri, Ariyala.parseXivapiJson)
   }
 
   private def sendRequest[T](uri: Uri, parser: JsObject => Future[T]): Future[T] =
@@ -68,7 +72,7 @@ class Ariyala extends Actor with StrictLogging {
           .map(result => parser(result.parseJson.asJsObject))
           .toMat(Sink.head)(Keep.right)
           .run().flatten
-      case _ => Future.failed(deserializationError("Invalid response from server"))
+      case other => Future.failed(new Error(s"Invalid response from server $other"))
     }.flatten
 }
 
@@ -77,13 +81,14 @@ object Ariyala {
 
   case class GetBiS(link: String, job: Job.Job)
 
-  private def parseAriyalaJson(job: Job.Job)(js: JsObject): Future[Map[String, Long]] = {
-    try {
+  private def parseAriyalaJson(job: Job.Job)(js: JsObject)
+                              (implicit executionContext: ExecutionContext): Future[Map[String, Long]] =
+    Future {
       val apiJob = js.fields.get("content") match {
         case Some(JsString(value)) => value
         case other => throw deserializationError(s"Invalid job name $other")
       }
-      Future.successful(js.fields.get("datasets") match {
+      js.fields.get("datasets") match {
         case Some(datasets: JsObject) =>
           val fields = datasets.fields
           fields.getOrElse(apiJob, fields(job.toString)).asJsObject
@@ -94,24 +99,30 @@ object Ariyala {
             case (acc, _) => acc
           }
         case other => throw deserializationError(s"Invalid json $other")
-      })
-    } catch {
-      case e: Exception => Future.failed(e)
+      }
     }
-  }
 
-  private def parseAriyalaJsonToPieces(job: Job.Job, isTome: Long => Future[Boolean])(js: JsObject)
+  private def parseAriyalaJsonToPieces(job: Job.Job, isTome: Seq[Long] => Future[Map[Long, Boolean]])(js: JsObject)
                                       (implicit executionContext: ExecutionContext): Future[Seq[Piece]] =
-    parseAriyalaJson(job)(js).map { pieces =>
-      Future.sequence(pieces.toSeq.map {
-        case (itemName, itemId) => isTome(itemId).map(Piece(itemName, _, job))
-      })
-    }.flatten
+    parseAriyalaJson(job)(js).flatMap { pieces =>
+      isTome(pieces.values.toSeq).map { tomePieces =>
+        pieces.view.mapValues(tomePieces).map {
+          case (piece, isTomePiece) => Piece(piece, isTomePiece, job)
+        }.toSeq
+      }
+    }
 
-  private def parseXivapiJson(js: JsObject): Future[Boolean] =
-    js.fields.get("IsEquippable") match {
-      case Some(JsNumber(value)) => Future.successful(value == 0) // don't ask
-      case other => Future.failed(deserializationError(s"Could not parse $other"))
+  private def parseXivapiJson(js: JsObject)
+                             (implicit executionContext: ExecutionContext): Future[Map[Long, Boolean]] =
+    Future {
+      js.fields("Results") match {
+        case array: JsArray =>
+          array.elements.map(_.asJsObject.getFields("ID", "IsEquippable") match {
+            case Seq(JsNumber(id), JsNumber(isTome)) => id.toLong -> (isTome == 0)
+            case other => throw deserializationError(s"Could not parse $other")
+          }).toMap
+        case other => throw deserializationError(s"Could not parse $other")
+      }
     }
 
   private def remapKey(key: String): Option[String] = key match {
