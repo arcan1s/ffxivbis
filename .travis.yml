@@ -5,5 +5,5 @@ services:
   - docker
 
 script:
-  - docker run -it --rm mozilla/sbt sbt compile
-  - docker run -it --rm mozilla/sbt sbt test
+  - docker run -it --rm -v "$(pwd):/opt/build" -w /opt/build mozilla/sbt sbt compile
+  - docker run -it --rm -v "$(pwd):/opt/build" -w /opt/build mozilla/sbt sbt test
