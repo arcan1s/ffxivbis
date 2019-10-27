@@ -33,8 +33,8 @@ class Ariyala extends Actor with StrictLogging {
   private val xivapiKey = Try(settings.getString("me.arcanis.ffxivbis.ariyala.xivapi-key")).toOption
 
   private val http = Http()(context.system)
-  private implicit val materializer: ActorMaterializer = ActorMaterializer()
-  private implicit val executionContext: ExecutionContext = context.dispatcher
+  implicit private val materializer: ActorMaterializer = ActorMaterializer()
+  implicit private val executionContext: ExecutionContext = context.dispatcher
 
   override def receive: Receive = {
     case GetBiS(link, job) =>

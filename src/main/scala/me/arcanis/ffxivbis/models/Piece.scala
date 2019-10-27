@@ -8,10 +8,12 @@
  */
 package me.arcanis.ffxivbis.models
 
-trait Piece {
+sealed trait Piece {
   def isTome: Boolean
   def job: Job.Job
   def piece: String
+
+  def withJob(other: Job.Job): Piece
 
   def isTomeToString: String = if (isTome) "yes" else "no"
   def upgrade: Option[PieceUpgrade] = this match {
@@ -20,7 +22,6 @@ trait Piece {
     case _: PieceAccessory => Some(AccessoryUpgrade)
     case _: PieceBody => Some(BodyUpgrade)
     case _: PieceWeapon => Some(WeaponUpgrade)
-    case _ => None
   }
 }
 
@@ -29,43 +30,55 @@ trait PieceBody extends Piece
 trait PieceUpgrade extends Piece {
   val isTome: Boolean = true
   val job: Job.Job = Job.AnyJob
+  def withJob(other: Job.Job): Piece = this
 }
 trait PieceWeapon extends Piece
 
 case class Weapon(override val isTome: Boolean, override val job: Job.Job) extends PieceWeapon {
   val piece: String = "weapon"
+  def withJob(other: Job.Job): Piece = copy(job = other)
 }
 
 case class Head(override val isTome: Boolean, override val job: Job.Job) extends PieceBody {
   val piece: String = "head"
+  def withJob(other: Job.Job): Piece = copy(job = other)
 }
 case class Body(override val isTome: Boolean, override val job: Job.Job) extends PieceBody {
   val piece: String = "body"
+  def withJob(other: Job.Job): Piece = copy(job = other)
 }
 case class Hands(override val isTome: Boolean, override val job: Job.Job) extends PieceBody {
   val piece: String = "hands"
+  def withJob(other: Job.Job): Piece = copy(job = other)
 }
 case class Waist(override val isTome: Boolean, override val job: Job.Job) extends PieceBody {
   val piece: String = "waist"
+  def withJob(other: Job.Job): Piece = copy(job = other)
 }
 case class Legs(override val isTome: Boolean, override val job: Job.Job) extends PieceBody {
   val piece: String = "legs"
+  def withJob(other: Job.Job): Piece = copy(job = other)
 }
 case class Feet(override val isTome: Boolean, override val job: Job.Job) extends PieceBody {
   val piece: String = "feet"
+  def withJob(other: Job.Job): Piece = copy(job = other)
 }
 
 case class Ears(override val isTome: Boolean, override val job: Job.Job) extends PieceAccessory {
   val piece: String = "ears"
+  def withJob(other: Job.Job): Piece = copy(job = other)
 }
 case class Neck(override val isTome: Boolean, override val job: Job.Job) extends PieceAccessory {
   val piece: String = "neck"
+  def withJob(other: Job.Job): Piece = copy(job = other)
 }
 case class Wrist(override val isTome: Boolean, override val job: Job.Job) extends PieceAccessory {
   val piece: String = "wrist"
+  def withJob(other: Job.Job): Piece = copy(job = other)
 }
 case class Ring(override val isTome: Boolean, override val job: Job.Job, override val piece: String = "ring")
   extends PieceAccessory {
+  def withJob(other: Job.Job): Piece = copy(job = other)
   override def equals(obj: Any): Boolean = obj match {
     case Ring(thatIsTome, thatJob, _) => (thatIsTome == isTome) && (thatJob == job)
     case _ => false

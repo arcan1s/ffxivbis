@@ -18,3 +18,8 @@ case class PlayerIdResponse(
   def withPartyId(partyId: String): PlayerId =
     PlayerId(partyId, Job.withName(job), nick)
 }
+
+object PlayerIdResponse {
+  def fromPlayerId(playerId: PlayerId): PlayerIdResponse =
+    PlayerIdResponse(Some(playerId.partyId), playerId.job.toString, playerId.nick)
+}

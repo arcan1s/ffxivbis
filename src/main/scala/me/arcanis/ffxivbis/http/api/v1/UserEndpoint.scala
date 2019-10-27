@@ -88,7 +88,7 @@ class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
             entity(as[UserResponse]) { user =>
               val withPartyId = user.toUser.copy(partyId = partyId)
               complete {
-                addUser(withPartyId, isHashedPassword = false).map(_ => (StatusCodes.Created, HttpEntity.Empty))
+                addUser(withPartyId, isHashedPassword = false).map(_ => (StatusCodes.Accepted, HttpEntity.Empty))
               }
             }
           }

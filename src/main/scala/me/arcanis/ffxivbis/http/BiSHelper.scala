@@ -20,7 +20,7 @@ class BiSHelper(storage: ActorRef, ariyala: ActorRef) extends AriyalaHelper(ariy
 
   def addPieceBiS(playerId: PlayerId, piece: Piece)
                  (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
-    (storage ? DatabaseBiSHandler.AddPieceToBis(playerId, piece)).mapTo[Int]
+    (storage ? DatabaseBiSHandler.AddPieceToBis(playerId, piece.withJob(playerId.job))).mapTo[Int]
 
   def bis(partyId: String, playerId: Option[PlayerId])
          (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Seq[Player]] =
@@ -28,7 +28,9 @@ class BiSHelper(storage: ActorRef, ariyala: ActorRef) extends AriyalaHelper(ariy
 
   def putBiS(playerId: PlayerId, link: String)
             (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Unit] =
-    downloadBiS(link, playerId.job).map(_.pieces.map(addPieceBiS(playerId, _)))
+    downloadBiS(link, playerId.job).flatMap { bis =>
+      Future.traverse(bis.pieces)(addPieceBiS(playerId, _))
+    }.map(_ => ())
 
   def removePieceBiS(playerId: PlayerId, piece: Piece)
                     (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
