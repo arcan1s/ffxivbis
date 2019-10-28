@@ -11,6 +11,7 @@ package me.arcanis.ffxivbis.http
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
+import me.arcanis.ffxivbis.http.api.v1.json.ApiAction
 import me.arcanis.ffxivbis.models.{Piece, Player, PlayerId}
 import me.arcanis.ffxivbis.service.impl.DatabaseBiSHandler
 
@@ -25,6 +26,13 @@ class BiSHelper(storage: ActorRef, ariyala: ActorRef) extends AriyalaHelper(ariy
   def bis(partyId: String, playerId: Option[PlayerId])
          (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Seq[Player]] =
     (storage ? DatabaseBiSHandler.GetBiS(partyId, playerId)).mapTo[Seq[Player]]
+
+  def doModifyBiS(action: ApiAction.Value, playerId: PlayerId, piece: Piece)
+                 (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
+    action match {
+      case ApiAction.add => addPieceBiS(playerId, piece)
+      case ApiAction.remove => removePieceBiS(playerId, piece)
+    }
 
   def putBiS(playerId: PlayerId, link: String)
             (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Unit] =

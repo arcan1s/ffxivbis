@@ -11,11 +11,11 @@ package me.arcanis.ffxivbis.http
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
+import me.arcanis.ffxivbis.http.api.v1.json.ApiAction
 import me.arcanis.ffxivbis.models.{Party, Player, PlayerId}
 import me.arcanis.ffxivbis.service.impl.{DatabaseBiSHandler, DatabasePartyHandler}
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 class PlayerHelper(storage: ActorRef, ariyala: ActorRef) extends AriyalaHelper(ariyala) {
 
@@ -30,6 +30,13 @@ class PlayerHelper(storage: ActorRef, ariyala: ActorRef) extends AriyalaHelper(a
         case None => Future.successful(res)
       }
     }.flatten
+
+  def doModifyPlayer(action: ApiAction.Value, player: Player)
+                    (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
+    action match {
+      case ApiAction.add => addPlayer(player)
+      case ApiAction.remove => removePlayer(player.playerId)
+    }
 
   def getPlayers(partyId: String, maybePlayerId: Option[PlayerId])
                 (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Seq[Player]] =

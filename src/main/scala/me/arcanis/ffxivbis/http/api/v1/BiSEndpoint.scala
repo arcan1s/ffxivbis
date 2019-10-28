@@ -13,6 +13,7 @@ import akka.http.scaladsl.model.{HttpEntity, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.util.Timeout
+import com.typesafe.scalalogging.StrictLogging
 import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.{ArraySchema, Content, Schema}
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -24,9 +25,11 @@ import me.arcanis.ffxivbis.http.{Authorization, BiSHelper}
 import me.arcanis.ffxivbis.http.api.v1.json._
 import me.arcanis.ffxivbis.models.PlayerId
 
+import scala.util.{Failure, Success}
+
 @Path("api/v1")
 class BiSEndpoint(override val storage: ActorRef, ariyala: ActorRef)(implicit timeout: Timeout)
-  extends BiSHelper(storage, ariyala) with Authorization with JsonSupport {
+  extends BiSHelper(storage, ariyala) with Authorization with JsonSupport with HttpExceptionsHandler {
 
   def route: Route = createBiS ~ getBiS ~ modifyBiS
 
@@ -51,12 +54,17 @@ class BiSEndpoint(override val storage: ActorRef, ariyala: ActorRef)(implicit ti
   )
   def createBiS: Route =
     path("party" / Segment / "bis") { partyId =>
-      extractExecutionContext { implicit executionContext =>
-        authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
-          put {
-            entity(as[PlayerBiSLinkResponse]) { bisLink =>
-              val playerId = bisLink.playerId.withPartyId(partyId)
-              complete(putBiS(playerId, bisLink.link).map(_ => (StatusCodes.Created, HttpEntity.Empty)))
+      handleExceptions(exceptionHandler) {
+        extractExecutionContext { implicit executionContext =>
+          authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
+            put {
+              entity(as[PlayerBiSLinkResponse]) { bisLink =>
+                val playerId = bisLink.playerId.withPartyId(partyId)
+                onComplete(putBiS(playerId, bisLink.link)) {
+                  case Success(_) => complete(StatusCodes.Created, HttpEntity.Empty)
+                  case Failure(exception) => throw exception
+                }
+              }
             }
           }
         }
@@ -86,12 +94,17 @@ class BiSEndpoint(override val storage: ActorRef, ariyala: ActorRef)(implicit ti
   )
   def getBiS: Route =
     path("party" / Segment / "bis") { partyId =>
-      extractExecutionContext { implicit executionContext =>
-        authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
-          get {
-            parameters("nick".as[String].?, "job".as[String].?) { (maybeNick, maybeJob) =>
-              val playerId = PlayerId(partyId, maybeNick, maybeJob)
-              complete(bis(partyId, playerId).map(_.map(PlayerResponse.fromPlayer)))
+      handleExceptions(exceptionHandler) {
+        extractExecutionContext { implicit executionContext =>
+          authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
+            get {
+              parameters("nick".as[String].?, "job".as[String].?) { (maybeNick, maybeJob) =>
+                val playerId = PlayerId(partyId, maybeNick, maybeJob)
+                onComplete(bis(partyId, playerId)) {
+                  case Success(response) => complete(response.map(PlayerResponse.fromPlayer))
+                  case Failure(exception) => throw exception
+                }
+              }
             }
           }
         }
@@ -119,17 +132,16 @@ class BiSEndpoint(override val storage: ActorRef, ariyala: ActorRef)(implicit ti
   )
   def modifyBiS: Route =
     path("party" / Segment / "bis") { partyId =>
-      extractExecutionContext { implicit executionContext =>
-        authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
-          post {
-            entity(as[PieceActionResponse]) { action =>
-              val playerId = action.playerIdResponse.withPartyId(partyId)
-              complete {
-                val result = action.action match {
-                  case ApiAction.add => addPieceBiS(playerId, action.piece.toPiece)
-                  case ApiAction.remove => removePieceBiS(playerId, action.piece.toPiece)
+      handleExceptions(exceptionHandler) {
+        extractExecutionContext { implicit executionContext =>
+          authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
+            post {
+              entity(as[PieceActionResponse]) { action =>
+                val playerId = action.playerIdResponse.withPartyId(partyId)
+                onComplete(doModifyBiS(action.action, playerId, action.piece.toPiece)) {
+                  case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
+                  case Failure(exception) => throw exception
                 }
-                result.map(_ => (StatusCodes.Accepted, HttpEntity.Empty))
               }
             }
           }

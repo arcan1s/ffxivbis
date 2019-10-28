@@ -24,9 +24,11 @@ import me.arcanis.ffxivbis.http.{Authorization, PlayerHelper}
 import me.arcanis.ffxivbis.http.api.v1.json._
 import me.arcanis.ffxivbis.models.PlayerId
 
+import scala.util.{Failure, Success}
+
 @Path("api/v1")
 class PlayerEndpoint(override val storage: ActorRef, ariyala: ActorRef)(implicit timeout: Timeout)
-  extends PlayerHelper(storage, ariyala) with Authorization with JsonSupport {
+  extends PlayerHelper(storage, ariyala) with Authorization with JsonSupport with HttpExceptionsHandler {
 
   def route: Route = getParty ~ modifyParty
 
@@ -53,12 +55,17 @@ class PlayerEndpoint(override val storage: ActorRef, ariyala: ActorRef)(implicit
   )
   def getParty: Route =
     path("party" / Segment) { partyId =>
-      extractExecutionContext { implicit executionContext =>
-        authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
-          get {
-            parameters("nick".as[String].?, "job".as[String].?) { (maybeNick, maybeJob) =>
-              val playerId = PlayerId(partyId, maybeNick, maybeJob)
-              complete(getPlayers(partyId, playerId).map(_.map(PlayerResponse.fromPlayer)))
+      handleExceptions(exceptionHandler) {
+        extractExecutionContext { implicit executionContext =>
+          authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
+            get {
+              parameters("nick".as[String].?, "job".as[String].?) { (maybeNick, maybeJob) =>
+                val playerId = PlayerId(partyId, maybeNick, maybeJob)
+                onComplete(getPlayers(partyId, playerId)) {
+                  case Success(response) => complete(response.map(PlayerResponse.fromPlayer))
+                  case Failure(exception) => throw exception
+                }
+              }
             }
           }
         }
@@ -86,16 +93,15 @@ class PlayerEndpoint(override val storage: ActorRef, ariyala: ActorRef)(implicit
   )
   def modifyParty: Route =
     path("party" / Segment) { partyId =>
-      extractExecutionContext { implicit executionContext =>
-        authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
-          entity(as[PlayerActionResponse]) { action =>
-            val player = action.playerIdResponse.toPlayer.copy(partyId = partyId)
-            complete {
-              val result = action.action match {
-                case ApiAction.add => addPlayer(player)
-                case ApiAction.remove => removePlayer(player.playerId)
+      handleExceptions(exceptionHandler) {
+        extractExecutionContext { implicit executionContext =>
+          authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
+            entity(as[PlayerActionResponse]) { action =>
+              val player = action.playerIdResponse.toPlayer.copy(partyId = partyId)
+              onComplete(doModifyPlayer(action.action, player)) {
+                case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
+                case Failure(exception) => throw exception
               }
-              result.map(_ => (StatusCodes.Accepted, HttpEntity.Empty))
             }
           }
         }

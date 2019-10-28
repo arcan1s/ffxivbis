@@ -24,9 +24,11 @@ import me.arcanis.ffxivbis.http.{Authorization, UserHelper}
 import me.arcanis.ffxivbis.http.api.v1.json._
 import me.arcanis.ffxivbis.models.Permission
 
+import scala.util.{Failure, Success}
+
 @Path("api/v1")
 class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
-  extends UserHelper(storage) with Authorization with JsonSupport {
+  extends UserHelper(storage) with Authorization with JsonSupport with HttpExceptionsHandler {
 
   def route: Route = createParty ~ createUser ~ deleteUser ~ getUsers
 
@@ -49,12 +51,15 @@ class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
   )
   def createParty: Route =
     path("party" / Segment / "create") { partyId =>
-      extractExecutionContext { implicit executionContext =>
-        put {
-          entity(as[UserResponse]) { user =>
-            val admin = user.toUser.copy(partyId = partyId, permission = Permission.admin)
-            complete {
-              addUser(admin, isHashedPassword = false).map(_ => (StatusCodes.Created, HttpEntity.Empty))
+      handleExceptions(exceptionHandler) {
+        extractExecutionContext { implicit executionContext =>
+          put {
+            entity(as[UserResponse]) { user =>
+              val admin = user.toUser.copy(partyId = partyId, permission = Permission.admin)
+              onComplete(addUser(admin, isHashedPassword = false)) {
+                case Success(_) => complete(StatusCodes.Created, HttpEntity.Empty)
+                case Failure(exception) => throw exception
+              }
             }
           }
         }
@@ -82,13 +87,16 @@ class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
   )
   def createUser: Route =
     path("party" / Segment / "users") { partyId =>
-      extractExecutionContext { implicit executionContext =>
-        authenticateBasicBCrypt(s"party $partyId", authAdmin(partyId)) { _ =>
-          post {
-            entity(as[UserResponse]) { user =>
-              val withPartyId = user.toUser.copy(partyId = partyId)
-              complete {
-                addUser(withPartyId, isHashedPassword = false).map(_ => (StatusCodes.Accepted, HttpEntity.Empty))
+      handleExceptions(exceptionHandler) {
+        extractExecutionContext { implicit executionContext =>
+          authenticateBasicBCrypt(s"party $partyId", authAdmin(partyId)) { _ =>
+            post {
+              entity(as[UserResponse]) { user =>
+                val withPartyId = user.toUser.copy(partyId = partyId)
+                onComplete(addUser(withPartyId, isHashedPassword = false)) {
+                  case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
+                  case Failure(exception) => throw exception
+                }
               }
             }
           }
@@ -114,11 +122,14 @@ class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
   )
   def deleteUser: Route =
     path("party" / Segment / "users" / Segment) { (partyId, username) =>
-      extractExecutionContext { implicit executionContext =>
-        authenticateBasicBCrypt(s"party $partyId", authAdmin(partyId)) { _ =>
-          delete {
-            complete {
-              removeUser(partyId, username).map(_ => (StatusCodes.Accepted, HttpEntity.Empty))
+      handleExceptions(exceptionHandler) {
+        extractExecutionContext { implicit executionContext =>
+          authenticateBasicBCrypt(s"party $partyId", authAdmin(partyId)) { _ =>
+            delete {
+              onComplete(removeUser(partyId, username)) {
+                case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
+                case Failure(exception) => throw exception
+              }
             }
           }
         }
@@ -146,11 +157,14 @@ class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
   )
   def getUsers: Route =
     path("party" / Segment / "users") { partyId =>
-      extractExecutionContext { implicit executionContext =>
-        authenticateBasicBCrypt(s"party $partyId", authAdmin(partyId)) { _ =>
-          get {
-            complete {
-              users(partyId).map(_.map(UserResponse.fromUser))
+      handleExceptions(exceptionHandler) {
+        extractExecutionContext { implicit executionContext =>
+          authenticateBasicBCrypt(s"party $partyId", authAdmin(partyId)) { _ =>
+            get {
+              onComplete(users(partyId)) {
+                case Success(response) => complete(response.map(UserResponse.fromUser))
+                case Failure(exception) => throw exception
+              }
             }
           }
         }

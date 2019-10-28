@@ -27,6 +27,7 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val actionFormat: RootJsonFormat[ApiAction.Value] = enumFormat(ApiAction)
   implicit val permissionFormat: RootJsonFormat[Permission.Value] = enumFormat(Permission)
 
+  implicit val errorFormat: RootJsonFormat[ErrorResponse] = jsonFormat1(ErrorResponse.apply)
   implicit val pieceFormat: RootJsonFormat[PieceResponse] = jsonFormat3(PieceResponse.apply)
   implicit val playerFormat: RootJsonFormat[PlayerResponse] = jsonFormat7(PlayerResponse.apply)
   implicit val playerActionFormat: RootJsonFormat[PlayerActionResponse] = jsonFormat2(PlayerActionResponse.apply)
