@@ -8,11 +8,13 @@
  */
 package me.arcanis.ffxivbis.http
 
+import java.time.Instant
+
 import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.util.Timeout
-import com.typesafe.scalalogging.StrictLogging
+import com.typesafe.scalalogging.{Logger, StrictLogging}
 import me.arcanis.ffxivbis.http.api.v1.RootApiV1Endpoint
 import me.arcanis.ffxivbis.http.view.RootView
 
@@ -27,8 +29,22 @@ class RootEndpoint(system: ActorSystem, storage: ActorRef, ariyala: ActorRef)
 
   private val rootApiV1Endpoint: RootApiV1Endpoint = new RootApiV1Endpoint(storage, ariyala)
   private val rootView: RootView = new RootView(storage, ariyala)
+  private val httpLogger = Logger("http")
 
-  def route: Route = apiRoute ~ htmlRoute ~ Swagger.routes ~ swaggerUIRoute
+  private val withHttpLog: Directive0 =
+    extractRequestContext.flatMap { context =>
+      val start = Instant.now.toEpochMilli
+      mapResponse { response =>
+        val time = (Instant.now.toEpochMilli - start) / 1000.0
+        httpLogger.debug(s"""- - [${Instant.now}] "${context.request.method.name()} ${context.request.uri.path}" ${response.status.intValue()} ${response.entity.getContentLengthOption.getAsLong} $time""")
+        response
+      }
+    }
+
+  def route: Route =
+    withHttpLog {
+      apiRoute ~ htmlRoute ~ Swagger.routes ~ swaggerUIRoute
+    }
 
   private def apiRoute: Route =
     ignoreTrailingSlash {
