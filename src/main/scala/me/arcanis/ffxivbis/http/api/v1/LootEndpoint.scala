@@ -28,7 +28,7 @@ import scala.util.{Failure, Success}
 
 @Path("api/v1")
 class LootEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
-  extends LootHelper(storage) with Authorization with JsonSupport with HttpExceptionsHandler {
+  extends LootHelper(storage) with Authorization with JsonSupport with HttpHandler {
 
   def route: Route = getLoot ~ modifyLoot
 
@@ -56,14 +56,16 @@ class LootEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
   def getLoot: Route =
     path("party" / Segment / "loot") { partyId =>
       handleExceptions(exceptionHandler) {
-        extractExecutionContext { implicit executionContext =>
-          authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
-            get {
-              parameters("nick".as[String].?, "job".as[String].?) { (maybeNick, maybeJob) =>
-                val playerId = PlayerId(partyId, maybeNick, maybeJob)
-                onComplete(loot(partyId, playerId)) {
-                  case Success(response) => complete(response.map(PlayerResponse.fromPlayer))
-                  case Failure(exception) => throw exception
+        handleRejections(rejectionHandler) {
+          extractExecutionContext { implicit executionContext =>
+            authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
+              get {
+                parameters("nick".as[String].?, "job".as[String].?) { (maybeNick, maybeJob) =>
+                  val playerId = PlayerId(partyId, maybeNick, maybeJob)
+                  onComplete(loot(partyId, playerId)) {
+                    case Success(response) => complete(response.map(PlayerResponse.fromPlayer))
+                    case Failure(exception) => throw exception
+                  }
                 }
               }
             }
@@ -94,14 +96,16 @@ class LootEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
   def modifyLoot: Route =
     path("party" / Segment / "loot") { partyId =>
       handleExceptions(exceptionHandler) {
-        extractExecutionContext { implicit executionContext =>
-          authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
-            post {
-              entity(as[PieceActionResponse]) { action =>
-                val playerId = action.playerIdResponse.withPartyId(partyId)
-                onComplete(doModifyLoot(action.action, playerId, action.piece.toPiece)) {
-                  case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
-                  case Failure(exception) => throw exception
+        handleRejections(rejectionHandler) {
+          extractExecutionContext { implicit executionContext =>
+            authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
+              post {
+                entity(as[PieceActionResponse]) { action =>
+                  val playerId = action.playerIdResponse.withPartyId(partyId)
+                  onComplete(doModifyLoot(action.action, playerId, action.piece.toPiece)) {
+                    case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
+                    case Failure(exception) => throw exception
+                  }
                 }
               }
             }
@@ -136,13 +140,15 @@ class LootEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
   def suggestLoot: Route =
     path("party" / Segment / "loot") { partyId =>
       handleExceptions(exceptionHandler) {
-        extractExecutionContext { implicit executionContext =>
-          authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
-            put {
-              entity(as[PieceResponse]) { piece =>
-                onComplete(suggestPiece(partyId, piece.toPiece)) {
-                  case Success(response) => complete(response.map(PlayerIdWithCountersResponse.fromPlayerId))
-                  case Failure(exception) => throw exception
+        handleRejections(rejectionHandler) {
+          extractExecutionContext { implicit executionContext =>
+            authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
+              put {
+                entity(as[PieceResponse]) { piece =>
+                  onComplete(suggestPiece(partyId, piece.toPiece)) {
+                    case Success(response) => complete(response.map(PlayerIdWithCountersResponse.fromPlayerId))
+                    case Failure(exception) => throw exception
+                  }
                 }
               }
             }

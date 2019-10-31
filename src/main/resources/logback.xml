@@ -1,5 +1,13 @@
 <configuration>
 
+    <include resource="logback-application.xml" />
+    <include resource="logback-http.xml" />
+
+    <root level="debug">
+        <appender-ref ref="application" />
+    </root>
+
+    <logger name="me.arcanis.ffxivbis" level="DEBUG" />
     <logger name="slick.jdbc.JdbcBackend.statement" level="DEBUG" />
 
 </configuration>
