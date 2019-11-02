@@ -11,6 +11,6 @@
     <logger name="http" level="DEBUG">
         <appender-ref ref="http" />
     </logger>
-    <logger name="slick.jdbc.JdbcBackend.statement" level="DEBUG" />
+    <logger name="slick" level="INFO" />
 
 </configuration>

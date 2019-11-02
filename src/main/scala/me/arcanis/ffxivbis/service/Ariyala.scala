@@ -22,7 +22,7 @@ import me.arcanis.ffxivbis.models.{BiS, Job, Piece}
 import spray.json._
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 class Ariyala extends Actor with StrictLogging {
   import Ariyala._

@@ -12,6 +12,7 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import me.arcanis.ffxivbis.models.User
+import me.arcanis.ffxivbis.service.PartyService
 import me.arcanis.ffxivbis.service.impl.DatabaseUserHandler
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -21,6 +22,9 @@ class UserHelper(storage: ActorRef) {
   def addUser(user: User, isHashedPassword: Boolean)
              (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
     (storage ? DatabaseUserHandler.AddUser(user, isHashedPassword)).mapTo[Int]
+
+  def newPartyId(implicit executionContext: ExecutionContext, timeout: Timeout): Future[String] =
+    (storage ? PartyService.GetNewPartyId).mapTo[String]
 
   def user(partyId: String, username: String)
           (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Option[User]] =

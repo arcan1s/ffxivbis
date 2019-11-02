@@ -28,21 +28,18 @@ import scala.util.{Failure, Success}
 
 @Path("api/v1")
 class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
-  extends UserHelper(storage) with Authorization with JsonSupport with HttpHandler {
+  extends UserHelper(storage) with Authorization with JsonSupport {
 
   def route: Route = createParty ~ createUser ~ deleteUser ~ getUsers
 
   @PUT
-  @Path("party/{partyId}/create")
+  @Path("party")
   @Consumes(value = Array("application/json"))
   @Operation(summary = "create new party", description = "Create new party with specified ID",
-    parameters = Array(
-      new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
-    ),
     requestBody = new RequestBody(description = "party administrator description", required = true,
       content = Array(new Content(schema = new Schema(implementation = classOf[UserResponse])))),
     responses = Array(
-      new ApiResponse(responseCode = "201", description = "Party has been created"),
+      new ApiResponse(responseCode = "200", description = "Party has been created"),
       new ApiResponse(responseCode = "400", description = "Invalid parameters were supplied"),
       new ApiResponse(responseCode = "406", description = "Party with the specified ID already exists"),
       new ApiResponse(responseCode = "500", description = "Internal server error"),
@@ -50,18 +47,18 @@ class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
     tags = Array("party"),
   )
   def createParty: Route =
-    path("party" / Segment / "create") { partyId =>
-      handleExceptions(exceptionHandler) {
-        handleRejections(rejectionHandler) {
-          extractExecutionContext { implicit executionContext =>
-            put {
-              entity(as[UserResponse]) { user =>
+    path("party") {
+      extractExecutionContext { implicit executionContext =>
+        put {
+          entity(as[UserResponse]) { user =>
+            onComplete(newPartyId) {
+              case Success(partyId) =>
                 val admin = user.toUser.copy(partyId = partyId, permission = Permission.admin)
                 onComplete(addUser(admin, isHashedPassword = false)) {
-                  case Success(_) => complete(StatusCodes.Created, HttpEntity.Empty)
+                  case Success(_) => complete(PartyIdResponse(partyId))
                   case Failure(exception) => throw exception
                 }
-              }
+              case Failure(exception) => throw exception
             }
           }
         }
@@ -89,18 +86,14 @@ class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
   )
   def createUser: Route =
     path("party" / Segment / "users") { partyId =>
-      handleExceptions(exceptionHandler) {
-        handleRejections(rejectionHandler) {
-          extractExecutionContext { implicit executionContext =>
-            authenticateBasicBCrypt(s"party $partyId", authAdmin(partyId)) { _ =>
-              post {
-                entity(as[UserResponse]) { user =>
-                  val withPartyId = user.toUser.copy(partyId = partyId)
-                  onComplete(addUser(withPartyId, isHashedPassword = false)) {
-                    case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
-                    case Failure(exception) => throw exception
-                  }
-                }
+      extractExecutionContext { implicit executionContext =>
+        authenticateBasicBCrypt(s"party $partyId", authAdmin(partyId)) { _ =>
+          post {
+            entity(as[UserResponse]) { user =>
+              val withPartyId = user.toUser.copy(partyId = partyId)
+              onComplete(addUser(withPartyId, isHashedPassword = false)) {
+                case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
+                case Failure(exception) => throw exception
               }
             }
           }
@@ -126,16 +119,12 @@ class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
   )
   def deleteUser: Route =
     path("party" / Segment / "users" / Segment) { (partyId, username) =>
-      handleExceptions(exceptionHandler) {
-        handleRejections(rejectionHandler) {
-          extractExecutionContext { implicit executionContext =>
-            authenticateBasicBCrypt(s"party $partyId", authAdmin(partyId)) { _ =>
-              delete {
-                onComplete(removeUser(partyId, username)) {
-                  case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
-                  case Failure(exception) => throw exception
-                }
-              }
+      extractExecutionContext { implicit executionContext =>
+        authenticateBasicBCrypt(s"party $partyId", authAdmin(partyId)) { _ =>
+          delete {
+            onComplete(removeUser(partyId, username)) {
+              case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
+              case Failure(exception) => throw exception
             }
           }
         }
@@ -163,16 +152,12 @@ class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
   )
   def getUsers: Route =
     path("party" / Segment / "users") { partyId =>
-      handleExceptions(exceptionHandler) {
-        handleRejections(rejectionHandler) {
-          extractExecutionContext { implicit executionContext =>
-            authenticateBasicBCrypt(s"party $partyId", authAdmin(partyId)) { _ =>
-              get {
-                onComplete(users(partyId)) {
-                  case Success(response) => complete(response.map(UserResponse.fromUser))
-                  case Failure(exception) => throw exception
-                }
-              }
+      extractExecutionContext { implicit executionContext =>
+        authenticateBasicBCrypt(s"party $partyId", authAdmin(partyId)) { _ =>
+          get {
+            onComplete(users(partyId)) {
+              case Success(response) => complete(response.map(UserResponse.fromUser))
+              case Failure(exception) => throw exception
             }
           }
         }

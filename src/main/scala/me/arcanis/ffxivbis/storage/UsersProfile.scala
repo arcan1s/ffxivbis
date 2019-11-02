@@ -42,6 +42,8 @@ trait UsersProfile { this: DatabaseProfile =>
 
   def deleteUser(partyId: String, username: String): Future[Int] =
     db.run(user(partyId, Some(username)).delete)
+  def exists(partyId: String): Future[Boolean] =
+    db.run(user(partyId, None).exists.result)
   def getUser(partyId: String, username: String): Future[Option[User]] =
     db.run(user(partyId, Some(username)).result.headOption).map(_.map(_.toUser))
   def getUsers(partyId: String): Future[Seq[User]] =

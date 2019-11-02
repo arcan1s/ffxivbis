@@ -17,11 +17,14 @@ import scala.concurrent.duration.FiniteDuration
 import scala.language.implicitConversions
 
 object Implicits {
-  implicit def getBooleanFromOptionString(maybeYes: Option[String]): Boolean = maybeYes match {
+  implicit def getBooleanFromOptionString(maybeYes: Option[String]): Boolean = maybeYes.map(_.toLowerCase) match {
     case Some("yes" | "on") => true
     case _ => false
   }
 
-  implicit def getFiniteDuration(duration: Duration): Timeout =
+  implicit def getFiniteDuration(duration: Duration): FiniteDuration =
+    FiniteDuration(duration.toNanos, TimeUnit.NANOSECONDS)
+
+  implicit def getTimeout(duration: Duration): Timeout =
     FiniteDuration(duration.toNanos, TimeUnit.NANOSECONDS)
 }

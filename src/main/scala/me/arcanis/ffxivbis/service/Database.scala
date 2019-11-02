@@ -37,3 +37,9 @@ trait Database extends Actor with StrictLogging {
       loot <- if (withLoot) profile.getPieces(partyId) else Future(Seq.empty)
     } yield Party(partyId, context.system.settings.config, players, bis, loot)
 }
+
+object Database {
+  trait DatabaseRequest {
+    def partyId: String
+  }
+}

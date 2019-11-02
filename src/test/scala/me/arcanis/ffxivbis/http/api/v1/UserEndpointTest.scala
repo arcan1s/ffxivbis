@@ -9,7 +9,7 @@ import akka.testkit.TestKit
 import com.typesafe.config.Config
 import me.arcanis.ffxivbis.{Fixtures, Settings}
 import me.arcanis.ffxivbis.http.api.v1.json._
-import me.arcanis.ffxivbis.service.impl
+import me.arcanis.ffxivbis.service.{PartyService, impl}
 import me.arcanis.ffxivbis.storage.Migration
 import org.scalatest.{Matchers, WordSpec}
 
@@ -22,12 +22,14 @@ class UserEndpointTest extends WordSpec
 
   private val auth: Authorization =
     Authorization(BasicHttpCredentials(Fixtures.userAdmin.username, Fixtures.userPassword))
-  private val endpoint: Uri = Uri(s"/party/${Fixtures.partyId}/users")
+  private def endpoint: Uri = Uri(s"/party/$partyId/users")
   private val timeout: FiniteDuration = 60 seconds
   implicit private val routeTimeout: RouteTestTimeout = RouteTestTimeout(timeout)
 
+  private var partyId: String = Fixtures.partyId
   private val storage: ActorRef = system.actorOf(impl.DatabaseImpl.props)
-  private val route: Route = new UserEndpoint(storage)(timeout).route
+  private val party: ActorRef = system.actorOf(PartyService.props(storage))
+  private val route: Route = new UserEndpoint(party)(timeout).route
 
   override def testConfig: Config = Settings.withRandomDatabase
 
@@ -43,18 +45,17 @@ class UserEndpointTest extends WordSpec
   "api v1 users endpoint" must {
 
     "create a party" in {
-      val uri = Uri(s"/party/${Fixtures.partyId}/create")
+      val uri = Uri(s"/party")
       val entity = UserResponse.fromUser(Fixtures.userAdmin).copy(password = Fixtures.userPassword)
-      println(entity)
 
       Put(uri, entity) ~> route ~> check {
-        status shouldEqual StatusCodes.Created
-        responseAs[String] shouldEqual ""
+        status shouldEqual StatusCodes.OK
+        partyId = responseAs[PartyIdResponse].partyId
       }
     }
 
     "add user" in {
-      val entity = UserResponse.fromUser(Fixtures.userGet).copy(password = Fixtures.userPassword2)
+      val entity = UserResponse.fromUser(Fixtures.userGet).copy(partyId = partyId, password = Fixtures.userPassword2)
 
       Post(endpoint, entity).withHeaders(auth) ~> route ~> check {
         status shouldEqual StatusCodes.Accepted
@@ -70,13 +71,28 @@ class UserEndpointTest extends WordSpec
         status shouldEqual StatusCodes.OK
 
         val users = responseAs[Seq[UserResponse]]
-        users.map(_.partyId).distinct shouldEqual Seq(Fixtures.partyId)
+        users.map(_.partyId).distinct shouldEqual Seq(partyId)
         users.map(user => user.username -> user.permission).toMap shouldEqual party
       }
     }
 
     "remove user" in {
+      val entity = UserResponse.fromUser(Fixtures.userGet).copy(partyId = partyId)
 
+      Delete(endpoint.toString + s"/${entity.username}").withHeaders(auth) ~> route ~> check {
+        status shouldEqual StatusCodes.Accepted
+      }
+
+      val party = Seq(Fixtures.userAdmin)
+        .map(user => user.username -> Some(user.permission)).toMap
+
+      Get(endpoint).withHeaders(auth) ~> route ~> check {
+        status shouldEqual StatusCodes.OK
+
+        val users = responseAs[Seq[UserResponse]]
+        users.map(_.partyId).distinct shouldEqual Seq(partyId)
+        users.map(user => user.username -> user.permission).toMap shouldEqual party
+      }
     }
 
   }

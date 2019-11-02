@@ -37,8 +37,12 @@ trait DatabaseLootHandler { this: Database =>
 }
 
 object DatabaseLootHandler {
-  case class AddPieceTo(playerId: PlayerId, piece: Piece)
-  case class GetLoot(partyId: String, playerId: Option[PlayerId])
-  case class RemovePieceFrom(playerId: PlayerId, piece: Piece)
-  case class SuggestLoot(partyId: String, piece: Piece)
+  case class AddPieceTo(playerId: PlayerId, piece: Piece) extends Database.DatabaseRequest {
+    override def partyId: String = playerId.partyId
+  }
+  case class GetLoot(partyId: String, playerId: Option[PlayerId]) extends Database.DatabaseRequest
+  case class RemovePieceFrom(playerId: PlayerId, piece: Piece) extends Database.DatabaseRequest {
+    override def partyId: String = playerId.partyId
+  }
+  case class SuggestLoot(partyId: String, piece: Piece) extends Database.DatabaseRequest
 }

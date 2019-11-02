@@ -47,8 +47,14 @@ trait DatabasePartyHandler { this: Database  =>
 }
 
 object DatabasePartyHandler {
-  case class AddPlayer(player: Player)
-  case class GetParty(partyId: String)
-  case class GetPlayer(playerId: PlayerId)
-  case class RemovePlayer(playerId: PlayerId)
+  case class AddPlayer(player: Player) extends Database.DatabaseRequest {
+    override def partyId: String = player.partyId
+  }
+  case class GetParty(partyId: String) extends Database.DatabaseRequest
+  case class GetPlayer(playerId: PlayerId) extends Database.DatabaseRequest {
+    override def partyId: String = playerId.partyId
+  }
+  case class RemovePlayer(playerId: PlayerId) extends Database.DatabaseRequest {
+    override def partyId: String = playerId.partyId
+  }
 }

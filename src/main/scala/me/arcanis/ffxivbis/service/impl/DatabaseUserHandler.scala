@@ -25,6 +25,10 @@ trait DatabaseUserHandler { this: Database =>
       val client = sender()
       profile.deleteUser(partyId, username).pipeTo(client)
 
+    case Exists(partyId) =>
+      val client = sender()
+      profile.exists(partyId).pipeTo(client)
+
     case GetUser(partyId, username) =>
       val client = sender()
       profile.getUser(partyId, username).pipeTo(client)
@@ -36,8 +40,11 @@ trait DatabaseUserHandler { this: Database =>
 }
 
 object DatabaseUserHandler {
-  case class AddUser(user: User, isHashedPassword: Boolean)
-  case class DeleteUser(partyId: String, username: String)
-  case class GetUser(partyId: String, username: String)
-  case class GetUsers(partyId: String)
+  case class AddUser(user: User, isHashedPassword: Boolean) extends Database.DatabaseRequest {
+    override def partyId: String = user.partyId
+  }
+  case class DeleteUser(partyId: String, username: String) extends Database.DatabaseRequest
+  case class Exists(partyId: String) extends Database.DatabaseRequest
+  case class GetUser(partyId: String, username: String) extends Database.DatabaseRequest
+  case class GetUsers(partyId: String) extends Database.DatabaseRequest
 }

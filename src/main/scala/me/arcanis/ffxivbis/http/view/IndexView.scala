@@ -16,19 +16,25 @@ import akka.util.Timeout
 import me.arcanis.ffxivbis.http.UserHelper
 import me.arcanis.ffxivbis.models.{Party, Permission, User}
 
+import scala.util.{Failure, Success}
+
 class IndexView(storage: ActorRef)(implicit timeout: Timeout)
   extends UserHelper(storage) {
 
   def route: Route = createParty ~ getIndex
 
   def createParty: Route =
-    path("party" / Segment / "create") { partyId =>
+    path("party") {
       extractExecutionContext { implicit executionContext =>
         post {
           formFields("username".as[String], "password".as[String]) { (username, password) =>
-            val user = User(partyId, username, password, Permission.admin)
-            onComplete(addUser(user, isHashedPassword = false)) {
-              case _ => redirect(s"/party/$partyId", StatusCodes.Found)
+            onComplete(newPartyId) {
+              case Success(partyId) =>
+                val user = User(partyId, username, password, Permission.admin)
+                onComplete(addUser(user, isHashedPassword = false)) {
+                  case _ => redirect(s"/party/$partyId", StatusCodes.Found)
+                }
+              case Failure(exception) => throw exception
             }
           }
         }
@@ -40,7 +46,7 @@ class IndexView(storage: ActorRef)(implicit timeout: Timeout)
       get {
         parameters("partyId".as[String].?) {
           case Some(partyId) => redirect(s"/party/$partyId", StatusCodes.Found)
-          case _ => complete((StatusCodes.OK, RootView.toHtml(IndexView.template)))
+          case _ => complete(StatusCodes.OK, RootView.toHtml(IndexView.template))
         }
       }
     }
@@ -58,7 +64,7 @@ object IndexView {
         ),
 
         body(
-          form(action:=s"party/${Party.randomPartyId}/create", method:="post")(
+          form(action:=s"party", method:="post")(
             label("create a new party"),
             input(name:="username", id:="username", placeholder:="username", title:="username", `type`:="text"),
             input(name:="password", id:="password", placeholder:="password", title:="password", `type`:="password"),

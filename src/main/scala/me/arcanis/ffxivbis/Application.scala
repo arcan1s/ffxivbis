@@ -13,7 +13,7 @@ import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.StrictLogging
 import me.arcanis.ffxivbis.http.RootEndpoint
-import me.arcanis.ffxivbis.service.Ariyala
+import me.arcanis.ffxivbis.service.{Ariyala, PartyService}
 import me.arcanis.ffxivbis.service.impl.DatabaseImpl
 import me.arcanis.ffxivbis.storage.Migration
 
@@ -35,7 +35,8 @@ class Application extends Actor with StrictLogging {
     case Success(_) =>
       val ariyala = context.system.actorOf(Ariyala.props, "ariyala")
       val storage = context.system.actorOf(DatabaseImpl.props, "storage")
-      val http = new RootEndpoint(context.system, storage, ariyala)
+      val party = context.system.actorOf(PartyService.props(storage), "party")
+      val http = new RootEndpoint(context.system, party, ariyala)
 
       logger.info(s"start server at $host:$port")
       val bind = Http()(context.system).bindAndHandle(http.route, host, port)

@@ -9,7 +9,7 @@
 package me.arcanis.ffxivbis.service.impl
 
 import akka.pattern.pipe
-import me.arcanis.ffxivbis.models.{BiS, Piece, PlayerId}
+import me.arcanis.ffxivbis.models.{Piece, PlayerId}
 import me.arcanis.ffxivbis.service.Database
 
 trait DatabaseBiSHandler { this: Database  =>
@@ -33,7 +33,11 @@ trait DatabaseBiSHandler { this: Database  =>
 }
 
 object DatabaseBiSHandler {
-  case class AddPieceToBis(playerId: PlayerId, piece: Piece)
-  case class GetBiS(partyId: String, playerId: Option[PlayerId])
-  case class RemovePieceFromBiS(playerId: PlayerId, piece: Piece)
+  case class AddPieceToBis(playerId: PlayerId, piece: Piece) extends Database.DatabaseRequest {
+    override def partyId: String = playerId.partyId
+  }
+  case class GetBiS(partyId: String, playerId: Option[PlayerId]) extends Database.DatabaseRequest
+  case class RemovePieceFromBiS(playerId: PlayerId, piece: Piece) extends Database.DatabaseRequest {
+    override def partyId: String = playerId.partyId
+  }
 }
