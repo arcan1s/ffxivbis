@@ -1,3 +1,3 @@
-* [ ] items improvements
-* [ ] multiple parties support
+* [x] items improvements
+* [x] multiple parties support
 * [ ] pretty UI
