@@ -10,7 +10,7 @@ In general installation process looks like:
 sbt assembly
 ```
 
-Service can be run by using command:
+Or alternatively you can download latest jar from releases page. Service can be run by using command:
 
 ```bash
 java -cp ./target/scala-2.13/ffxivbis-scala-assembly-0.1.jar me.arcanis.ffxivbis.ffxivbis 
