@@ -94,7 +94,7 @@ class PlayerEndpoint(override val storage: ActorRef, ariyala: ActorRef)(implicit
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
           entity(as[PlayerActionResponse]) { action =>
-            val player = action.playerIdResponse.toPlayer.copy(partyId = partyId)
+            val player = action.playerId.toPlayer.copy(partyId = partyId)
             onComplete(doModifyPlayer(action.action, player)) {
               case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
               case Failure(exception) => throw exception

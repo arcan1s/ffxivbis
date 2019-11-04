@@ -132,7 +132,7 @@ class BiSEndpoint(override val storage: ActorRef, ariyala: ActorRef)(implicit ti
         authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
           post {
             entity(as[PieceActionResponse]) { action =>
-              val playerId = action.playerIdResponse.withPartyId(partyId)
+              val playerId = action.playerId.withPartyId(partyId)
               onComplete(doModifyBiS(action.action, playerId, action.piece.toPiece)) {
                 case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
                 case Failure(exception) => throw exception

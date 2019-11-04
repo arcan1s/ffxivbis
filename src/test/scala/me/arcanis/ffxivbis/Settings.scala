@@ -16,13 +16,13 @@ object Settings {
     replace(default, values.toList)
   }
 
-  def clearDatabase(config: Config): Unit = {
-    val databasePath =
-      config.getString("me.arcanis.ffxivbis.database.sqlite.db.url").split(":").last
-    val databaseFile = new File(databasePath)
-    if (databaseFile.exists)
-      databaseFile.delete()
-  }
+  def clearDatabase(config: Config): Unit =
+    config.getString("me.arcanis.ffxivbis.database.sqlite.db.url").split(":")
+      .lastOption.foreach { databasePath =>
+        val databaseFile = new File(databasePath)
+        if (databaseFile.exists)
+          databaseFile.delete()
+      }
   def randomDatabasePath: String = File.createTempFile("ffxivdb-",".db").toPath.toString
   def withRandomDatabase: Config =
     config(Map("me.arcanis.ffxivbis.database.sqlite.db.url" -> s"jdbc:sqlite:$randomDatabasePath"))

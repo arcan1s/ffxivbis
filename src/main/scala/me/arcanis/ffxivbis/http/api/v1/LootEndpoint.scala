@@ -95,7 +95,7 @@ class LootEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
         authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
           post {
             entity(as[PieceActionResponse]) { action =>
-              val playerId = action.playerIdResponse.withPartyId(partyId)
+              val playerId = action.playerId.withPartyId(partyId)
               onComplete(doModifyLoot(action.action, playerId, action.piece.toPiece)) {
                 case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
                 case Failure(exception) => throw exception
