@@ -11,7 +11,7 @@ package me.arcanis.ffxivbis.http
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
-import me.arcanis.ffxivbis.models.{BiS, Job, Piece}
+import me.arcanis.ffxivbis.models.{BiS, Job}
 import me.arcanis.ffxivbis.service.Ariyala
 
 import scala.concurrent.{ExecutionContext, Future}

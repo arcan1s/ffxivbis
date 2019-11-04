@@ -108,9 +108,7 @@ object Piece {
       case "ears" => Ears(isTome, job)
       case "neck" => Neck(isTome, job)
       case "wrist" => Wrist(isTome, job)
-      case "ring" => Ring(isTome, job)
-      case "leftring" => Ring(isTome, job).copy(piece = "leftRing")
-      case "rightring" => Ring(isTome, job).copy(piece = "rightRing")
+      case ring @ ("ring" | "left ring" | "right ring") => Ring(isTome, job, ring)
       case "accessory upgrade" => AccessoryUpgrade
       case "body upgrade" => BodyUpgrade
       case "weapon upgrade" => WeaponUpgrade
@@ -119,5 +117,6 @@ object Piece {
 
   lazy val available: Seq[String] = Seq("weapon",
     "head", "body", "hands", "waist", "legs", "feet",
-    "ears", "neck", "wrist", "leftRing", "rightRing")
+    "ears", "neck", "wrist", "left ring", "right ring",
+    "accessory upgrade", "body upgrade", "weapon upgrade")
 }

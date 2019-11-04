@@ -86,12 +86,13 @@ class BiSView(override val storage: ActorRef, ariyala: ActorRef)(implicit timeou
 
 object BiSView {
   import scalatags.Text.all._
+  import scalatags.Text.tags2.{title => titleTag}
 
   def template(partyId: String, party: Seq[Player], error: Option[String]): String =
     "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">" +
       html(lang:="en",
         head(
-          title:="Best in slot",
+          titleTag("Best in slot"),
           link(rel:="stylesheet", `type`:="text/css", href:="/static/styles.css")
         ),
 

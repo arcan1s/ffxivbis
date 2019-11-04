@@ -14,7 +14,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.util.Timeout
 import me.arcanis.ffxivbis.http.UserHelper
-import me.arcanis.ffxivbis.models.{Party, Permission, User}
+import me.arcanis.ffxivbis.models.{Permission, User}
 
 import scala.util.{Failure, Success}
 
@@ -54,12 +54,13 @@ class IndexView(storage: ActorRef)(implicit timeout: Timeout)
 
 object IndexView {
   import scalatags.Text.all._
+  import scalatags.Text.tags2.{title => titleTag}
 
   def template: String =
     "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">" +
       html(
         head(
-          title:="FFXIV loot helper",
+          titleTag("FFXIV loot helper"),
           link(rel:="stylesheet", `type`:="text/css", href:="/static/styles.css")
         ),
 

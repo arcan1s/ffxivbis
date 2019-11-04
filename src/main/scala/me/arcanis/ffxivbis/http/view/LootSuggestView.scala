@@ -71,12 +71,13 @@ class LootSuggestView(override val storage: ActorRef)(implicit timeout: Timeout)
 
 object LootSuggestView {
   import scalatags.Text.all._
+  import scalatags.Text.tags2.{title => titleTag}
 
   def template(partyId: String, party: Seq[PlayerIdWithCounters], piece: Option[Piece], error: Option[String]): String =
     "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">" +
       html(lang:="en",
         head(
-          title:="Suggest loot",
+          titleTag("Suggest loot"),
           link(rel:="stylesheet", `type`:="text/css", href:="/static/styles.css")
         ),
 

@@ -50,8 +50,8 @@ case class BiS(weapon: Option[Piece],
       "ears" -> ears,
       "neck" -> neck,
       "wrist" -> wrist,
-      "leftRing" -> leftRing,
-      "rightRing" -> rightRing
+      "left ring" -> leftRing,
+      "right ring" -> rightRing
     ) + (name -> piece)
     BiS(params)
   }
@@ -70,8 +70,8 @@ object BiS {
       data.get("ears").flatten,
       data.get("neck").flatten,
       data.get("wrist").flatten,
-      data.get("leftRing").flatten,
-      data.get("rightRing").flatten)
+      data.get("left ring").flatten,
+      data.get("right ring").flatten)
 
   def apply(): BiS = BiS(Seq.empty)
 

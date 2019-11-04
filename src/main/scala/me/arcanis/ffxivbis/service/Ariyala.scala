@@ -11,8 +11,8 @@ package me.arcanis.ffxivbis.service
 import java.nio.file.Paths
 
 import akka.actor.{Actor, Props}
-import akka.http.scaladsl.model._
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.model._
 import akka.pattern.pipe
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Sink}
@@ -128,8 +128,8 @@ object Ariyala {
   private def remapKey(key: String): Option[String] = key match {
     case "mainhand" => Some("weapon")
     case "chest" => Some("body")
-    case "ringLeft" => Some("leftRing")
-    case "ringRight" => Some("rightRing")
+    case "ringLeft" => Some("left ring")
+    case "ringRight" => Some("right ring")
     case "head" | "hands" | "waist" | "legs" | "feet" | "ears" | "neck" | "wrist" => Some(key)
     case _ => None
   }

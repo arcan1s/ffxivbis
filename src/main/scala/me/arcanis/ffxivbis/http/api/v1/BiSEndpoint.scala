@@ -13,16 +13,15 @@ import akka.http.scaladsl.model.{HttpEntity, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.util.Timeout
-import com.typesafe.scalalogging.StrictLogging
 import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.{ArraySchema, Content, Schema}
-import io.swagger.v3.oas.annotations.responses.ApiResponse
-import io.swagger.v3.oas.annotations.{Operation, Parameter}
 import io.swagger.v3.oas.annotations.parameters.RequestBody
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
-import javax.ws.rs.{Consumes, GET, POST, PUT, Path, Produces}
-import me.arcanis.ffxivbis.http.{Authorization, BiSHelper}
+import io.swagger.v3.oas.annotations.{Operation, Parameter}
+import javax.ws.rs._
 import me.arcanis.ffxivbis.http.api.v1.json._
+import me.arcanis.ffxivbis.http.{Authorization, BiSHelper}
 import me.arcanis.ffxivbis.models.PlayerId
 
 import scala.util.{Failure, Success}

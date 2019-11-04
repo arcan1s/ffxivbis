@@ -11,8 +11,8 @@ package me.arcanis.ffxivbis.http
 import akka.actor.ActorRef
 import akka.http.scaladsl.model.headers._
 import akka.http.scaladsl.server.AuthenticationFailedRejection._
-import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server._
 import akka.pattern.ask
 import akka.util.Timeout
 import me.arcanis.ffxivbis.models.{Permission, User}

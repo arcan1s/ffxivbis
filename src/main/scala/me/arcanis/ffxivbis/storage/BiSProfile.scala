@@ -9,7 +9,7 @@
 package me.arcanis.ffxivbis.storage
 
 import me.arcanis.ffxivbis.models.{Job, Loot, Piece}
-import slick.lifted.{ForeignKeyQuery, Index, PrimaryKey}
+import slick.lifted.ForeignKeyQuery
 
 import scala.concurrent.Future
 

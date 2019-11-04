@@ -13,12 +13,12 @@ import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.StrictLogging
 import me.arcanis.ffxivbis.http.RootEndpoint
-import me.arcanis.ffxivbis.service.{Ariyala, PartyService}
 import me.arcanis.ffxivbis.service.impl.DatabaseImpl
+import me.arcanis.ffxivbis.service.{Ariyala, PartyService}
 import me.arcanis.ffxivbis.storage.Migration
 
-import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext}
 import scala.util.{Failure, Success}
 
 class Application extends Actor with StrictLogging {

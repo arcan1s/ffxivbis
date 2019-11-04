@@ -15,8 +15,8 @@ object Fixtures {
       Ears(isTome = false, Job.DNC),
       Neck(isTome = true, Job.DNC),
       Wrist(isTome = false, Job.DNC),
-      Ring(isTome = true, Job.DNC, "leftRing"),
-      Ring(isTome = true, Job.DNC, "rightRing")
+      Ring(isTome = true, Job.DNC, "left ring"),
+      Ring(isTome = true, Job.DNC, "right ring")
     )
   )
 
@@ -30,8 +30,8 @@ object Fixtures {
   lazy val lootLegs: Piece = Legs(isTome = false, Job.AnyJob)
   lazy val lootEars: Piece = Ears(isTome = false, Job.AnyJob)
   lazy val lootRing: Piece = Ring(isTome = true, Job.AnyJob)
-  lazy val lootLeftRing: Piece = Ring(isTome = true, Job.AnyJob, "leftRing")
-  lazy val lootRightRing: Piece = Ring(isTome = true, Job.AnyJob, "rightRing")
+  lazy val lootLeftRing: Piece = Ring(isTome = true, Job.AnyJob, "left ring")
+  lazy val lootRightRing: Piece = Ring(isTome = true, Job.AnyJob, "right ring")
   lazy val lootUpgrade: Piece = BodyUpgrade
   lazy val loot: Seq[Piece] = Seq(lootBody, lootHands, lootLegs, lootUpgrade)
 

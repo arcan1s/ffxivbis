@@ -9,7 +9,6 @@
 package me.arcanis.ffxivbis.storage
 
 import me.arcanis.ffxivbis.models.{BiS, Job, Player, PlayerId}
-import slick.lifted.{Index, PrimaryKey}
 
 import scala.concurrent.Future
 

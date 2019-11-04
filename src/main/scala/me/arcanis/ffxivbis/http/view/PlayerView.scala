@@ -14,7 +14,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
 import me.arcanis.ffxivbis.http.{Authorization, PlayerHelper}
-import me.arcanis.ffxivbis.models.{BiS, Job, Player, PlayerId, PlayerIdWithCounters}
+import me.arcanis.ffxivbis.models._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -74,12 +74,13 @@ class PlayerView(override val storage: ActorRef, ariyala: ActorRef)(implicit tim
 
 object PlayerView {
   import scalatags.Text.all._
+  import scalatags.Text.tags2.{title => titleTag}
 
   def template(partyId: String, party: Seq[PlayerIdWithCounters], error: Option[String]): String =
     "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">" +
       html(lang:="en",
         head(
-          title:="Party",
+          titleTag("Party"),
           link(rel:="stylesheet", `type`:="text/css", href:="/static/styles.css")
         ),
 
