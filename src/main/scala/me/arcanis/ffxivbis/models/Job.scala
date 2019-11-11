@@ -35,7 +35,7 @@ object Job {
       def equality(objRepr: String): Boolean = objRepr match {
         case _ if objRepr == AnyJob.toString => true
         case _ if this.toString == AnyJob.toString => true
-        case _ => this.toString == obj.toString
+        case _ => this.toString == objRepr
       }
 
       canEqual(obj) && equality(obj.toString)
