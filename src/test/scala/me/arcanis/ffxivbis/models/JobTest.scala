@@ -7,7 +7,7 @@ class JobTest extends WordSpecLike with Matchers with BeforeAndAfterAll {
   "job model" must {
 
     "create job from string" in {
-      Job.jobs.foreach { job =>
+      Job.available.foreach { job =>
         Job.withName(job.toString) shouldEqual job
       }
     }
@@ -17,7 +17,7 @@ class JobTest extends WordSpecLike with Matchers with BeforeAndAfterAll {
     }
 
     "equal AnyJob to others" in {
-      Job.jobs.foreach { job =>
+      Job.available.foreach { job =>
         Job.AnyJob shouldBe job
       }
     }

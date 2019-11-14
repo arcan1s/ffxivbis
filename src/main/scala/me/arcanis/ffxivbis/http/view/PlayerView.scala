@@ -93,7 +93,7 @@ object PlayerView {
           form(action:=s"/party/$partyId/players", method:="post")(
             input(name:="nick", id:="nick", placeholder:="nick", title:="nick", `type`:="nick"),
             select(name:="job", id:="job", title:="job")
-                  (for (job <- Job.jobs) yield option(job.toString)),
+                  (for (job <- Job.available) yield option(job.toString)),
             input(name:="link", id:="link", placeholder:="player bis link", title:="link", `type`:="text"),
             input(name:="prioiry", id:="priority", placeholder:="priority", title:="priority", `type`:="number", value:="0"),
             input(name:="action", id:="action", `type`:="hidden", value:="add"),

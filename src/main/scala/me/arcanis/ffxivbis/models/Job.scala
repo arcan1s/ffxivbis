@@ -96,8 +96,8 @@ object Job {
   case object SMN extends Casters
   case object RDM extends Casters
 
-  lazy val jobs: Seq[Job] =
+  lazy val available: Seq[Job] =
     Seq(PLD, WAR, DRK, GNB, WHM, SCH, AST, MNK, DRG, NIN, SAM, BRD, MCH, DNC, BLM, SMN, RDM)
 
-  def withName(job: String): Job.Job = jobs.find(_.toString == job.toUpperCase).getOrElse(AnyJob)
+  def withName(job: String): Job.Job = available.find(_.toString == job.toUpperCase).getOrElse(AnyJob)
 }
