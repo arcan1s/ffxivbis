@@ -12,16 +12,17 @@ import akka.actor.ActorRef
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
+import com.typesafe.config.Config
 import me.arcanis.ffxivbis.http.api.v1.json.JsonSupport
 
-class RootApiV1Endpoint(storage: ActorRef, ariyala: ActorRef)
+class RootApiV1Endpoint(storage: ActorRef, ariyala: ActorRef, config: Config)
                        (implicit timeout: Timeout)
   extends JsonSupport with HttpHandler {
 
   private val biSEndpoint = new BiSEndpoint(storage, ariyala)
   private val lootEndpoint = new LootEndpoint(storage)
   private val playerEndpoint = new PlayerEndpoint(storage, ariyala)
-  private val typesEndpoint = new TypesEndpoint
+  private val typesEndpoint = new TypesEndpoint(config)
   private val userEndpoint = new UserEndpoint(storage)
 
   def route: Route =

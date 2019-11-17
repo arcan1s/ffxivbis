@@ -27,7 +27,7 @@ class RootEndpoint(system: ActorSystem, storage: ActorRef, ariyala: ActorRef)
   implicit val timeout: Timeout =
     config.getDuration("me.arcanis.ffxivbis.settings.request-timeout")
 
-  private val rootApiV1Endpoint: RootApiV1Endpoint = new RootApiV1Endpoint(storage, ariyala)
+  private val rootApiV1Endpoint: RootApiV1Endpoint = new RootApiV1Endpoint(storage, ariyala, config)
   private val rootView: RootView = new RootView(storage, ariyala)
   private val httpLogger = Logger("http")
 

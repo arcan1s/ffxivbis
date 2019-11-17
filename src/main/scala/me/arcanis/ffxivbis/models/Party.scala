@@ -36,9 +36,6 @@ case class Party(partyId: String, rules: Seq[String], players: Map[PlayerId, Pla
 }
 
 object Party {
-  private def getRules(config: Config): Seq[String] =
-    config.getStringList("me.arcanis.ffxivbis.settings.priority").asScala.toSeq
-
   def apply(partyId: Option[String], config: Config): Party =
     new Party(partyId.getOrElse(randomPartyId), getRules(config), Map.empty)
 
@@ -54,6 +51,9 @@ object Party {
     }
     Party(partyId, getRules(config), playersWithItems)
   }
+
+  def getRules(config: Config): Seq[String] =
+    config.getStringList("me.arcanis.ffxivbis.settings.priority").asScala.toSeq
 
   def randomPartyId: String = Random.alphanumeric.take(20).mkString
 }

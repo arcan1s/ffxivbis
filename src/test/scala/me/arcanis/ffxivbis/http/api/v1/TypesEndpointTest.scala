@@ -3,8 +3,10 @@ package me.arcanis.ffxivbis.http.api.v1
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.http.scaladsl.server._
+import com.typesafe.config.Config
+import me.arcanis.ffxivbis.Settings
 import me.arcanis.ffxivbis.http.api.v1.json._
-import me.arcanis.ffxivbis.models.{Job, Permission, Piece}
+import me.arcanis.ffxivbis.models.{Job, Party, Permission, Piece}
 import org.scalatest.{Matchers, WordSpec}
 
 import scala.language.postfixOps
@@ -12,7 +14,9 @@ import scala.language.postfixOps
 class TypesEndpointTest extends WordSpec
   with Matchers with ScalatestRouteTest with JsonSupport {
 
-  private val route: Route = new TypesEndpoint().route
+  private val route: Route = new TypesEndpoint(testConfig).route
+
+  override def testConfig: Config = Settings.withRandomDatabase
 
   "api v1 types endpoint" must {
 
@@ -34,6 +38,13 @@ class TypesEndpointTest extends WordSpec
       Get("/types/pieces") ~> route ~> check {
         status shouldEqual StatusCodes.OK
         responseAs[Seq[String]] shouldEqual Piece.available
+      }
+    }
+
+    "return current priority" in {
+      Get("/types/priority") ~> route ~> check {
+        status shouldEqual StatusCodes.OK
+        responseAs[Seq[String]] shouldEqual Party.getRules(testConfig)
       }
     }
 
