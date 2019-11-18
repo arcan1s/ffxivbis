@@ -3,7 +3,7 @@ REST json API description to interact with FFXIVBiS service.
 # Basic workflow
 
 * Create party using `PUT /api/v1/party` endpoint. It consumes username and password of administrator (which can't be restored). As the result it returns unique id of created party.
-* Create new users which have access to this party. Note that user is belong to specific party id and in scope of the specified party it must be unique.
+* Create new users which have access to this party. Note that user belongs to specific party id and in scope of the specified party it must be unique.
 * Add players with their best in slot sets (probably by using ariyala links).
 * Add loot items if any.
 * By using `PUT /api/v1/party/{partyId}/loot` API find players which are better for the specified loot.

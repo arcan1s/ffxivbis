@@ -40,7 +40,7 @@ class TypesEndpoint(config: Config) extends JsonSupport {
   def getJobs: Route =
     path("types" / "jobs") {
       get {
-        complete(Job.available.map(_.toString))
+        complete(Job.availableWithAnyJob.map(_.toString))
       }
     }
 

@@ -23,7 +23,7 @@ class TypesEndpointTest extends WordSpec
     "return all available jobs" in {
       Get("/types/jobs") ~> route ~> check {
         status shouldEqual StatusCodes.OK
-        responseAs[Seq[String]] shouldEqual Job.available.map(_.toString)
+        responseAs[Seq[String]] shouldEqual Job.availableWithAnyJob.map(_.toString)
       }
     }
 

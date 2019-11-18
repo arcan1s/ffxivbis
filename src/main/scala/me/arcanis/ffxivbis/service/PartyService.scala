@@ -23,7 +23,8 @@ class PartyService(storage: ActorRef) extends Actor with StrictLogging {
 
   private val cacheTimeout: FiniteDuration =
     context.system.settings.config.getDuration("me.arcanis.ffxivbis.settings.cache-timeout")
-  implicit private val executionContext: ExecutionContext = context.dispatcher
+  implicit private val executionContext: ExecutionContext =
+    context.system.dispatchers.lookup("me.arcanis.ffxivbis.default-dispatcher")
   implicit private val timeout: Timeout =
     context.system.settings.config.getDuration("me.arcanis.ffxivbis.settings.request-timeout")
 

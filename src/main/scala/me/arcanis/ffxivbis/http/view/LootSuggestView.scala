@@ -14,7 +14,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
 import me.arcanis.ffxivbis.http.{Authorization, LootHelper}
-import me.arcanis.ffxivbis.models.{Piece, PlayerIdWithCounters}
+import me.arcanis.ffxivbis.models.{Job, Piece, PlayerIdWithCounters}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
@@ -43,9 +43,9 @@ class LootSuggestView(override val storage: ActorRef)(implicit timeout: Timeout)
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
           post {
-            formFields("piece".as[String], "is_tome".as[String].?) { (piece, maybeTome) =>
+            formFields("piece".as[String], "job".as[String], "is_tome".as[String].?) { (piece, job, maybeTome) =>
               import me.arcanis.ffxivbis.utils.Implicits._
-              val maybePiece = Try(Piece(piece, maybeTome)).toOption
+              val maybePiece = Try(Piece(piece, maybeTome, Job.withName(job))).toOption
 
               onComplete(suggestLootCall(partyId, maybePiece)) {
                 case Success(players) =>
@@ -90,6 +90,8 @@ object LootSuggestView {
           form(action:=s"/party/$partyId/suggest", method:="post")(
             select(name:="piece", id:="piece", title:="piece")
                   (for (piece <- Piece.available) yield option(piece)),
+            select(name:="job", id:="job", title:="job")
+                  (for (job <- Job.availableWithAnyJob) yield option(job.toString)),
             input(name:="is_tome", id:="is_tome", title:="is tome", `type`:="checkbox"),
             label(`for`:="is_tome")("is tome gear"),
             input(name:="suggest", id:="suggest", `type`:="submit", value:="suggest")

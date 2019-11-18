@@ -18,7 +18,8 @@ class DatabaseImpl extends Database
   with DatabaseBiSHandler with DatabaseLootHandler
   with DatabasePartyHandler with DatabaseUserHandler {
 
-  implicit val executionContext: ExecutionContext = context.dispatcher
+  implicit val executionContext: ExecutionContext =
+    context.system.dispatchers.lookup("me.arcanis.ffxivbis.default-dispatcher")
   val profile = new DatabaseProfile(executionContext, context.system.settings.config)
 
   override def receive: Receive =

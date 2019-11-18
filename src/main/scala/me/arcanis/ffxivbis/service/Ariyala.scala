@@ -34,12 +34,18 @@ class Ariyala extends Actor with StrictLogging {
 
   private val http = Http()(context.system)
   implicit private val materializer: ActorMaterializer = ActorMaterializer()
-  implicit private val executionContext: ExecutionContext = context.dispatcher
+  implicit private val executionContext: ExecutionContext =
+    context.system.dispatchers.lookup("me.arcanis.ffxivbis.default-dispatcher")
 
   override def receive: Receive = {
     case GetBiS(link, job) =>
       val client = sender()
       get(link, job).map(BiS(_)).pipeTo(client)
+  }
+
+  override def postStop(): Unit = {
+    http.shutdownAllConnectionPools()
+    super.postStop()
   }
 
   private def get(link: String, job: Job.Job): Future[Seq[Piece]] = {

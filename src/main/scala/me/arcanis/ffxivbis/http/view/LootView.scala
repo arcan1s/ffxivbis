@@ -113,7 +113,7 @@ object LootView {
               th("is tome"),
               th("")
             ),
-            for (player <- party; piece <- player.bis.pieces) yield tr(
+            for (player <- party; piece <- player.loot) yield tr(
               td(`class`:="include_search")(player.playerId.toString),
               td(`class`:="include_search")(piece.piece),
               td(piece.isTomeToString),
