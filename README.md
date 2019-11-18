@@ -1,10 +1,12 @@
 # FFXIV BiS
 
+[![Build Status](https://travis-ci.org/arcan1s/ffxivbis.svg?branch=master)](https://travis-ci.org/arcan1s/ffxivbis) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/arcan1s/ffxivbis)
+
 Service which allows to manage savage loot distribution easy.
 
 ## Installation and usage
 
-In general compliation process looks like:
+In general compilation process looks like:
 
 ```bash
 sbt dist
