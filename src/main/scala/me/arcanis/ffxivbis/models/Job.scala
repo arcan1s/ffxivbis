@@ -100,5 +100,10 @@ object Job {
     Seq(PLD, WAR, DRK, GNB, WHM, SCH, AST, MNK, DRG, NIN, SAM, BRD, MCH, DNC, BLM, SMN, RDM)
   lazy val availableWithAnyJob: Seq[Job] = available.prepended(AnyJob)
 
-  def withName(job: String): Job.Job = available.find(_.toString == job.toUpperCase).getOrElse(AnyJob)
+  def withName(job: String): Job.Job =
+    availableWithAnyJob.find(_.toString.equalsIgnoreCase(job.toUpperCase)) match {
+      case Some(value) => value
+      case None if job.isEmpty => AnyJob
+      case _ => throw new IllegalArgumentException("Invalid or unknown job")
+    }
 }

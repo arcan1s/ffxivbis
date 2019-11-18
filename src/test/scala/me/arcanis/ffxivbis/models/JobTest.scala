@@ -12,8 +12,12 @@ class JobTest extends WordSpecLike with Matchers with BeforeAndAfterAll {
       }
     }
 
-    "return AnyJob on unknown job" in {
-      Job.withName("random string") shouldEqual Job.AnyJob
+    "return AnyJob" in {
+      Job.withName("anyjob") shouldEqual Job.AnyJob
+    }
+
+    "fail on unknown job" in {
+      an [IllegalArgumentException] should be thrownBy Job.withName("random string")
     }
 
     "equal AnyJob to others" in {
