@@ -1,9 +1,9 @@
-sudo: required
-language: generic
+language: scala
+scala:
+  - 2.13.1
 
-services:
-  - docker
+sbt_args: -no-colors
 
 script:
-  - docker run -it --rm -v "$(pwd):/opt/build" -w /opt/build mozilla/sbt sbt compile
-  - docker run -it --rm -v "$(pwd):/opt/build" -w /opt/build mozilla/sbt sbt test
+  - sbt compile
+  - sbt test
