@@ -29,6 +29,7 @@ class RootEndpoint(system: ActorSystem, storage: ActorRef, ariyala: ActorRef)
 
   private val rootApiV1Endpoint: RootApiV1Endpoint = new RootApiV1Endpoint(storage, ariyala, config)
   private val rootView: RootView = new RootView(storage, ariyala)
+  private val swagger: Swagger = new Swagger(config)
   private val httpLogger = Logger("http")
 
   private val withHttpLog: Directive0 =
@@ -43,7 +44,7 @@ class RootEndpoint(system: ActorSystem, storage: ActorRef, ariyala: ActorRef)
 
   def route: Route =
     withHttpLog {
-      apiRoute ~ htmlRoute ~ Swagger.routes ~ swaggerUIRoute
+      apiRoute ~ htmlRoute ~ swagger.routes ~ swaggerUIRoute
     }
 
   private def apiRoute: Route =

@@ -10,11 +10,12 @@ package me.arcanis.ffxivbis.http
 
 import com.github.swagger.akka.SwaggerHttpService
 import com.github.swagger.akka.model.{Info, License}
+import com.typesafe.config.Config
 import io.swagger.v3.oas.models.security.SecurityScheme
 
 import scala.io.Source
 
-object Swagger extends SwaggerHttpService {
+class Swagger(config: Config) extends SwaggerHttpService {
   override val apiClasses: Set[Class[_]] = Set(
     classOf[api.v1.BiSEndpoint], classOf[api.v1.LootEndpoint],
     classOf[api.v1.PlayerEndpoint], classOf[api.v1.TypesEndpoint],
@@ -28,12 +29,16 @@ object Swagger extends SwaggerHttpService {
     license = Some(License("BSD", "https://raw.githubusercontent.com/arcan1s/ffxivbis/master/LICENSE"))
   )
 
+  override val host: String =
+    if (config.hasPath("me.arcanis.ffxivbis.web.hostname")) config.getString("me.arcanis.ffxivbis.web.hostname")
+    else s"${config.getString("me.arcanis.ffxivbis.web.host")}:${config.getString("me.arcanis.ffxivbis.web.port")}"
+
   private val basicAuth = new SecurityScheme()
     .description("basic http auth")
     .`type`(SecurityScheme.Type.HTTP)
     .in(SecurityScheme.In.HEADER)
     .scheme("bearer")
-  override def securitySchemes: Map[String, SecurityScheme] = Map("basic auth" -> basicAuth)
+  override val securitySchemes: Map[String, SecurityScheme] = Map("basic auth" -> basicAuth)
 
   override val unwantedDefinitions: Seq[String] =
     Seq("Function1", "Function1RequestContextFutureRouteResult")
