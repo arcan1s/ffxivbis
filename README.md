@@ -28,4 +28,4 @@ REST API documentation is available at `http://0.0.0.0:8000/swagger`. HTML repre
 
 ## Public service
 
-There is also public service which is available at https://ffxivbis.arcanis.me.
+There is also public service which is available at http://ffxivbis.arcanis.me.
