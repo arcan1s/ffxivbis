@@ -58,15 +58,27 @@ class Ariyala extends Actor with StrictLogging {
   }
 
   private def getIsTome(itemIds: Seq[Long]): Future[Map[Long, Boolean]] = {
-    val uri = Uri(xivapiUrl)
+    val uriForItems = Uri(xivapiUrl)
       .withPath(Uri.Path / "item")
       .withQuery(Uri.Query(Map(
-        "columns" -> Seq("ID", "Lot").mkString(","),
+        "columns" -> Seq("ID", "GameContentLinks").mkString(","),
         "ids" -> itemIds.mkString(","),
         "private_key" -> xivapiKey.getOrElse("")
       )))
 
-    sendRequest(uri, Ariyala.parseXivapiJson)
+    sendRequest(uriForItems, Ariyala.parseXivapiJsonToShop).flatMap { shops =>
+      val shopIds = shops.values.map(_._2).toSet
+      val columns = shops.values.map(pair => s"ItemCost${pair._1}").toSet.toSeq
+      val uriForShops = Uri(xivapiUrl)
+        .withPath(Uri.Path / "specialshop")
+        .withQuery(Uri.Query(Map(
+          "columns" -> (columns :+ "ID").mkString(","),
+          "ids" -> shopIds.mkString(","),
+          "private_key" -> xivapiKey.getOrElse("")
+        )))
+
+      sendRequest(uriForShops, Ariyala.parseXivapiJsonToTome(shops))
+    }
   }
 
   private def sendRequest[T](uri: Uri, parser: JsObject => Future[T]): Future[T] =
@@ -118,16 +130,54 @@ object Ariyala {
       }
     }
 
-  private def parseXivapiJson(js: JsObject)
-                             (implicit executionContext: ExecutionContext): Future[Map[Long, Boolean]] =
+  private def parseXivapiJsonToShop(js: JsObject)
+                                   (implicit executionContext: ExecutionContext): Future[Map[Long, (String, Long)]] = {
+    def extractTraderId(js: JsObject) =
+      js.fields("SpecialShop").asJsObject
+        .fields.collectFirst {
+        case (shopName, JsArray(array)) if shopName.startsWith("ItemReceive") =>
+          val shopId = array.head match {
+            case JsNumber(id) => id.toLong
+            case other => throw deserializationError(s"Could not parse $other")
+          }
+          (shopName.replace("ItemReceive", ""), shopId)
+      }.getOrElse(throw deserializationError(s"Could not parse $js"))
+
     Future {
       js.fields("Results") match {
         case array: JsArray =>
-          array.elements.map(_.asJsObject.getFields("ID", "Lot") match {
-            case Seq(JsNumber(id), JsNumber(isTome)) => id.toLong -> (isTome == 0)
+          array.elements.map(_.asJsObject.getFields("ID", "GameContentLinks") match {
+            case Seq(JsNumber(id), shop) => id.toLong -> extractTraderId(shop.asJsObject)
             case other => throw deserializationError(s"Could not parse $other")
           }).toMap
         case other => throw deserializationError(s"Could not parse $other")
+      }
+    }
+  }
+
+  private def parseXivapiJsonToTome(shops: Map[Long, (String, Long)])(js: JsObject)
+                                   (implicit executionContext: ExecutionContext): Future[Map[Long, Boolean]] =
+    Future {
+      val shopMap = js.fields("Results") match {
+        case array: JsArray =>
+          array.elements.map { shop =>
+            shop.asJsObject.fields("ID") match {
+              case JsNumber(id) => id.toLong -> shop.asJsObject
+              case other => throw deserializationError(s"Could not parse $other")
+            }
+          }.toMap
+        case other => throw deserializationError(s"Could not parse $other")
+      }
+
+      shops.map { case (itemId, (index, shopId)) =>
+        val isTome = Try(shopMap(shopId).fields(s"ItemCost$index").asJsObject).toOption.getOrElse(throw new Exception(s"${shopMap(shopId).fields(s"ItemCost$index")}, $index"))
+          .getFields("IsUnique", "StackSize") match {
+          case Seq(JsNumber(isUnique), JsNumber(stackSize)) =>
+            // either upgraded gear or tomes found
+            isUnique == 1 || stackSize.toLong == 2000
+          case other => throw deserializationError(s"Could not parse $other")
+        }
+        itemId -> isTome
       }
     }
 
