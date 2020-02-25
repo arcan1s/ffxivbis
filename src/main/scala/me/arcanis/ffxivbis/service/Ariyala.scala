@@ -61,7 +61,7 @@ class Ariyala extends Actor with StrictLogging {
     val uri = Uri(xivapiUrl)
       .withPath(Uri.Path / "item")
       .withQuery(Uri.Query(Map(
-        "columns" -> Seq("ID", "IsEquippable").mkString(","),
+        "columns" -> Seq("ID", "Lot").mkString(","),
         "ids" -> itemIds.mkString(","),
         "private_key" -> xivapiKey.getOrElse("")
       )))
@@ -123,7 +123,7 @@ object Ariyala {
     Future {
       js.fields("Results") match {
         case array: JsArray =>
-          array.elements.map(_.asJsObject.getFields("ID", "IsEquippable") match {
+          array.elements.map(_.asJsObject.getFields("ID", "Lot") match {
             case Seq(JsNumber(id), JsNumber(isTome)) => id.toLong -> (isTome == 0)
             case other => throw deserializationError(s"Could not parse $other")
           }).toMap
