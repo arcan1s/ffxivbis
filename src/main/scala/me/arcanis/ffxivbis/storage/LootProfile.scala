@@ -8,6 +8,8 @@
  */
 package me.arcanis.ffxivbis.storage
 
+import java.time.Instant
+
 import me.arcanis.ffxivbis.models.{Job, Loot, Piece}
 import slick.lifted.{ForeignKeyQuery, Index}
 
@@ -18,7 +20,7 @@ trait LootProfile { this: DatabaseProfile =>
 
   case class LootRep(lootId: Option[Long], playerId: Long, created: Long, piece: String,
                      isTome: Int, job: String) {
-    def toLoot: Loot = Loot(playerId, Piece(piece, isTome == 1, Job.withName(job)))
+    def toLoot: Loot = Loot(playerId, Piece(piece, isTome == 1, Job.withName(job)), Instant.ofEpochMilli(created))
   }
   object LootRep {
     def fromPiece(playerId: Long, piece: Piece) =

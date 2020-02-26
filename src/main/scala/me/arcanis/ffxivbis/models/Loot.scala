@@ -8,4 +8,6 @@
  */
 package me.arcanis.ffxivbis.models
 
-case class Loot(playerId: Long, piece: Piece)
+import java.time.Instant
+
+case class Loot(playerId: Long, piece: Piece, timestamp: Instant)

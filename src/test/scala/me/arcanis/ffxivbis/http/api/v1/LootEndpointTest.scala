@@ -59,7 +59,7 @@ class LootEndpointTest extends WordSpec
 
     "return looted items" in {
       val uri = endpoint.withQuery(Uri.Query(Map("nick" -> playerId.nick, "job" -> playerId.job)))
-      val response = Seq(PlayerResponse.fromPlayer(Fixtures.playerEmpty.withLoot(Fixtures.lootBody)))
+      val response = Seq(PlayerResponse.fromPlayer(Fixtures.playerEmpty.withLoot(Fixtures.lootBody.toLoot(-1))))
 
       Get(uri).withHeaders(auth) ~> route ~> check {
         status shouldEqual StatusCodes.OK

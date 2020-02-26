@@ -16,18 +16,18 @@ case class PlayerResponse(
   @Schema(description = "job name", required = true, example = "DNC") job: String,
   @Schema(description = "player nick name", required = true, example = "Siuan Sanche") nick: String,
   @Schema(description = "pieces in best in slot") bis: Option[Seq[PieceResponse]],
-  @Schema(description = "looted pieces") loot: Option[Seq[PieceResponse]],
+  @Schema(description = "looted pieces") loot: Option[Seq[LootResponse]],
   @Schema(description = "link to best in slot", example = "https://ffxiv.ariyala.com/19V5R") link: Option[String],
   @Schema(description = "player loot priority", `type` = "number") priority: Option[Int]) {
   def toPlayer: Player =
     Player(partyId, Job.withName(job), nick,
-      BiS(bis.getOrElse(Seq.empty).map(_.toPiece)), loot.getOrElse(Seq.empty).map(_.toPiece),
+      BiS(bis.getOrElse(Seq.empty).map(_.toPiece)), loot.getOrElse(Seq.empty).map(_.toLoot),
       link, priority.getOrElse(0))
 }
 
 object PlayerResponse {
   def fromPlayer(player: Player): PlayerResponse =
     PlayerResponse(player.partyId, player.job.toString, player.nick,
-      Some(player.bis.pieces.map(PieceResponse.fromPiece)), Some(player.loot.map(PieceResponse.fromPiece)),
+      Some(player.bis.pieces.map(PieceResponse.fromPiece)), Some(player.loot.map(LootResponse.fromLoot)),
       player.link, Some(player.priority))
 }

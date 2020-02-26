@@ -8,11 +8,12 @@
  */
 package me.arcanis.ffxivbis.models
 
-case class Player(partyId: String,
+case class Player(id: Long,
+                  partyId: String,
                   job: Job.Job,
                   nick: String,
                   bis: BiS,
-                  loot: Seq[Piece],
+                  loot: Seq[Loot],
                   link: Option[String] = None,
                   priority: Int = 0) {
   require(job ne Job.AnyJob, "AnyJob is not allowed")
@@ -27,10 +28,13 @@ case class Player(partyId: String,
       partyId, job, nick, isRequired(piece), priority,
       bisCountTotal(piece), lootCount(piece),
       lootCountBiS(piece), lootCountTotal(piece))
-  def withLoot(piece: Piece): Player = withLoot(Seq(piece))
-  def withLoot(list: Seq[Piece]): Player = list match {
-    case Nil => this
-    case _ => copy(loot = list)
+  def withLoot(piece: Loot): Player = withLoot(Seq(piece))
+  def withLoot(list: Seq[Loot]): Player = {
+    require(loot.forall(_.playerId == id), "player id must be same")
+    list match {
+      case Nil => this
+      case _ => copy(loot = list)
+    }
   }
 
   def isRequired(piece: Option[Piece]): Boolean = {
@@ -44,10 +48,10 @@ case class Player(partyId: String,
 
   def bisCountTotal(piece: Option[Piece]): Int = bis.pieces.count(!_.isTome)
   def lootCount(piece: Option[Piece]): Int = piece match {
-    case Some(p) => loot.count(_ == p)
+    case Some(p) => loot.count(_.piece == p)
     case None => lootCountTotal(piece)
   }
-  def lootCountBiS(piece: Option[Piece]): Int = loot.count(bis.hasPiece)
+  def lootCountBiS(piece: Option[Piece]): Int = loot.map(_.piece).count(bis.hasPiece)
   def lootCountTotal(piece: Option[Piece]): Int = loot.length
   def lootPriority(piece: Piece): Int = priority
 }

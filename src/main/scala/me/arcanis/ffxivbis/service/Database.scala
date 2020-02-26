@@ -25,9 +25,9 @@ trait Database extends Actor with StrictLogging {
   }
 
   def filterParty(party: Party, maybePlayerId: Option[PlayerId]): Seq[Player] =
-    (party, maybePlayerId) match {
-      case (_, Some(playerId)) => party.player(playerId).map(Seq(_)).getOrElse(Seq.empty)
-      case (_, _) => party.getPlayers
+    maybePlayerId match {
+      case Some(playerId) => party.player(playerId).map(Seq(_)).getOrElse(Seq.empty)
+      case _ => party.getPlayers
     }
 
   def getParty(partyId: String, withBiS: Boolean, withLoot: Boolean): Future[Party] =

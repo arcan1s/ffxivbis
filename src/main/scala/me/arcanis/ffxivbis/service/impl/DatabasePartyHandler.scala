@@ -34,7 +34,7 @@ trait DatabasePartyHandler { this: Database  =>
             bis <- profile.getPiecesBiS(playerId)
             loot <- profile.getPieces(playerId)
           } yield Player(playerId.partyId, playerId.job, playerId.nick,
-            BiS(bis.map(_.piece)), loot.map(_.piece),
+            BiS(bis.map(_.piece)), loot,
             playerData.link, playerData.priority)
         }
       }.map(_.headOption)
