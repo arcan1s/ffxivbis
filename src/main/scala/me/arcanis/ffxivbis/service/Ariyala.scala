@@ -68,11 +68,11 @@ class Ariyala extends Actor with StrictLogging {
 
     sendRequest(uriForItems, Ariyala.parseXivapiJsonToShop).flatMap { shops =>
       val shopIds = shops.values.map(_._2).toSet
-      val columns = shops.values.map(pair => s"ItemCost${pair._1}").toSet.toSeq
+      val columns = shops.values.map(pair => s"ItemCost${pair._1}").toSet
       val uriForShops = Uri(xivapiUrl)
         .withPath(Uri.Path / "specialshop")
         .withQuery(Uri.Query(Map(
-          "columns" -> (columns :+ "ID").mkString(","),
+          "columns" -> (columns + "ID").mkString(","),
           "ids" -> shopIds.mkString(","),
           "private_key" -> xivapiKey.getOrElse("")
         )))
