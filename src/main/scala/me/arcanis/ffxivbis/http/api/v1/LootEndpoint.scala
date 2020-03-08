@@ -28,7 +28,7 @@ import scala.util.{Failure, Success}
 
 @Path("api/v1")
 class LootEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
-  extends LootHelper(storage) with Authorization with JsonSupport with HttpHandler {
+  extends LootHelper with Authorization with JsonSupport with HttpHandler {
 
   def route: Route = getLoot ~ modifyLoot
 

@@ -16,7 +16,9 @@ import me.arcanis.ffxivbis.service.Ariyala
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AriyalaHelper(ariyala: ActorRef) {
+trait AriyalaHelper {
+
+  def ariyala: ActorRef
 
   def downloadBiS(link: String, job: Job.Job)
                  (implicit executionContext: ExecutionContext, timeout: Timeout): Future[BiS] =

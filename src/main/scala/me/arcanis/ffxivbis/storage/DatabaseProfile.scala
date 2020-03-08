@@ -18,7 +18,7 @@ import slick.jdbc.JdbcProfile
 import scala.concurrent.{ExecutionContext, Future}
 
 class DatabaseProfile(context: ExecutionContext, config: Config)
-  extends BiSProfile with LootProfile with PlayersProfile with UsersProfile {
+  extends BiSProfile with LootProfile with PartyProfile with PlayersProfile with UsersProfile {
 
   implicit val executionContext: ExecutionContext = context
 
@@ -29,6 +29,7 @@ class DatabaseProfile(context: ExecutionContext, config: Config)
 
   val bisTable: TableQuery[BiSPieces] = TableQuery[BiSPieces]
   val lootTable: TableQuery[LootPieces] = TableQuery[LootPieces]
+  val partiesTable: TableQuery[Parties] = TableQuery[Parties]
   val playersTable: TableQuery[Players] = TableQuery[Players]
   val usersTable: TableQuery[Users] = TableQuery[Users]
 
@@ -55,10 +56,10 @@ class DatabaseProfile(context: ExecutionContext, config: Config)
   private def byPartyId[T](partyId: String, callback: Seq[Long] => Future[T]): Future[T] =
     getPlayers(partyId).map(callback).flatten
   private def byPlayerId[T](playerId: PlayerId, callback: Long => Future[T]): Future[T] =
-    getPlayer(playerId).map {
+    getPlayer(playerId).flatMap {
       case Some(id) => callback(id)
       case None => Future.failed(new Error(s"Could not find player $playerId"))
-    }.flatten
+    }
 }
 
 object DatabaseProfile {

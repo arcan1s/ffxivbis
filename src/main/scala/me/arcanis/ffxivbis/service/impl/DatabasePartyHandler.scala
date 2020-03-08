@@ -9,7 +9,7 @@
 package me.arcanis.ffxivbis.service.impl
 
 import akka.pattern.pipe
-import me.arcanis.ffxivbis.models.{BiS, Player, PlayerId}
+import me.arcanis.ffxivbis.models.{BiS, PartyDescription, Player, PlayerId}
 import me.arcanis.ffxivbis.service.Database
 
 import scala.concurrent.Future
@@ -25,6 +25,10 @@ trait DatabasePartyHandler { this: Database  =>
     case GetParty(partyId) =>
       val client = sender()
       getParty(partyId, withBiS = true, withLoot = true).pipeTo(client)
+
+    case GetPartyDescription(partyId) =>
+      val client = sender()
+      profile.getPartyDescription(partyId).pipeTo(client)
 
     case GetPlayer(playerId) =>
       val client = sender()
@@ -43,6 +47,10 @@ trait DatabasePartyHandler { this: Database  =>
     case RemovePlayer(playerId) =>
       val client = sender()
       profile.deletePlayer(playerId).pipeTo(client)
+
+    case UpdateParty(description) =>
+      val client = sender()
+      profile.insertPartyDescription(description).pipeTo(client)
   }
 }
 
@@ -51,10 +59,14 @@ object DatabasePartyHandler {
     override def partyId: String = player.partyId
   }
   case class GetParty(partyId: String) extends Database.DatabaseRequest
+  case class GetPartyDescription(partyId: String) extends Database.DatabaseRequest
   case class GetPlayer(playerId: PlayerId) extends Database.DatabaseRequest {
     override def partyId: String = playerId.partyId
   }
   case class RemovePlayer(playerId: PlayerId) extends Database.DatabaseRequest {
     override def partyId: String = playerId.partyId
+  }
+  case class UpdateParty(partyDescription: PartyDescription) extends Database.DatabaseRequest {
+    override def partyId: String = partyDescription.partyId
   }
 }

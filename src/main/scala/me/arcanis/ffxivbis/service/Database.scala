@@ -32,10 +32,11 @@ trait Database extends Actor with StrictLogging {
 
   def getParty(partyId: String, withBiS: Boolean, withLoot: Boolean): Future[Party] =
     for {
+      partyDescription <- profile.getPartyDescription(partyId)
       players <- profile.getParty(partyId)
       bis <- if (withBiS) profile.getPiecesBiS(partyId) else Future(Seq.empty)
       loot <- if (withLoot) profile.getPieces(partyId) else Future(Seq.empty)
-    } yield Party(partyId, context.system.settings.config, players, bis, loot)
+    } yield Party(partyDescription, context.system.settings.config, players, bis, loot)
 }
 
 object Database {

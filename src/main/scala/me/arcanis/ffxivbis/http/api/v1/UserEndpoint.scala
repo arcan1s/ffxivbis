@@ -28,7 +28,7 @@ import scala.util.{Failure, Success}
 
 @Path("api/v1")
 class UserEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
-  extends UserHelper(storage) with Authorization with JsonSupport {
+  extends UserHelper with Authorization with JsonSupport {
 
   def route: Route = createParty ~ createUser ~ deleteUser ~ getUsers
 

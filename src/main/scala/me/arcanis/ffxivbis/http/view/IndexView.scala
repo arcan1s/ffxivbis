@@ -13,13 +13,14 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.util.Timeout
-import me.arcanis.ffxivbis.http.UserHelper
-import me.arcanis.ffxivbis.models.{Permission, User}
+import me.arcanis.ffxivbis.http.{PlayerHelper, UserHelper}
+import me.arcanis.ffxivbis.models.{PartyDescription, Permission, User}
 
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class IndexView(storage: ActorRef)(implicit timeout: Timeout)
-  extends UserHelper(storage) {
+class IndexView(override val storage: ActorRef, override val ariyala: ActorRef)(implicit timeout: Timeout)
+  extends PlayerHelper with UserHelper {
 
   def route: Route = createParty ~ getIndex
 
@@ -27,13 +28,17 @@ class IndexView(storage: ActorRef)(implicit timeout: Timeout)
     path("party") {
       extractExecutionContext { implicit executionContext =>
         post {
-          formFields("username".as[String], "password".as[String]) { (username, password) =>
-            onComplete(newPartyId) {
-              case Success(partyId) =>
+          formFields("username".as[String], "password".as[String], "alias".as[String].?) { (username, password, maybeAlias) =>
+            onComplete {
+              newPartyId.flatMap { partyId =>
                 val user = User(partyId, username, password, Permission.admin)
-                onComplete(addUser(user, isHashedPassword = false)) {
-                  case _ => redirect(s"/party/$partyId", StatusCodes.Found)
+                addUser(user, isHashedPassword = false).flatMap { _ =>
+                  if (maybeAlias.getOrElse("").isEmpty) Future.successful(partyId)
+                  else updateDescription(PartyDescription(partyId, maybeAlias)).map(_ => partyId)
                 }
+              }
+            } {
+              case Success(partyId) => redirect(s"/party/$partyId", StatusCodes.Found)
               case Failure(exception) => throw exception
             }
           }
@@ -67,6 +72,7 @@ object IndexView {
         body(
           form(action:=s"party", method:="post")(
             label("create a new party"),
+            input(name:="alias", id:="alias", placeholder:="party alias", title:="alias", `type`:="text"),
             input(name:="username", id:="username", placeholder:="username", title:="username", `type`:="text"),
             input(name:="password", id:="password", placeholder:="password", title:="password", `type`:="password"),
             input(name:="add", id:="add", `type`:="submit", value:="add")

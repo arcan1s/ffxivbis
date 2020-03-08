@@ -19,8 +19,8 @@ import me.arcanis.ffxivbis.models.{Piece, Player, PlayerId}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
-class BiSView(override val storage: ActorRef, ariyala: ActorRef)(implicit timeout: Timeout)
-  extends BiSHelper(storage, ariyala) with Authorization {
+class BiSView(override val storage: ActorRef, override val ariyala: ActorRef)(implicit timeout: Timeout)
+  extends BiSHelper with Authorization {
 
   def route: Route = getBiS ~ modifyBiS
 

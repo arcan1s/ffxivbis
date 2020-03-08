@@ -20,7 +20,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 class UserView(override val storage: ActorRef)(implicit timeout: Timeout)
-  extends UserHelper(storage) with Authorization {
+  extends UserHelper with Authorization {
 
   def route: Route = getUsers ~ modifyUsers
 

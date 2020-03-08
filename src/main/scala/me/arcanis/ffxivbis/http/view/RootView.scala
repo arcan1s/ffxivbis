@@ -16,8 +16,8 @@ import akka.util.Timeout
 
 class RootView(storage: ActorRef, ariyala: ActorRef)(implicit timeout: Timeout) {
 
-  private val basePartyView = new BasePartyView(storage)
-  private val indexView = new IndexView(storage)
+  private val basePartyView = new BasePartyView(storage, ariyala)
+  private val indexView = new IndexView(storage, ariyala)
 
   private val biSView = new BiSView(storage, ariyala)
   private val lootView = new LootView(storage)

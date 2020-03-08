@@ -12,12 +12,14 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import me.arcanis.ffxivbis.http.api.v1.json.ApiAction
-import me.arcanis.ffxivbis.models.{Party, Player, PlayerId}
+import me.arcanis.ffxivbis.models.{Party, PartyDescription, Player, PlayerId}
 import me.arcanis.ffxivbis.service.impl.{DatabaseBiSHandler, DatabasePartyHandler}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PlayerHelper(storage: ActorRef, ariyala: ActorRef) extends AriyalaHelper(ariyala) {
+trait PlayerHelper extends AriyalaHelper {
+
+  def storage: ActorRef
 
   def addPlayer(player: Player)
                (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
@@ -38,6 +40,10 @@ class PlayerHelper(storage: ActorRef, ariyala: ActorRef) extends AriyalaHelper(a
       case ApiAction.remove => removePlayer(player.playerId)
     }
 
+  def getPartyDescription(partyId: String)
+                         (implicit executionContext: ExecutionContext, timeout: Timeout): Future[PartyDescription] =
+    (storage ? DatabasePartyHandler.GetPartyDescription(partyId)).mapTo[PartyDescription]
+
   def getPlayers(partyId: String, maybePlayerId: Option[PlayerId])
                 (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Seq[Player]] =
     maybePlayerId match {
@@ -50,4 +56,8 @@ class PlayerHelper(storage: ActorRef, ariyala: ActorRef) extends AriyalaHelper(a
   def removePlayer(playerId: PlayerId)
                   (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
     (storage ? DatabasePartyHandler.RemovePlayer(playerId)).mapTo[Int]
+
+  def updateDescription(partyDescription: PartyDescription)
+                       (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
+    (storage ? DatabasePartyHandler.UpdateParty(partyDescription)).mapTo[Int]
 }

@@ -17,7 +17,9 @@ import me.arcanis.ffxivbis.service.impl.DatabaseUserHandler
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class UserHelper(storage: ActorRef) {
+trait UserHelper {
+
+  def storage: ActorRef
 
   def addUser(user: User, isHashedPassword: Boolean)
              (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =

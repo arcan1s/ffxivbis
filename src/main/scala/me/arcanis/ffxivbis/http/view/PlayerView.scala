@@ -18,8 +18,8 @@ import me.arcanis.ffxivbis.models._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PlayerView(override val storage: ActorRef, ariyala: ActorRef)(implicit timeout: Timeout)
-  extends PlayerHelper(storage, ariyala) with Authorization {
+class PlayerView(override val storage: ActorRef, override val ariyala: ActorRef)(implicit timeout: Timeout)
+  extends PlayerHelper with Authorization {
 
   def route: Route = getParty ~ modifyParty
 

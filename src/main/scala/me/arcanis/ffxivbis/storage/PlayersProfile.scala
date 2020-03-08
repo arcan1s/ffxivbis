@@ -39,7 +39,6 @@ trait PlayersProfile { this: DatabaseProfile =>
       (partyId, playerId.?, created, nick, job, bisLink, priority) <> ((PlayerRep.apply _).tupled, PlayerRep.unapply)
   }
 
-
   def deletePlayer(playerId: PlayerId): Future[Int] = db.run(player(playerId).delete)
   def getParty(partyId: String): Future[Map[Long, Player]] =
     db.run(players(partyId).result).map(_.foldLeft(Map.empty[Long, Player]) {
@@ -53,10 +52,10 @@ trait PlayersProfile { this: DatabaseProfile =>
   def getPlayers(partyId: String): Future[Seq[Long]] =
     db.run(players(partyId).map(_.playerId).result)
   def insertPlayer(playerObj: Player): Future[Int] =
-    getPlayer(playerObj.playerId).map {
+    getPlayer(playerObj.playerId).flatMap {
       case Some(id) => db.run(playersTable.update(PlayerRep.fromPlayer(playerObj, Some(id))))
       case _ => db.run(playersTable.insertOrUpdate(PlayerRep.fromPlayer(playerObj, None)))
-    }.flatten
+    }
 
   private def player(playerId: PlayerId) =
     playersTable

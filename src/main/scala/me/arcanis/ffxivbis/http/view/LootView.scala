@@ -20,7 +20,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 class LootView (override val storage: ActorRef)(implicit timeout: Timeout)
-  extends LootHelper(storage) with Authorization {
+  extends LootHelper with Authorization {
 
   def route: Route = getLoot ~ modifyLoot
 

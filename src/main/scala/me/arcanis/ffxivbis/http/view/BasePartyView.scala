@@ -13,10 +13,12 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.util.Timeout
-import me.arcanis.ffxivbis.http.Authorization
+import me.arcanis.ffxivbis.http.{Authorization, PlayerHelper}
 
-class BasePartyView(override val storage: ActorRef)(implicit timeout: Timeout)
-  extends Authorization {
+import scala.util.{Failure, Success}
+
+class BasePartyView(override val storage: ActorRef, override val ariyala: ActorRef)(implicit timeout: Timeout)
+  extends PlayerHelper with Authorization {
 
   def route: Route = getIndex
 
@@ -25,8 +27,10 @@ class BasePartyView(override val storage: ActorRef)(implicit timeout: Timeout)
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
           get {
-            complete {
-              (StatusCodes.OK, RootView.toHtml(BasePartyView.template(partyId)))
+            onComplete(getPartyDescription(partyId)) {
+              case Success(description) =>
+                complete(StatusCodes.OK, RootView.toHtml(BasePartyView.template(partyId, description.alias)))
+              case Failure(exception) => throw exception
             }
           }
         }
@@ -42,16 +46,16 @@ object BasePartyView {
   def root(partyId: String): Text.TypedTag[String] =
     a(href:=s"/party/$partyId", title:="root")("root")
 
-  def template(partyId: String): String =
+  def template(partyId: String, alias: String): String =
     "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">" +
       html(lang:="en",
         head(
-          titleTag(s"Party $partyId"),
+          titleTag(s"Party $alias"),
           link(rel:="stylesheet", `type`:="text/css", href:="/static/styles.css")
         ),
 
         body(
-          h2(s"Party $partyId"),
+          h2(s"Party $alias"),
           br,
           h2(a(href:=s"/party/$partyId/players", title:="party")("party")),
           h2(a(href:=s"/party/$partyId/bis", title:="bis management")("best in slot")),

@@ -5,13 +5,12 @@ import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials}
 import akka.http.scaladsl.testkit.{RouteTestTimeout, ScalatestRouteTest}
 import akka.http.scaladsl.server._
-import akka.testkit.TestKit
 import akka.pattern.ask
+import akka.testkit.TestKit
 import com.typesafe.config.Config
 import me.arcanis.ffxivbis.{Fixtures, Settings}
 import me.arcanis.ffxivbis.http.api.v1.json._
-import me.arcanis.ffxivbis.models.PartyDescription
-import me.arcanis.ffxivbis.service.{Ariyala, impl}
+import me.arcanis.ffxivbis.service.{Ariyala, PartyService, impl}
 import me.arcanis.ffxivbis.storage.Migration
 import org.scalatest.{Matchers, WordSpec}
 
@@ -19,24 +18,27 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class PartyEndpointTest extends WordSpec
+class PlayerEndpointTest extends WordSpec
   with Matchers with ScalatestRouteTest with JsonSupport {
 
   private val auth: Authorization =
     Authorization(BasicHttpCredentials(Fixtures.userAdmin.username, Fixtures.userPassword))
-  private val endpoint: Uri = Uri(s"/party/${Fixtures.partyId}/description")
+  private val endpoint: Uri = Uri(s"/party/${Fixtures.partyId}")
+  private val playerId = PlayerIdResponse.fromPlayerId(Fixtures.playerEmpty.playerId)
   private val timeout: FiniteDuration = 60 seconds
   implicit private val routeTimeout: RouteTestTimeout = RouteTestTimeout(timeout)
 
   private val storage: ActorRef = system.actorOf(impl.DatabaseImpl.props)
   private val ariyala: ActorRef = system.actorOf(Ariyala.props)
-  private val route: Route = new PartyEndpoint(storage, ariyala)(timeout).route
+  private val party: ActorRef = system.actorOf(PartyService.props(storage))
+  private val route: Route = new PlayerEndpoint(party, ariyala)(timeout).route
 
   override def testConfig: Config = Settings.withRandomDatabase
 
   override def beforeAll: Unit = {
     Await.result(Migration(system.settings.config), timeout)
     Await.result((storage ? impl.DatabaseUserHandler.AddUser(Fixtures.userAdmin, isHashedPassword = true))(timeout).mapTo[Int], timeout)
+    Await.result((storage ? impl.DatabasePartyHandler.AddPlayer(Fixtures.playerEmpty))(timeout).mapTo[Int], timeout)
   }
 
   override def afterAll: Unit = {
@@ -44,25 +46,15 @@ class PartyEndpointTest extends WordSpec
     Settings.clearDatabase(system.settings.config)
   }
 
-  "api v1 party endpoint" must {
+  "api v1 player endpoint" must {
 
-    "get empty party description" in {
-      Get(endpoint).withHeaders(auth) ~> route ~> check {
-        status shouldEqual StatusCodes.OK
-        responseAs[PartyDescriptionResponse].toDescription shouldEqual PartyDescription.empty(Fixtures.partyId)
-      }
-    }
-
-    "update party description" in {
-      val entity = PartyDescriptionResponse(Fixtures.partyId, Some("random party name"))
-
-      Post(endpoint, entity).withHeaders(auth) ~> route ~> check {
-        status shouldEqual StatusCodes.Accepted
-      }
+    "get users" in {
+      val uri = endpoint.withQuery(Uri.Query(Map("nick" -> playerId.nick, "job" -> playerId.job)))
+      val response = Seq(PlayerResponse.fromPlayer(Fixtures.playerEmpty))
 
       Get(endpoint).withHeaders(auth) ~> route ~> check {
         status shouldEqual StatusCodes.OK
-        responseAs[PartyDescriptionResponse].toDescription shouldEqual entity.toDescription
+        responseAs[Seq[PlayerResponse]] shouldEqual response
       }
     }
 

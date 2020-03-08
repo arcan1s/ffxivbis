@@ -21,6 +21,7 @@ class RootApiV1Endpoint(storage: ActorRef, ariyala: ActorRef, config: Config)
 
   private val biSEndpoint = new BiSEndpoint(storage, ariyala)
   private val lootEndpoint = new LootEndpoint(storage)
+  private val partyEndpoint = new PartyEndpoint(storage, ariyala)
   private val playerEndpoint = new PlayerEndpoint(storage, ariyala)
   private val typesEndpoint = new TypesEndpoint(config)
   private val userEndpoint = new UserEndpoint(storage)
@@ -28,8 +29,8 @@ class RootApiV1Endpoint(storage: ActorRef, ariyala: ActorRef, config: Config)
   def route: Route =
     handleExceptions(exceptionHandler) {
       handleRejections(rejectionHandler) {
-        biSEndpoint.route ~ lootEndpoint.route ~ playerEndpoint.route ~
-          typesEndpoint.route ~ userEndpoint.route
+        biSEndpoint.route ~ lootEndpoint.route ~ partyEndpoint.route ~
+          playerEndpoint.route ~ typesEndpoint.route ~ userEndpoint.route
       }
     }
 }

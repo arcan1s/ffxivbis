@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2020 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -14,7 +14,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.util.Timeout
 import io.swagger.v3.oas.annotations.enums.ParameterIn
-import io.swagger.v3.oas.annotations.media.{ArraySchema, Content, Schema}
+import io.swagger.v3.oas.annotations.media.{Content, Schema}
 import io.swagger.v3.oas.annotations.parameters.RequestBody
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
@@ -22,30 +22,25 @@ import io.swagger.v3.oas.annotations.{Operation, Parameter}
 import javax.ws.rs._
 import me.arcanis.ffxivbis.http.api.v1.json._
 import me.arcanis.ffxivbis.http.{Authorization, PlayerHelper}
-import me.arcanis.ffxivbis.models.PlayerId
 
 import scala.util.{Failure, Success}
 
 @Path("api/v1")
-class PlayerEndpoint(override val storage: ActorRef, override val ariyala: ActorRef)(implicit timeout: Timeout)
+class PartyEndpoint(override val storage: ActorRef, override val ariyala: ActorRef)(implicit timeout: Timeout)
   extends PlayerHelper with Authorization with JsonSupport with HttpHandler {
 
-  def route: Route = getParty ~ modifyParty
+  def route: Route = getPartyDescription ~ modifyPartyDescription
 
   @GET
-  @Path("party/{partyId}")
+  @Path("party/{partyId}/description")
   @Produces(value = Array("application/json"))
-  @Operation(summary = "get party", description = "Return the players who belong to the party",
+  @Operation(summary = "get party description", description = "Return the party description",
     parameters = Array(
       new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
-      new Parameter(name = "nick", in = ParameterIn.QUERY, description = "player nick name to filter", example = "Siuan Sanche"),
-      new Parameter(name = "job", in = ParameterIn.QUERY, description = "player job to filter", example = "DNC"),
     ),
     responses = Array(
-      new ApiResponse(responseCode = "200", description = "Players list",
-        content = Array(new Content(
-          array = new ArraySchema(schema = new Schema(implementation = classOf[PlayerResponse])),
-        ))),
+      new ApiResponse(responseCode = "200", description = "Party description",
+        content = Array(new Content(schema = new Schema(implementation = classOf[PartyDescriptionResponse])))),
       new ApiResponse(responseCode = "401", description = "Supplied authorization is invalid",
         content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
       new ApiResponse(responseCode = "403", description = "Access is forbidden",
@@ -56,17 +51,14 @@ class PlayerEndpoint(override val storage: ActorRef, override val ariyala: Actor
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("get"))),
     tags = Array("party"),
   )
-  def getParty: Route =
-    path("party" / Segment) { partyId =>
+  def getPartyDescription: Route =
+    path("party" / Segment / "description") { partyId =>
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
           get {
-            parameters("nick".as[String].?, "job".as[String].?) { (maybeNick, maybeJob) =>
-              val playerId = PlayerId(partyId, maybeNick, maybeJob)
-              onComplete(getPlayers(partyId, playerId)) {
-                case Success(response) => complete(response.map(PlayerResponse.fromPlayer))
-                case Failure(exception) => throw exception
-              }
+            onComplete(getPartyDescription(partyId)) {
+              case Success(response) => complete(PartyDescriptionResponse.fromDescription(response))
+              case Failure(exception) => throw exception
             }
           }
         }
@@ -74,16 +66,16 @@ class PlayerEndpoint(override val storage: ActorRef, override val ariyala: Actor
     }
 
   @POST
-  @Path("party/{partyId}")
   @Consumes(value = Array("application/json"))
-  @Operation(summary = "modify party", description = "Add or remove a player from party list",
+  @Path("party/{partyId}/description")
+  @Operation(summary = "modify party description", description = "Edit party description",
     parameters = Array(
       new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
     ),
-    requestBody = new RequestBody(description = "player description", required = true,
-      content = Array(new Content(schema = new Schema(implementation = classOf[PlayerActionResponse])))),
+    requestBody = new RequestBody(description = "new party description", required = true,
+      content = Array(new Content(schema = new Schema(implementation = classOf[PartyDescriptionResponse])))),
     responses = Array(
-      new ApiResponse(responseCode = "202", description = "Party has been modified"),
+      new ApiResponse(responseCode = "202", description = "Party description has been modified"),
       new ApiResponse(responseCode = "400", description = "Invalid parameters were supplied",
         content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
       new ApiResponse(responseCode = "401", description = "Supplied authorization is invalid",
@@ -96,15 +88,17 @@ class PlayerEndpoint(override val storage: ActorRef, override val ariyala: Actor
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("post"))),
     tags = Array("party"),
   )
-  def modifyParty: Route =
-    path("party" / Segment) { partyId =>
+  def modifyPartyDescription: Route =
+    path("party" / Segment / "description") { partyId =>
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
-          entity(as[PlayerActionResponse]) { action =>
-            val player = action.playerId.toPlayer.copy(partyId = partyId)
-            onComplete(doModifyPlayer(action.action, player)) {
-              case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
-              case Failure(exception) => throw exception
+          post {
+            entity(as[PartyDescriptionResponse]) { partyDescription =>
+              val description = partyDescription.copy(partyId = partyId)
+              onComplete(updateDescription(description.toDescription)) {
+                case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
+                case Failure(exception) => throw exception
+              }
             }
           }
         }

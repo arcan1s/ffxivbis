@@ -18,7 +18,9 @@ import me.arcanis.ffxivbis.service.impl.DatabaseLootHandler
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class LootHelper(storage: ActorRef) {
+trait LootHelper {
+
+  def storage: ActorRef
 
   def addPieceLoot(playerId: PlayerId, piece: Piece)
                   (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =

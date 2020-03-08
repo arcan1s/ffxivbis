@@ -27,8 +27,8 @@ import me.arcanis.ffxivbis.models.PlayerId
 import scala.util.{Failure, Success}
 
 @Path("api/v1")
-class BiSEndpoint(override val storage: ActorRef, ariyala: ActorRef)(implicit timeout: Timeout)
-  extends BiSHelper(storage, ariyala) with Authorization with JsonSupport {
+class BiSEndpoint(override val storage: ActorRef, override val ariyala: ActorRef)(implicit timeout: Timeout)
+  extends BiSHelper with Authorization with JsonSupport {
 
   def route: Route = createBiS ~ getBiS ~ modifyBiS
 

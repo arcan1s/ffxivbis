@@ -17,7 +17,9 @@ import me.arcanis.ffxivbis.service.impl.DatabaseBiSHandler
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class BiSHelper(storage: ActorRef, ariyala: ActorRef) extends AriyalaHelper(ariyala) {
+trait BiSHelper extends AriyalaHelper {
+
+  def storage: ActorRef
 
   def addPieceBiS(playerId: PlayerId, piece: Piece)
                  (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =

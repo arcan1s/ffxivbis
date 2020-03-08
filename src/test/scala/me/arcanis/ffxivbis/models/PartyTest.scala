@@ -6,23 +6,24 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 class PartyTest extends WordSpecLike with Matchers with BeforeAndAfterAll {
 
+  private val partyDescription = PartyDescription.empty(Fixtures.partyId)
   private val party =
-    Party(Fixtures.partyId, Seq.empty, Map(Fixtures.playerEmpty.playerId -> Fixtures.playerEmpty))
+    Party(partyDescription, Seq.empty, Map(Fixtures.playerEmpty.playerId -> Fixtures.playerEmpty))
 
   "party model" must {
 
     "accept player with same party id" in {
       noException should be thrownBy
-        Party(Fixtures.partyId, Seq.empty, Map(Fixtures.playerEmpty.playerId -> Fixtures.playerEmpty))
+        Party(partyDescription, Seq.empty, Map(Fixtures.playerEmpty.playerId -> Fixtures.playerEmpty))
     }
 
     "fail on multiple party ids" in {
       val anotherPlayer = Fixtures.playerEmpty.copy(partyId = Fixtures.partyId2)
 
       an [IllegalArgumentException] should be thrownBy
-        Party(Fixtures.partyId, Seq.empty, Map(anotherPlayer.playerId -> anotherPlayer))
+        Party(partyDescription, Seq.empty, Map(anotherPlayer.playerId -> anotherPlayer))
       an [IllegalArgumentException] should be thrownBy
-        Party(Fixtures.partyId, Seq.empty, Map(Fixtures.playerEmpty.playerId -> Fixtures.playerEmpty, anotherPlayer.playerId -> anotherPlayer))
+        Party(partyDescription, Seq.empty, Map(Fixtures.playerEmpty.playerId -> Fixtures.playerEmpty, anotherPlayer.playerId -> anotherPlayer))
     }
 
     "return player list" in {
@@ -38,7 +39,7 @@ class PartyTest extends WordSpecLike with Matchers with BeforeAndAfterAll {
     }
 
     "add new player" in {
-      val newParty = Party(Fixtures.partyId, Seq.empty, Map.empty)
+      val newParty = Party(partyDescription, Seq.empty, Map.empty)
       newParty.withPlayer(Fixtures.playerEmpty) shouldEqual party
     }
 

@@ -49,10 +49,10 @@ trait UsersProfile { this: DatabaseProfile =>
   def getUsers(partyId: String): Future[Seq[User]] =
     db.run(user(partyId, None).result).map(_.map(_.toUser))
   def insertUser(userObj: User): Future[Int] =
-    db.run(user(userObj.partyId, Some(userObj.username)).map(_.userId).result.headOption).map {
+    db.run(user(userObj.partyId, Some(userObj.username)).map(_.userId).result.headOption).flatMap {
       case Some(id) => db.run(usersTable.insertOrUpdate(UserRep.fromUser(userObj, Some(id))))
       case _ => db.run(usersTable.insertOrUpdate(UserRep.fromUser(userObj, None)))
-    }.flatten
+    }
 
   private def user(partyId: String, username: Option[String]) =
     usersTable
