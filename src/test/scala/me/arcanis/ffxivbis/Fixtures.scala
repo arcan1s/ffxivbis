@@ -39,7 +39,7 @@ object Fixtures {
   lazy val partyId2: String = Party.randomPartyId
 
   lazy val playerEmpty: Player =
-    Player(partyId, Job.DNC, "Siuan Sanche", BiS(), Seq.empty, Some(link))
+    Player(1, partyId, Job.DNC, "Siuan Sanche", BiS(), Seq.empty, Some(link))
   lazy val playerWithBiS: Player = playerEmpty.copy(bis = bis)
 
   lazy val userPassword: String = "password"

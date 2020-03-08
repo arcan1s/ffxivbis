@@ -111,17 +111,19 @@ object LootView {
               th("player"),
               th("piece"),
               th("is tome"),
+              th("timestamp"),
               th("")
             ),
-            for (player <- party; piece <- player.loot) yield tr(
+            for (player <- party; loot <- player.loot) yield tr(
               td(`class`:="include_search")(player.playerId.toString),
-              td(`class`:="include_search")(piece.piece),
-              td(piece.isTomeToString),
+              td(`class`:="include_search")(loot.piece.piece),
+              td(loot.piece.isTomeToString),
+              td(loot.timestamp.toString),
               td(
                 form(action:=s"/party/$partyId/loot", method:="post")(
                   input(name:="player", id:="player", `type`:="hidden", value:=player.playerId.toString),
-                  input(name:="piece", id:="piece", `type`:="hidden", value:=piece.piece),
-                  input(name:="is_tome", id:="is_tome", `type`:="hidden", value:=piece.isTomeToString),
+                  input(name:="piece", id:="piece", `type`:="hidden", value:=loot.piece.piece),
+                  input(name:="is_tome", id:="is_tome", `type`:="hidden", value:=loot.piece.isTomeToString),
                   input(name:="action", id:="action", `type`:="hidden", value:="remove"),
                   input(name:="remove", id:="remove", `type`:="submit", value:="x")
                 )

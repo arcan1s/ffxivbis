@@ -42,7 +42,7 @@ object Party {
   def apply(partyId: String, config: Config,
             players: Map[Long, Player], bis: Seq[Loot], loot: Seq[Loot]): Party = {
     val bisByPlayer = bis.groupBy(_.playerId).view.mapValues(piece => BiS(piece.map(_.piece)))
-    val lootByPlayer = loot.groupBy(_.playerId).view.mapValues(_.map(_.piece))
+    val lootByPlayer = loot.groupBy(_.playerId).view
     val playersWithItems = players.foldLeft(Map.empty[PlayerId, Player]) {
       case (acc, (playerId, player)) =>
         acc + (player.playerId -> player

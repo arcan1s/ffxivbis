@@ -1,5 +1,7 @@
 package me.arcanis.ffxivbis.http.api.v1
 
+import java.time.Instant
+
 import akka.actor.ActorRef
 import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials}
@@ -58,12 +60,17 @@ class LootEndpointTest extends WordSpec
     }
 
     "return looted items" in {
+      import me.arcanis.ffxivbis.utils.Converters._
+
       val uri = endpoint.withQuery(Uri.Query(Map("nick" -> playerId.nick, "job" -> playerId.job)))
       val response = Seq(PlayerResponse.fromPlayer(Fixtures.playerEmpty.withLoot(Fixtures.lootBody)))
 
       Get(uri).withHeaders(auth) ~> route ~> check {
         status shouldEqual StatusCodes.OK
-        responseAs[Seq[PlayerResponse]] shouldEqual response
+        val withEmptyTimestamp = responseAs[Seq[PlayerResponse]].map { player =>
+          player.copy(loot = player.loot.map(_.map(_.copy(timestamp = Instant.ofEpochMilli(0)))))
+        }
+        withEmptyTimestamp shouldEqual response
       }
     }
 

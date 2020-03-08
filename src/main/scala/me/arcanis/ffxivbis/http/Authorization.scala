@@ -39,8 +39,7 @@ trait Authorization {
     }
   }
 
-  def authenticator(scope: Permission.Value)(partyId: String)
-                   (username: String, password: String)
+  def authenticator(scope: Permission.Value, partyId: String)(username: String, password: String)
                    (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Option[String]] =
     (storage ? DatabaseUserHandler.GetUser(partyId, username)).mapTo[Option[User]].map {
       case Some(user) if user.verify(password) && user.verityScope(scope) => Some(username)
@@ -49,13 +48,13 @@ trait Authorization {
 
   def authAdmin(partyId: String)(username: String, password: String)
                (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Option[String]] =
-    authenticator(Permission.admin)(partyId)(username, password)
+    authenticator(Permission.admin, partyId)(username, password)
 
   def authGet(partyId: String)(username: String, password: String)
              (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Option[String]] =
-    authenticator(Permission.get)(partyId)(username, password)
+    authenticator(Permission.get, partyId)(username, password)
 
   def authPost(partyId: String)(username: String, password: String)
               (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Option[String]] =
-    authenticator(Permission.post)(partyId)(username, password)
+    authenticator(Permission.post, partyId)(username, password)
 }
