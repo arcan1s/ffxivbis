@@ -33,13 +33,13 @@ object Fixtures {
   lazy val lootLeftRing: Piece = Ring(isTome = true, Job.AnyJob, "left ring")
   lazy val lootRightRing: Piece = Ring(isTome = true, Job.AnyJob, "right ring")
   lazy val lootUpgrade: Piece = BodyUpgrade
-  lazy val loot: Seq[Loot] = Seq(lootBody, lootHands, lootLegs, lootUpgrade)
+  lazy val loot: Seq[Piece] = Seq(lootBody, lootHands, lootLegs, lootUpgrade)
 
   lazy val partyId: String = Party.randomPartyId
   lazy val partyId2: String = Party.randomPartyId
 
   lazy val playerEmpty: Player =
-    Player(partyId, Job.DNC, "Siuan Sanche", BiS(), Seq.empty, Some(link))
+    Player(1, partyId, Job.DNC, "Siuan Sanche", BiS(), Seq.empty, Some(link))
   lazy val playerWithBiS: Player = playerEmpty.copy(bis = bis)
 
   lazy val userPassword: String = "password"

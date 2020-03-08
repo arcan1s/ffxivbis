@@ -12,7 +12,9 @@ class PlayerTest extends WordSpecLike with Matchers with BeforeAndAfterAll {
     }
 
     "add loot" in {
-      Fixtures.playerEmpty.withLoot(Fixtures.loot).loot shouldEqual Fixtures.loot
+      import me.arcanis.ffxivbis.utils.Converters._
+
+      Fixtures.playerEmpty.withLoot(Fixtures.loot.map(pieceToLoot)).loot.map(_.piece) shouldEqual Fixtures.loot
     }
 
   }

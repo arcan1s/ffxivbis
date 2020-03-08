@@ -14,9 +14,11 @@ import scala.language.postfixOps
 class LootSelectorTest extends TestKit(ActorSystem("lootselector"))
   with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
 
+  import me.arcanis.ffxivbis.utils.Converters._
+
   private var default: Party = Party(Some(Fixtures.partyId), Settings.config(Map.empty))
-  private var dnc: Player = Player(Fixtures.partyId, Job.DNC, "a nick", BiS(), Seq.empty, Some(Fixtures.link))
-  private var drg: Player = Player(Fixtures.partyId, Job.DRG, "another nick", BiS(), Seq.empty, Some(Fixtures.link2))
+  private var dnc: Player = Player(-1, Fixtures.partyId, Job.DNC, "a nick", BiS(), Seq.empty, Some(Fixtures.link))
+  private var drg: Player = Player(-1, Fixtures.partyId, Job.DRG, "another nick", BiS(), Seq.empty, Some(Fixtures.link2))
   private val timeout: FiniteDuration = 60 seconds
 
   override def beforeAll(): Unit = {
@@ -77,7 +79,7 @@ class LootSelectorTest extends TestKit(ActorSystem("lootselector"))
     "suggest loot by total piece got" in {
       val piece = Body(isTome = true, Job.AnyJob)
       val party = default
-        .withPlayer(dnc.withLoot(Seq(piece, piece)))
+        .withPlayer(dnc.withLoot(Seq(piece, piece).map(pieceToLoot)))
         .withPlayer(drg.withLoot(piece))
 
       toPlayerId(party.suggestLoot(piece)) shouldEqual Seq(drg.playerId, dnc.playerId)

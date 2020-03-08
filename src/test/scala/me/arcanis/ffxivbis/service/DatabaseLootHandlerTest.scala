@@ -83,5 +83,7 @@ class DatabaseLootHandlerTest
   }
 
   private def partyLootCompare[T](party: Seq[T], loot: Seq[Piece]): Boolean =
-    Compare.seqEquals(party.foldLeft(Seq.empty[Piece]){ case (acc, player) => acc ++ player.asInstanceOf[Player].loot }, loot)
+    Compare.seqEquals(party.foldLeft(Seq.empty[Piece]){ case (acc, player) =>
+      acc ++ player.asInstanceOf[Player].loot.map(_.piece)
+    }, loot)
 }

@@ -62,7 +62,7 @@ class PlayerView(override val storage: ActorRef, ariyala: ActorRef)(implicit tim
                              (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Unit] = {
     def maybePlayerId = PlayerId(partyId, Some(nick), Some(job))
     def player(playerId: PlayerId) =
-      Player(partyId, playerId.job, playerId.nick, BiS(), Seq.empty, maybeLink, maybePriority.getOrElse(0))
+      Player(-1, partyId, playerId.job, playerId.nick, BiS(), Seq.empty, maybeLink, maybePriority.getOrElse(0))
 
     (action, maybePlayerId) match {
       case ("add", Some(playerId)) => addPlayer(player(playerId)).map(_ => ())
