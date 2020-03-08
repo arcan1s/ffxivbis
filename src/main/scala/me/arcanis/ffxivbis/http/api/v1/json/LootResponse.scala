@@ -7,7 +7,7 @@ import me.arcanis.ffxivbis.models.Loot
 
 case class LootResponse(
   @Schema(description = "looted piece", required = true) piece: PieceResponse,
-  @Schema(description = "loot timestamp", required = true) timestamp: Instant = Instant.now) {
+  @Schema(description = "loot timestamp", required = true) timestamp: Instant) {
   def toLoot: Loot = Loot(-1, piece.toPiece, timestamp)
 }
 
