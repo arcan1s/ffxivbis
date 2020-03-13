@@ -37,11 +37,11 @@ class LootSelectorTest extends TestKit(ActorSystem("lootselector"))
   "loot selector" must {
 
     "suggest loot by isRequired" in {
-      toPlayerId(default.suggestLoot(Head(isTome = false, Job.AnyJob))) shouldEqual Seq(dnc.playerId, drg.playerId)
+      toPlayerId(default.suggestLoot(Head(pieceType = PieceType.Savage, Job.AnyJob))) shouldEqual Seq(dnc.playerId, drg.playerId)
     }
 
     "suggest loot if a player already have it" in {
-      val piece = Body(isTome = false, Job.AnyJob)
+      val piece = Body(pieceType = PieceType.Savage, Job.AnyJob)
       val party = default.withPlayer(dnc.withLoot(piece))
 
       toPlayerId(party.suggestLoot(piece)) shouldEqual Seq(drg.playerId, dnc.playerId)
@@ -50,7 +50,7 @@ class LootSelectorTest extends TestKit(ActorSystem("lootselector"))
     "suggest upgrade" in {
       val party = default.withPlayer(
         dnc.withBiS(
-          Some(dnc.bis.copy(weapon = Some(Weapon(isTome = true, Job.DNC))))
+          Some(dnc.bis.copy(weapon = Some(Weapon(pieceType = PieceType.Tome, Job.DNC))))
         )
       )
 
@@ -60,24 +60,24 @@ class LootSelectorTest extends TestKit(ActorSystem("lootselector"))
     "suggest loot by priority" in {
       val party = default.withPlayer(dnc.copy(priority = 2))
 
-      toPlayerId(party.suggestLoot(Body(isTome = false, Job.AnyJob))) shouldEqual Seq(drg.playerId, dnc.playerId)
+      toPlayerId(party.suggestLoot(Body(pieceType = PieceType.Savage, Job.AnyJob))) shouldEqual Seq(drg.playerId, dnc.playerId)
     }
 
     "suggest loot by bis pieces got" in {
-      val party = default.withPlayer(dnc.withLoot(Head(isTome = false, Job.AnyJob)))
+      val party = default.withPlayer(dnc.withLoot(Head(pieceType = PieceType.Savage, Job.AnyJob)))
 
-      toPlayerId(party.suggestLoot(Body(isTome = false, Job.AnyJob))) shouldEqual Seq(drg.playerId, dnc.playerId)
+      toPlayerId(party.suggestLoot(Body(pieceType = PieceType.Savage, Job.AnyJob))) shouldEqual Seq(drg.playerId, dnc.playerId)
     }
 
     "suggest loot by this piece got" in {
-      val piece = Body(isTome = true, Job.AnyJob)
+      val piece = Body(pieceType = PieceType.Tome, Job.AnyJob)
       val party = default.withPlayer(dnc.withLoot(piece))
 
       toPlayerId(party.suggestLoot(piece)) shouldEqual Seq(drg.playerId, dnc.playerId)
     }
 
     "suggest loot by total piece got" in {
-      val piece = Body(isTome = true, Job.AnyJob)
+      val piece = Body(pieceType = PieceType.Tome, Job.AnyJob)
       val party = default
         .withPlayer(dnc.withLoot(Seq(piece, piece).map(pieceToLoot)))
         .withPlayer(drg.withLoot(piece))

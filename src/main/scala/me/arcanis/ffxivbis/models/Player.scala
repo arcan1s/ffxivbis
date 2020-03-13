@@ -46,7 +46,7 @@ case class Player(id: Long,
     }
   }
 
-  def bisCountTotal(piece: Option[Piece]): Int = bis.pieces.count(!_.isTome)
+  def bisCountTotal(piece: Option[Piece]): Int = bis.pieces.count(_.pieceType == PieceType.Savage)
   def lootCount(piece: Option[Piece]): Int = piece match {
     case Some(p) => loot.count(_.piece == p)
     case None => lootCountTotal(piece)

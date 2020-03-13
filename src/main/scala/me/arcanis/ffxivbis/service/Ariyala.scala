@@ -18,7 +18,7 @@ import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, Sink}
 import akka.util.ByteString
 import com.typesafe.scalalogging.StrictLogging
-import me.arcanis.ffxivbis.models.{BiS, Job, Piece}
+import me.arcanis.ffxivbis.models.{BiS, Job, Piece, PieceType}
 import spray.json._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -54,10 +54,10 @@ class Ariyala extends Actor with StrictLogging {
       .withPath(Uri.Path / "store.app")
       .withQuery(Uri.Query(Map("identifier" -> id)))
 
-    sendRequest(uri, Ariyala.parseAriyalaJsonToPieces(job, getIsTome))
+    sendRequest(uri, Ariyala.parseAriyalaJsonToPieces(job, getPieceType))
   }
 
-  private def getIsTome(itemIds: Seq[Long]): Future[Map[Long, Boolean]] = {
+  private def getPieceType(itemIds: Seq[Long]): Future[Map[Long, PieceType.PieceType]] = {
     val uriForItems = Uri(xivapiUrl)
       .withPath(Uri.Path / "item")
       .withQuery(Uri.Query(Map(
@@ -77,7 +77,7 @@ class Ariyala extends Actor with StrictLogging {
           "private_key" -> xivapiKey.getOrElse("")
         )))
 
-      sendRequest(uriForShops, Ariyala.parseXivapiJsonToTome(shops))
+      sendRequest(uriForShops, Ariyala.parseXivapiJsonToType(shops))
     }
   }
 
@@ -120,28 +120,34 @@ object Ariyala {
       }
     }
 
-  private def parseAriyalaJsonToPieces(job: Job.Job, isTome: Seq[Long] => Future[Map[Long, Boolean]])(js: JsObject)
+  private def parseAriyalaJsonToPieces(job: Job.Job, pieceTypes: Seq[Long] => Future[Map[Long, PieceType.PieceType]])
+                                      (js: JsObject)
                                       (implicit executionContext: ExecutionContext): Future[Seq[Piece]] =
     parseAriyalaJson(job)(js).flatMap { pieces =>
-      isTome(pieces.values.toSeq).map { tomePieces =>
-        pieces.view.mapValues(tomePieces).map {
-          case (piece, isTomePiece) => Piece(piece, isTomePiece, job)
+      pieceTypes(pieces.values.toSeq).map { types =>
+        pieces.view.mapValues(types).map {
+          case (piece, pieceType) => Piece(piece, pieceType, job)
         }.toSeq
       }
     }
 
   private def parseXivapiJsonToShop(js: JsObject)
                                    (implicit executionContext: ExecutionContext): Future[Map[Long, (String, Long)]] = {
-    def extractTraderId(js: JsObject) =
-      js.fields("SpecialShop").asJsObject
-        .fields.collectFirst {
-        case (shopName, JsArray(array)) if shopName.startsWith("ItemReceive") =>
-          val shopId = array.head match {
-            case JsNumber(id) => id.toLong
-            case other => throw deserializationError(s"Could not parse $other")
+    def extractTraderId(js: JsObject) = {
+      js.fields
+        .get("Recipe").map(_ => "crafted" -> -1L) // you can craft this item
+        .orElse {  // lets try shop items
+          js.fields("SpecialShop").asJsObject
+            .fields.collectFirst {
+            case (shopName, JsArray(array)) if shopName.startsWith("ItemReceive") =>
+              val shopId = array.head match {
+                case JsNumber(id) => id.toLong
+                case other => throw deserializationError(s"Could not parse $other")
+              }
+              shopName.replace("ItemReceive", "") -> shopId
           }
-          (shopName.replace("ItemReceive", ""), shopId)
-      }.getOrElse(throw deserializationError(s"Could not parse $js"))
+        }.getOrElse(throw deserializationError(s"Could not parse $js"))
+    }
 
     Future {
       js.fields("Results") match {
@@ -155,8 +161,8 @@ object Ariyala {
     }
   }
 
-  private def parseXivapiJsonToTome(shops: Map[Long, (String, Long)])(js: JsObject)
-                                   (implicit executionContext: ExecutionContext): Future[Map[Long, Boolean]] =
+  private def parseXivapiJsonToType(shops: Map[Long, (String, Long)])(js: JsObject)
+                                   (implicit executionContext: ExecutionContext): Future[Map[Long, PieceType.PieceType]] =
     Future {
       val shopMap = js.fields("Results") match {
         case array: JsArray =>
@@ -170,14 +176,20 @@ object Ariyala {
       }
 
       shops.map { case (itemId, (index, shopId)) =>
-        val isTome = Try(shopMap(shopId).fields(s"ItemCost$index").asJsObject).toOption.getOrElse(throw new Exception(s"${shopMap(shopId).fields(s"ItemCost$index")}, $index"))
-          .getFields("IsUnique", "StackSize") match {
-          case Seq(JsNumber(isUnique), JsNumber(stackSize)) =>
-            // either upgraded gear or tomes found
-            isUnique == 1 || stackSize.toLong == 2000
-          case other => throw deserializationError(s"Could not parse $other")
-        }
-        itemId -> isTome
+        val pieceType =
+          if (index == "crafted" && shopId == -1) PieceType.Crafted
+          else {
+            Try(shopMap(shopId).fields(s"ItemCost$index").asJsObject)
+              .toOption
+              .getOrElse(throw new Exception(s"${shopMap(shopId).fields(s"ItemCost$index")}, $index"))
+              .getFields("IsUnique", "StackSize") match {
+              case Seq(JsNumber(isUnique), JsNumber(stackSize)) =>
+                if (isUnique == 1 || stackSize.toLong == 2000) PieceType.Tome // either upgraded gear or tomes found
+                else PieceType.Savage
+              case other => throw deserializationError(s"Could not parse $other")
+            }
+          }
+        itemId -> pieceType
       }
     }
 

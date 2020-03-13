@@ -10,7 +10,7 @@ package me.arcanis.ffxivbis.storage
 
 import java.time.Instant
 
-import me.arcanis.ffxivbis.models.{Job, Loot, Piece}
+import me.arcanis.ffxivbis.models.{Job, Loot, Piece, PieceType}
 import slick.lifted.ForeignKeyQuery
 
 import scala.concurrent.Future
@@ -18,24 +18,27 @@ import scala.concurrent.Future
 trait BiSProfile { this: DatabaseProfile =>
   import dbConfig.profile.api._
 
-  case class BiSRep(playerId: Long, created: Long, piece: String, isTome: Int, job: String) {
-    def toLoot: Loot = Loot(playerId, Piece(piece, isTome == 1, Job.withName(job)), Instant.ofEpochMilli(created))
+  case class BiSRep(playerId: Long, created: Long, piece: String,
+                    pieceType: String, job: String) {
+    def toLoot: Loot = Loot(
+      playerId, Piece(piece, PieceType.withName(pieceType), Job.withName(job)),
+      Instant.ofEpochMilli(created))
   }
   object BiSRep {
-    def fromPiece(playerId: Long, piece: Piece) =
-      BiSRep(playerId, DatabaseProfile.now, piece.piece, if (piece.isTome) 1 else 0,
-        piece.job.toString)
+    def fromPiece(playerId: Long, piece: Piece): BiSRep =
+      BiSRep(playerId, DatabaseProfile.now, piece.piece,
+        piece.pieceType.toString, piece.job.toString)
   }
 
   class BiSPieces(tag: Tag) extends Table[BiSRep](tag, "bis") {
     def playerId: Rep[Long] = column[Long]("player_id", O.PrimaryKey)
     def created: Rep[Long] = column[Long]("created")
     def piece: Rep[String] = column[String]("piece", O.PrimaryKey)
-    def isTome: Rep[Int] = column[Int]("is_tome")
+    def pieceType: Rep[String] = column[String]("piece_type")
     def job: Rep[String] = column[String]("job")
 
     def * =
-      (playerId, created, piece, isTome, job) <> ((BiSRep.apply _).tupled, BiSRep.unapply)
+      (playerId, created, piece, pieceType, job) <> ((BiSRep.apply _).tupled, BiSRep.unapply)
 
     def fkPlayerId: ForeignKeyQuery[Players, PlayerRep] =
       foreignKey("player_id", playerId, playersTable)(_.playerId, onDelete = ForeignKeyAction.Cascade)

@@ -15,7 +15,8 @@ import scala.concurrent.Future
 trait PartyProfile { this: DatabaseProfile =>
   import dbConfig.profile.api._
 
-  case class PartyRep(partyId: Option[Long], partyName: String, partyAlias: Option[String]) {
+  case class PartyRep(partyId: Option[Long], partyName: String,
+                      partyAlias: Option[String]) {
     def toDescription: PartyDescription = PartyDescription(partyName, partyAlias)
   }
   object PartyRep {

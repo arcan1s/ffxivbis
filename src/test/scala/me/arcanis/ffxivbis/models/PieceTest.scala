@@ -7,11 +7,6 @@ class PieceTest extends WordSpecLike with Matchers with BeforeAndAfterAll {
 
   "piece model" must {
 
-    "convert `isTome` property to string" in {
-      Fixtures.lootBody.isTomeToString shouldEqual "no"
-      Fixtures.lootHands.isTomeToString shouldEqual "yes"
-    }
-
     "return upgrade" in {
       Fixtures.lootWeapon.upgrade shouldEqual Some(WeaponUpgrade)
       Fixtures.lootBody.upgrade shouldEqual None
@@ -25,7 +20,7 @@ class PieceTest extends WordSpecLike with Matchers with BeforeAndAfterAll {
 
     "build piece from string" in {
       Fixtures.bis.pieces.foreach { piece =>
-        Piece(piece.piece, piece.isTome, piece.job) shouldEqual piece
+        Piece(piece.piece, piece.pieceType, piece.job) shouldEqual piece
       }
     }
 

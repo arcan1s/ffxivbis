@@ -14,7 +14,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
 import me.arcanis.ffxivbis.http.{Authorization, LootHelper}
-import me.arcanis.ffxivbis.models.{Piece, Player, PlayerId}
+import me.arcanis.ffxivbis.models.{Piece, PieceType, Player, PlayerId}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -46,10 +46,10 @@ class LootView (override val storage: ActorRef)(implicit timeout: Timeout)
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
           post {
-            formFields("player".as[String], "piece".as[String], "is_tome".as[String].?, "action".as[String]) {
-              (player, maybePiece, maybeIsTome, action) =>
-                onComplete(modifyLootCall(partyId, player, maybePiece, maybeIsTome, action)) {
-                  case _ => redirect(s"/party/$partyId/loot", StatusCodes.Found)
+            formFields("player".as[String], "piece".as[String], "piece_type".as[String], "action".as[String]) {
+              (player, piece, pieceType, action) =>
+                onComplete(modifyLootCall(partyId, player, piece, pieceType, action)) { _ =>
+                  redirect(s"/party/$partyId/loot", StatusCodes.Found)
                 }
             }
           }
@@ -57,20 +57,17 @@ class LootView (override val storage: ActorRef)(implicit timeout: Timeout)
       }
     }
 
-  private def modifyLootCall(partyId: String, player: String,
-                             maybePiece: String, maybeIsTome: Option[String],
-                             action: String)
+  private def modifyLootCall(partyId: String, player: String, maybePiece: String,
+                             maybePieceType: String, action: String)
                             (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Unit] = {
-    import me.arcanis.ffxivbis.utils.Implicits._
-
     def getPiece(playerId: PlayerId) =
-      Try(Piece(maybePiece, maybeIsTome, playerId.job)).toOption
+      Try(Piece(maybePiece, PieceType.withName(maybePieceType), playerId.job)).toOption
 
     PlayerId(partyId, player) match {
       case Some(playerId) => (getPiece(playerId), action) match {
         case (Some(piece), "add") => addPieceLoot(playerId, piece).map(_ => ())
         case (Some(piece), "remove") => removePieceLoot(playerId, piece).map(_ => ())
-        case _ => Future.failed(new Error(s"Could not construct piece from `$maybePiece`"))
+        case _ => Future.failed(new Error(s"Could not construct piece from `$maybePiece ($maybePieceType)`"))
       }
       case _ => Future.failed(new Error(s"Could not construct player id from `$player`"))
     }
@@ -100,8 +97,8 @@ object LootView {
                   (for (player <- party) yield option(player.playerId.toString)),
             select(name:="piece", id:="piece", title:="piece")
                   (for (piece <- Piece.available) yield option(piece)),
-            input(name:="is_tome", id:="is_tome", title:="is tome", `type`:="checkbox"),
-            label(`for`:="is_tome")("is tome gear"),
+            select(name:="piece_type", id:="piece_type", title:="piece type")
+                  (for (pieceType <- PieceType.available) yield option(pieceType.toString)),
             input(name:="action", id:="action", `type`:="hidden", value:="add"),
             input(name:="add", id:="add", `type`:="submit", value:="add")
           ),
@@ -110,20 +107,20 @@ object LootView {
             tr(
               th("player"),
               th("piece"),
-              th("is tome"),
+              th("piece type"),
               th("timestamp"),
               th("")
             ),
             for (player <- party; loot <- player.loot) yield tr(
               td(`class`:="include_search")(player.playerId.toString),
               td(`class`:="include_search")(loot.piece.piece),
-              td(loot.piece.isTomeToString),
+              td(loot.piece.pieceType.toString),
               td(loot.timestamp.toString),
               td(
                 form(action:=s"/party/$partyId/loot", method:="post")(
                   input(name:="player", id:="player", `type`:="hidden", value:=player.playerId.toString),
                   input(name:="piece", id:="piece", `type`:="hidden", value:=loot.piece.piece),
-                  input(name:="is_tome", id:="is_tome", `type`:="hidden", value:=loot.piece.isTomeToString),
+                  input(name:="piece_type", id:="piece_type", `type`:="hidden", value:=loot.piece.pieceType.toString),
                   input(name:="action", id:="action", `type`:="hidden", value:="remove"),
                   input(name:="remove", id:="remove", `type`:="submit", value:="x")
                 )

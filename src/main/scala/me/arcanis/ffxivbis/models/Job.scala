@@ -101,9 +101,9 @@ object Job {
   lazy val availableWithAnyJob: Seq[Job] = available.prepended(AnyJob)
 
   def withName(job: String): Job.Job =
-    availableWithAnyJob.find(_.toString.equalsIgnoreCase(job.toUpperCase)) match {
+    availableWithAnyJob.find(_.toString.equalsIgnoreCase(job)) match {
       case Some(value) => value
       case None if job.isEmpty => AnyJob
-      case _ => throw new IllegalArgumentException("Invalid or unknown job")
+      case _ => throw new IllegalArgumentException(s"Invalid or unknown job $job")
     }
 }

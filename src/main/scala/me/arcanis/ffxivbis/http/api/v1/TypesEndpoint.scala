@@ -16,12 +16,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import javax.ws.rs._
 import me.arcanis.ffxivbis.http.api.v1.json._
-import me.arcanis.ffxivbis.models.{Job, Party, Permission, Piece}
+import me.arcanis.ffxivbis.models.{Job, Party, Permission, Piece, PieceType}
 
 @Path("api/v1")
 class TypesEndpoint(config: Config) extends JsonSupport {
 
-  def route: Route = getJobs ~ getPermissions ~ getPieces ~ getPriority
+  def route: Route = getJobs ~ getPermissions ~ getPieces ~ getPieceTypes ~ getPriority
 
   @GET
   @Path("types/jobs")
@@ -83,6 +83,27 @@ class TypesEndpoint(config: Config) extends JsonSupport {
     path("types" / "pieces") {
       get {
         complete(Piece.available)
+      }
+    }
+
+  @GET
+  @Path("types/pieces/types")
+  @Produces(value = Array("application/json"))
+  @Operation(summary = "piece types list", description = "Returns the available piece types",
+    responses = Array(
+      new ApiResponse(responseCode = "200", description = "List of available piece types",
+        content = Array(new Content(
+          array = new ArraySchema(schema = new Schema(implementation = classOf[String]))
+        ))),
+      new ApiResponse(responseCode = "500", description = "Internal server error",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
+    ),
+    tags = Array("types"),
+  )
+  def getPieceTypes: Route =
+    path("types" / "pieces" / "types") {
+      get {
+        complete(PieceType.available.map(_.toString))
       }
     }
 

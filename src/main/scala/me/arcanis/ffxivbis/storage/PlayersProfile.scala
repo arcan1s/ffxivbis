@@ -15,10 +15,11 @@ import scala.concurrent.Future
 trait PlayersProfile { this: DatabaseProfile =>
   import dbConfig.profile.api._
 
-  case class PlayerRep(partyId: String, playerId: Option[Long], created: Long, nick: String,
-                       job: String, link: Option[String], priority: Int) {
+  case class PlayerRep(partyId: String, playerId: Option[Long], created: Long,
+                       nick: String, job: String, link: Option[String], priority: Int) {
     def toPlayer: Player =
-      Player(playerId.getOrElse(-1), partyId, Job.withName(job), nick, BiS(Seq.empty), List.empty, link, priority)
+      Player(playerId.getOrElse(-1), partyId, Job.withName(job), nick,
+        BiS(Seq.empty), List.empty, link, priority)
   }
   object PlayerRep {
     def fromPlayer(player: Player, id: Option[Long]): PlayerRep =

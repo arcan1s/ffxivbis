@@ -65,7 +65,7 @@ class DatabaseBiSHandlerTest
     }
 
     "update piece in bis set" in {
-      val newPiece = Hands(isTome = false, Job.DNC)
+      val newPiece = Hands(pieceType = PieceType.Savage, Job.DNC)
 
       database ! impl.DatabaseBiSHandler.AddPieceToBis(Fixtures.playerEmpty.playerId, newPiece)
       expectMsg(timeout, 1)

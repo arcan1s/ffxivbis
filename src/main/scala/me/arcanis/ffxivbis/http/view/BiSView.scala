@@ -14,7 +14,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.util.Timeout
 import me.arcanis.ffxivbis.http.{Authorization, BiSHelper}
-import me.arcanis.ffxivbis.models.{Piece, Player, PlayerId}
+import me.arcanis.ffxivbis.models.{Piece, PieceType, Player, PlayerId}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -46,10 +46,10 @@ class BiSView(override val storage: ActorRef, override val ariyala: ActorRef)(im
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
           post {
-            formFields("player".as[String], "piece".as[String].?, "is_tome".as[String].?, "link".as[String].?, "action".as[String]) {
-              (player, maybePiece, maybeIsTome, maybeLink, action) =>
-                onComplete(modifyBiSCall(partyId, player, maybePiece, maybeIsTome, maybeLink, action)) {
-                  case _ => redirect(s"/party/$partyId/bis", StatusCodes.Found)
+            formFields("player".as[String], "piece".as[String].?, "piece_type".as[String].?, "link".as[String].?, "action".as[String]) {
+              (player, maybePiece, maybePieceType, maybeLink, action) =>
+                onComplete(modifyBiSCall(partyId, player, maybePiece, maybePieceType, maybeLink, action)) { _ =>
+                  redirect(s"/party/$partyId/bis", StatusCodes.Found)
                 }
             }
           }
@@ -58,25 +58,25 @@ class BiSView(override val storage: ActorRef, override val ariyala: ActorRef)(im
     }
 
   private def modifyBiSCall(partyId: String, player: String,
-                            maybePiece: Option[String], maybeIsTome: Option[String],
+                            maybePiece: Option[String], maybePieceType: Option[String],
                             maybeLink: Option[String], action: String)
                            (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Unit] = {
-    import me.arcanis.ffxivbis.utils.Implicits._
+    def getPiece(playerId: PlayerId, piece: String, pieceType: String) =
+      Try(Piece(piece, PieceType.withName(pieceType), playerId.job)).toOption
 
-    def getPiece(playerId: PlayerId, piece: String) =
-      Try(Piece(piece, maybeIsTome, playerId.job)).toOption
+    def bisAction(playerId: PlayerId, piece: String, pieceType: String)(fn: Piece => Future[Int]) =
+      getPiece(playerId, piece, pieceType) match {
+        case Some(item) => fn(item).map(_ => ())
+        case _ => Future.failed(new Error(s"Could not construct piece from `$piece ($pieceType)`"))
+      }
 
     PlayerId(partyId, player) match {
-      case Some(playerId) => (maybePiece, action, maybeLink) match {
-        case (Some(piece), "add", _) => getPiece(playerId, piece) match {
-          case Some(item) => addPieceBiS(playerId, item).map(_ => ())
-          case _ => Future.failed(new Error(s"Could not construct piece from `$piece`"))
-        }
-        case (Some(piece), "remove", _) => getPiece(playerId, piece) match {
-          case Some(item) => removePieceBiS(playerId, item).map(_ => ())
-          case _ => Future.failed(new Error(s"Could not construct piece from `$piece`"))
-        }
-        case (_, "create", Some(link)) => putBiS(playerId, link).map(_ => ())
+      case Some(playerId) => (maybePiece, maybePieceType, action, maybeLink) match {
+        case (Some(piece), Some(pieceType), "add", _) =>
+          bisAction(playerId, piece, pieceType) { item => addPieceBiS(playerId, item) }
+        case (Some(piece), Some(pieceType), "remove", _) =>
+          bisAction(playerId, piece, pieceType) { item => removePieceBiS(playerId, item) }
+        case (_, _, "create", Some(link)) => putBiS(playerId, link).map(_ => ())
         case _ => Future.failed(new Error(s"Could not perform $action"))
       }
       case _ => Future.failed(new Error(s"Could not construct player id from `$player`"))
@@ -107,8 +107,8 @@ object BiSView {
                   (for (player <- party) yield option(player.playerId.toString)),
             select(name:="piece", id:="piece", title:="piece")
                   (for (piece <- Piece.available) yield option(piece)),
-            input(name:="is_tome", id:="is_tome", title:="is tome", `type`:="checkbox"),
-            label(`for`:="is_tome")("is tome gear"),
+            select(name:="piece_type", id:="piece_type", title:="piece type")
+                  (for (pieceType <- PieceType.available) yield option(pieceType.toString)),
             input(name:="action", id:="action", `type`:="hidden", value:="add"),
             input(name:="add", id:="add", `type`:="submit", value:="add")
           ),
@@ -125,18 +125,18 @@ object BiSView {
             tr(
               th("player"),
               th("piece"),
-              th("is tome"),
+              th("piece type"),
               th("")
             ),
             for (player <- party; piece <- player.bis.pieces) yield tr(
               td(`class`:="include_search")(player.playerId.toString),
               td(`class`:="include_search")(piece.piece),
-              td(piece.isTomeToString),
+              td(piece.pieceType.toString),
               td(
                 form(action:=s"/party/$partyId/bis", method:="post")(
                   input(name:="player", id:="player", `type`:="hidden", value:=player.playerId.toString),
                   input(name:="piece", id:="piece", `type`:="hidden", value:=piece.piece),
-                  input(name:="is_tome", id:="is_tome", `type`:="hidden", value:=piece.isTomeToString),
+                  input(name:="piece_type", id:="piece_type", `type`:="hidden", value:=piece.pieceType.toString),
                   input(name:="action", id:="action", `type`:="hidden", value:="remove"),
                   input(name:="remove", id:="remove", `type`:="submit", value:="x")
                 )

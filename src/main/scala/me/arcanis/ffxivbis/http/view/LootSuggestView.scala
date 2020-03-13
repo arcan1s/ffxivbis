@@ -14,7 +14,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
 import me.arcanis.ffxivbis.http.{Authorization, LootHelper}
-import me.arcanis.ffxivbis.models.{Job, Piece, PlayerIdWithCounters}
+import me.arcanis.ffxivbis.models.{Job, Piece, PieceType, PlayerIdWithCounters}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
@@ -43,9 +43,8 @@ class LootSuggestView(override val storage: ActorRef)(implicit timeout: Timeout)
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
           post {
-            formFields("piece".as[String], "job".as[String], "is_tome".as[String].?) { (piece, job, maybeTome) =>
-              import me.arcanis.ffxivbis.utils.Implicits._
-              val maybePiece = Try(Piece(piece, maybeTome, Job.withName(job))).toOption
+            formFields("piece".as[String], "job".as[String], "piece_type".as[String]) { (piece, job, pieceType) =>
+              val maybePiece = Try(Piece(piece, PieceType.withName(pieceType), Job.withName(job))).toOption
 
               onComplete(suggestLootCall(partyId, maybePiece)) {
                 case Success(players) =>
@@ -92,8 +91,8 @@ object LootSuggestView {
                   (for (piece <- Piece.available) yield option(piece)),
             select(name:="job", id:="job", title:="job")
                   (for (job <- Job.availableWithAnyJob) yield option(job.toString)),
-            input(name:="is_tome", id:="is_tome", title:="is tome", `type`:="checkbox"),
-            label(`for`:="is_tome")("is tome gear"),
+            select(name:="piece_type", id:="piece_type", title:="piece type")
+                  (for (pieceType <- PieceType.available) yield option(pieceType.toString)),
             input(name:="suggest", id:="suggest", `type`:="submit", value:="suggest")
           ),
 
@@ -116,7 +115,7 @@ object LootSuggestView {
                 form(action:=s"/party/$partyId/loot", method:="post")(
                   input(name:="player", id:="player", `type`:="hidden", value:=player.playerId.toString),
                   input(name:="piece", id:="piece", `type`:="hidden", value:=piece.map(_.piece).getOrElse("")),
-                  input(name:="is_tome", id:="is_tome", `type`:="hidden", value:=piece.map(_.isTomeToString).getOrElse("")),
+                  input(name:="piece_type", id:="piece_type", `type`:="hidden", value:=piece.map(_.pieceType.toString).getOrElse("")),
                   input(name:="action", id:="action", `type`:="hidden", value:="add"),
                   input(name:="add", id:="add", `type`:="submit", value:="add")
                 )
