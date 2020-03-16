@@ -22,15 +22,16 @@ trait LootHelper {
 
   def storage: ActorRef
 
-  def addPieceLoot(playerId: PlayerId, piece: Piece)
+  def addPieceLoot(playerId: PlayerId, piece: Piece, isFreeLoot: Boolean)
                   (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
-    (storage ? DatabaseLootHandler.AddPieceTo(playerId, piece)).mapTo[Int]
+    (storage ? DatabaseLootHandler.AddPieceTo(playerId, piece, isFreeLoot)).mapTo[Int]
 
-  def doModifyLoot(action: ApiAction.Value, playerId: PlayerId, piece: Piece)
+  def doModifyLoot(action: ApiAction.Value, playerId: PlayerId, piece: Piece, maybeFree: Option[Boolean])
                   (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
-    action match {
-      case ApiAction.add => addPieceLoot(playerId, piece)
-      case ApiAction.remove => removePieceLoot(playerId, piece)
+    (action, maybeFree) match {
+      case (ApiAction.add, Some(isFreeLoot)) => addPieceLoot(playerId, piece, isFreeLoot)
+      case (ApiAction.remove, _) => removePieceLoot(playerId, piece)
+      case _ => throw new IllegalArgumentException(s"Invalid combinantion of action $action and fee loot $maybeFree")
     }
 
   def loot(partyId: String, playerId: Option[PlayerId])

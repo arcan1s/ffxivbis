@@ -19,16 +19,18 @@ trait LootProfile { this: DatabaseProfile =>
   import dbConfig.profile.api._
 
   case class LootRep(lootId: Option[Long], playerId: Long, created: Long,
-                     piece: String, pieceType: String, job: String) {
+                     piece: String, pieceType: String, job: String,
+                     isFreeLoot: Int) {
     def toLoot: Loot = Loot(
       playerId,
       Piece(piece, PieceType.withName(pieceType), Job.withName(job)),
-      Instant.ofEpochMilli(created))
+      Instant.ofEpochMilli(created), isFreeLoot == 1)
   }
   object LootRep {
-    def fromPiece(playerId: Long, piece: Piece): LootRep =
-      LootRep(None, playerId, DatabaseProfile.now, piece.piece,
-        piece.pieceType.toString, piece.job.toString)
+    def fromLoot(playerId: Long, loot: Loot): LootRep =
+      LootRep(None, playerId, loot.timestamp.toEpochMilli, loot.piece.piece,
+        loot.piece.pieceType.toString, loot.piece.job.toString,
+        if (loot.isFreeLoot) 1 else 0)
   }
 
   class LootPieces(tag: Tag) extends Table[LootRep](tag, "loot") {
@@ -38,9 +40,10 @@ trait LootProfile { this: DatabaseProfile =>
     def piece: Rep[String] = column[String]("piece")
     def pieceType: Rep[String] = column[String]("piece_type")
     def job: Rep[String] = column[String]("job")
+    def isFreeLoot: Rep[Int] = column[Int]("is_free_loot")
 
     def * =
-      (lootId.?, playerId, created, piece, pieceType, job) <> ((LootRep.apply _).tupled, LootRep.unapply)
+      (lootId.?, playerId, created, piece, pieceType, job, isFreeLoot) <> ((LootRep.apply _).tupled, LootRep.unapply)
 
     def fkPlayerId: ForeignKeyQuery[Players, PlayerRep] =
       foreignKey("player_id", playerId, playersTable)(_.playerId, onDelete = ForeignKeyAction.Cascade)
@@ -48,16 +51,16 @@ trait LootProfile { this: DatabaseProfile =>
       index("loot_owner_idx", (playerId), unique = false)
   }
 
-  def deletePieceById(piece: Piece)(playerId: Long): Future[Int] =
-    db.run(pieceLoot(LootRep.fromPiece(playerId, piece)).map(_.lootId).max.result).flatMap {
+  def deletePieceById(loot: Loot)(playerId: Long): Future[Int] =
+    db.run(pieceLoot(LootRep.fromLoot(playerId, loot)).map(_.lootId).max.result).flatMap {
       case Some(id) => db.run(lootTable.filter(_.lootId === id).delete)
-      case _ => throw new IllegalArgumentException(s"Could not find piece $piece belong to $playerId")
+      case _ => throw new IllegalArgumentException(s"Could not find piece $loot belong to $playerId")
     }
   def getPiecesById(playerId: Long): Future[Seq[Loot]] = getPiecesById(Seq(playerId))
   def getPiecesById(playerIds: Seq[Long]): Future[Seq[Loot]] =
     db.run(piecesLoot(playerIds).result).map(_.map(_.toLoot))
-  def insertPieceById(piece: Piece)(playerId: Long): Future[Int] =
-    db.run(lootTable.insertOrUpdate(LootRep.fromPiece(playerId, piece)))
+  def insertPieceById(loot: Loot)(playerId: Long): Future[Int] =
+    db.run(lootTable.insertOrUpdate(LootRep.fromLoot(playerId, loot)))
 
   private def pieceLoot(piece: LootRep) =
     piecesLoot(Seq(piece.playerId)).filter(_.piece === piece.piece)

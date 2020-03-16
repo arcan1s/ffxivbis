@@ -103,7 +103,7 @@ class LootEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
           post {
             entity(as[PieceActionResponse]) { action =>
               val playerId = action.playerId.withPartyId(partyId)
-              onComplete(doModifyLoot(action.action, playerId, action.piece.toPiece)) {
+              onComplete(doModifyLoot(action.action, playerId, action.piece.toPiece, action.isFreeLoot)) {
                 case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
                 case Failure(exception) => throw exception
               }

@@ -34,7 +34,7 @@ class DatabaseLootHandlerTest
 
     "add loot" in {
       Fixtures.loot.foreach { piece =>
-        database ! impl.DatabaseLootHandler.AddPieceTo(Fixtures.playerEmpty.playerId, piece)
+        database ! impl.DatabaseLootHandler.AddPieceTo(Fixtures.playerEmpty.playerId, piece, isFreeLoot = false)
         expectMsg(timeout, 1)
       }
     }
@@ -66,11 +66,11 @@ class DatabaseLootHandlerTest
     }
 
     "add same loot" in {
-      database ! impl.DatabaseLootHandler.AddPieceTo(Fixtures.playerEmpty.playerId, Fixtures.lootBody)
+      database ! impl.DatabaseLootHandler.AddPieceTo(Fixtures.playerEmpty.playerId, Fixtures.lootBody, isFreeLoot = false)
       expectMsg(timeout, 1)
 
       Fixtures.loot.foreach { piece =>
-        database ! impl.DatabaseLootHandler.AddPieceTo(Fixtures.playerEmpty.playerId, piece)
+        database ! impl.DatabaseLootHandler.AddPieceTo(Fixtures.playerEmpty.playerId, piece, isFreeLoot = false)
         expectMsg(timeout, 1)
       }
 

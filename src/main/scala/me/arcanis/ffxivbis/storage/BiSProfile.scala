@@ -22,7 +22,7 @@ trait BiSProfile { this: DatabaseProfile =>
                     pieceType: String, job: String) {
     def toLoot: Loot = Loot(
       playerId, Piece(piece, PieceType.withName(pieceType), Job.withName(job)),
-      Instant.ofEpochMilli(created))
+      Instant.ofEpochMilli(created), isFreeLoot = false)
   }
   object BiSRep {
     def fromPiece(playerId: Long, piece: Piece): BiSRep =

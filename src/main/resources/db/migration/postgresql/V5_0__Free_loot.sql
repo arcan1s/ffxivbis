@@ -1,0 +1,1 @@
+alter table loot add column is_free_loot integer not null default 0;

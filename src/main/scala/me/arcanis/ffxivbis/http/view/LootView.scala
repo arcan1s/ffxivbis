@@ -46,9 +46,9 @@ class LootView (override val storage: ActorRef)(implicit timeout: Timeout)
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
           post {
-            formFields("player".as[String], "piece".as[String], "piece_type".as[String], "action".as[String]) {
-              (player, piece, pieceType, action) =>
-                onComplete(modifyLootCall(partyId, player, piece, pieceType, action)) { _ =>
+            formFields("player".as[String], "piece".as[String], "piece_type".as[String], "action".as[String], "free_loot".as[String].?) {
+              (player, piece, pieceType, action, isFreeLoot) =>
+                onComplete(modifyLootCall(partyId, player, piece, pieceType, isFreeLoot, action)) { _ =>
                   redirect(s"/party/$partyId/loot", StatusCodes.Found)
                 }
             }
@@ -58,14 +58,17 @@ class LootView (override val storage: ActorRef)(implicit timeout: Timeout)
     }
 
   private def modifyLootCall(partyId: String, player: String, maybePiece: String,
-                             maybePieceType: String, action: String)
+                             maybePieceType: String, maybeFreeLoot: Option[String],
+                             action: String)
                             (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Unit] = {
+    import me.arcanis.ffxivbis.utils.Implicits._
+
     def getPiece(playerId: PlayerId) =
       Try(Piece(maybePiece, PieceType.withName(maybePieceType), playerId.job)).toOption
 
     PlayerId(partyId, player) match {
       case Some(playerId) => (getPiece(playerId), action) match {
-        case (Some(piece), "add") => addPieceLoot(playerId, piece).map(_ => ())
+        case (Some(piece), "add") => addPieceLoot(playerId, piece, maybeFreeLoot).map(_ => ())
         case (Some(piece), "remove") => removePieceLoot(playerId, piece).map(_ => ())
         case _ => Future.failed(new Error(s"Could not construct piece from `$maybePiece ($maybePieceType)`"))
       }
@@ -99,6 +102,8 @@ object LootView {
                   (for (piece <- Piece.available) yield option(piece)),
             select(name:="piece_type", id:="piece_type", title:="piece type")
                   (for (pieceType <- PieceType.available) yield option(pieceType.toString)),
+            input(name:="free_loot", id:="free_loot", title:="is free loot", `type`:="checkbox"),
+            label(`for`:="free_loot")("is free loot"),
             input(name:="action", id:="action", `type`:="hidden", value:="add"),
             input(name:="add", id:="add", `type`:="submit", value:="add")
           ),
@@ -108,6 +113,7 @@ object LootView {
               th("player"),
               th("piece"),
               th("piece type"),
+              th("is free loot"),
               th("timestamp"),
               th("")
             ),
@@ -115,12 +121,14 @@ object LootView {
               td(`class`:="include_search")(player.playerId.toString),
               td(`class`:="include_search")(loot.piece.piece),
               td(loot.piece.pieceType.toString),
+              td(loot.isFreeLootToString),
               td(loot.timestamp.toString),
               td(
                 form(action:=s"/party/$partyId/loot", method:="post")(
                   input(name:="player", id:="player", `type`:="hidden", value:=player.playerId.toString),
                   input(name:="piece", id:="piece", `type`:="hidden", value:=loot.piece.piece),
                   input(name:="piece_type", id:="piece_type", `type`:="hidden", value:=loot.piece.pieceType.toString),
+                  input(name:="free_loot", id:="free_loot", `type`:="hidden", value:=loot.isFreeLootToString),
                   input(name:="action", id:="action", `type`:="hidden", value:="remove"),
                   input(name:="remove", id:="remove", `type`:="submit", value:="x")
                 )

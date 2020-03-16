@@ -44,14 +44,17 @@ class DatabaseProfile(context: ExecutionContext, config: Config)
     byPlayerId(playerId, insertPieceBiSById(piece))
 
   // generic loot api
-  def deletePiece(playerId: PlayerId, piece: Piece): Future[Int] =
-    byPlayerId(playerId, deletePieceById(piece))
+  def deletePiece(playerId: PlayerId, piece: Piece): Future[Int] = {
+    // we don't really care here about loot
+    val loot = Loot(-1, piece, Instant.now, isFreeLoot = false)
+    byPlayerId(playerId, deletePieceById(loot))
+  }
   def getPieces(playerId: PlayerId): Future[Seq[Loot]] =
     byPlayerId(playerId, getPiecesById)
   def getPieces(partyId: String): Future[Seq[Loot]] =
     byPartyId(partyId, getPiecesById)
-  def insertPiece(playerId: PlayerId, piece: Piece): Future[Int] =
-    byPlayerId(playerId, insertPieceById(piece))
+  def insertPiece(playerId: PlayerId, loot: Loot): Future[Int] =
+    byPlayerId(playerId, insertPieceById(loot))
 
   private def byPartyId[T](partyId: String, callback: Seq[Long] => Future[T]): Future[T] =
     getPlayers(partyId).map(callback).flatten

@@ -31,10 +31,7 @@ case class Player(id: Long,
   def withLoot(piece: Loot): Player = withLoot(Seq(piece))
   def withLoot(list: Seq[Loot]): Player = {
     require(loot.forall(_.playerId == id), "player id must be same")
-    list match {
-      case Nil => this
-      case _ => copy(loot = list)
-    }
+    copy(loot = loot ++ list)
   }
 
   def isRequired(piece: Option[Piece]): Boolean = {
@@ -48,10 +45,10 @@ case class Player(id: Long,
 
   def bisCountTotal(piece: Option[Piece]): Int = bis.pieces.count(_.pieceType == PieceType.Savage)
   def lootCount(piece: Option[Piece]): Int = piece match {
-    case Some(p) => loot.count(_.piece == p)
+    case Some(p) => loot.count(item => !item.isFreeLoot && item.piece == p)
     case None => lootCountTotal(piece)
   }
   def lootCountBiS(piece: Option[Piece]): Int = loot.map(_.piece).count(bis.hasPiece)
-  def lootCountTotal(piece: Option[Piece]): Int = loot.length
+  def lootCountTotal(piece: Option[Piece]): Int = loot.count(!_.isFreeLoot)
   def lootPriority(piece: Piece): Int = priority
 }

@@ -8,17 +8,20 @@
  */
 package me.arcanis.ffxivbis.service.impl
 
+import java.time.Instant
+
 import akka.pattern.pipe
-import me.arcanis.ffxivbis.models.{Piece, PlayerId}
+import me.arcanis.ffxivbis.models.{Loot, Piece, PlayerId}
 import me.arcanis.ffxivbis.service.Database
 
 trait DatabaseLootHandler { this: Database =>
   import DatabaseLootHandler._
 
   def lootHandler: Receive = {
-    case AddPieceTo(playerId, piece) =>
+    case AddPieceTo(playerId, piece, isFreeLoot) =>
       val client = sender()
-      profile.insertPiece(playerId, piece).pipeTo(client)
+      val loot = Loot(-1, piece, Instant.now, isFreeLoot)
+      profile.insertPiece(playerId, loot).pipeTo(client)
 
     case GetLoot(partyId, maybePlayerId) =>
       val client = sender()
@@ -37,7 +40,7 @@ trait DatabaseLootHandler { this: Database =>
 }
 
 object DatabaseLootHandler {
-  case class AddPieceTo(playerId: PlayerId, piece: Piece) extends Database.DatabaseRequest {
+  case class AddPieceTo(playerId: PlayerId, piece: Piece, isFreeLoot: Boolean) extends Database.DatabaseRequest {
     override def partyId: String = playerId.partyId
   }
   case class GetLoot(partyId: String, playerId: Option[PlayerId]) extends Database.DatabaseRequest

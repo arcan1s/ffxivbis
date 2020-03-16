@@ -70,7 +70,7 @@ class BiSEndpointTest extends WordSpec
 
     "remove item from best in slot set" in {
       val piece = PieceResponse.fromPiece(Fixtures.lootBody)
-      val entity = PieceActionResponse(ApiAction.remove, piece, playerId)
+      val entity = PieceActionResponse(ApiAction.remove, piece, playerId, None)
 
       Post(endpoint, entity).withHeaders(auth) ~> route ~> check {
         status shouldEqual StatusCodes.Accepted
@@ -89,7 +89,7 @@ class BiSEndpointTest extends WordSpec
 
     "add item to best in slot set" in {
       val piece = PieceResponse.fromPiece(Fixtures.lootBody)
-      val entity = PieceActionResponse(ApiAction.add, piece, playerId)
+      val entity = PieceActionResponse(ApiAction.add, piece, playerId, None)
 
       Post(endpoint, entity).withHeaders(auth) ~> route ~> check {
         status shouldEqual StatusCodes.Accepted

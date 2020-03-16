@@ -30,7 +30,7 @@ class LootSuggestView(override val storage: ActorRef)(implicit timeout: Timeout)
         authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
           get {
             complete {
-              val text = LootSuggestView.template(partyId, Seq.empty, None, None)
+              val text = LootSuggestView.template(partyId, Seq.empty, None, false, None)
               (StatusCodes.OK, RootView.toHtml(text))
             }
           }
@@ -43,17 +43,20 @@ class LootSuggestView(override val storage: ActorRef)(implicit timeout: Timeout)
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
           post {
-            formFields("piece".as[String], "job".as[String], "piece_type".as[String]) { (piece, job, pieceType) =>
-              val maybePiece = Try(Piece(piece, PieceType.withName(pieceType), Job.withName(job))).toOption
+            formFields("piece".as[String], "job".as[String], "piece_type".as[String], "free_loot".as[String].?) {
+              (piece, job, pieceType, maybeFreeLoot) =>
+                import me.arcanis.ffxivbis.utils.Implicits._
 
-              onComplete(suggestLootCall(partyId, maybePiece)) {
-                case Success(players) =>
-                  val text = LootSuggestView.template(partyId, players, maybePiece, None)
-                  complete(StatusCodes.OK, RootView.toHtml(text))
-                case Failure(exception) =>
-                  val text = LootSuggestView.template(partyId, Seq.empty, maybePiece, Some(exception.getMessage))
-                  complete(StatusCodes.OK, RootView.toHtml(text))
-              }
+                val maybePiece = Try(Piece(piece, PieceType.withName(pieceType), Job.withName(job))).toOption
+
+                onComplete(suggestLootCall(partyId, maybePiece)) {
+                  case Success(players) =>
+                    val text = LootSuggestView.template(partyId, players, maybePiece, maybeFreeLoot, None)
+                    complete(StatusCodes.OK, RootView.toHtml(text))
+                  case Failure(exception) =>
+                    val text = LootSuggestView.template(partyId, Seq.empty, None, false, Some(exception.getMessage))
+                    complete(StatusCodes.OK, RootView.toHtml(text))
+                }
             }
           }
         }
@@ -72,7 +75,8 @@ object LootSuggestView {
   import scalatags.Text.all._
   import scalatags.Text.tags2.{title => titleTag}
 
-  def template(partyId: String, party: Seq[PlayerIdWithCounters], piece: Option[Piece], error: Option[String]): String =
+  def template(partyId: String, party: Seq[PlayerIdWithCounters], piece: Option[Piece],
+               isFreeLoot: Boolean, error: Option[String]): String =
     "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">" +
       html(lang:="en",
         head(
@@ -93,6 +97,8 @@ object LootSuggestView {
                   (for (job <- Job.availableWithAnyJob) yield option(job.toString)),
             select(name:="piece_type", id:="piece_type", title:="piece type")
                   (for (pieceType <- PieceType.available) yield option(pieceType.toString)),
+            input(name:="free_loot", id:="free_loot", title:="is free loot", `type`:="checkbox"),
+            label(`for`:="free_loot")("is free loot"),
             input(name:="suggest", id:="suggest", `type`:="submit", value:="suggest")
           ),
 
@@ -116,6 +122,7 @@ object LootSuggestView {
                   input(name:="player", id:="player", `type`:="hidden", value:=player.playerId.toString),
                   input(name:="piece", id:="piece", `type`:="hidden", value:=piece.map(_.piece).getOrElse("")),
                   input(name:="piece_type", id:="piece_type", `type`:="hidden", value:=piece.map(_.pieceType.toString).getOrElse("")),
+                  input(name:="free_loot", id:="free_loot", `type`:="hidden", value:=(if (isFreeLoot) "yes" else "no")),
                   input(name:="action", id:="action", `type`:="hidden", value:="add"),
                   input(name:="add", id:="add", `type`:="submit", value:="add")
                 )
