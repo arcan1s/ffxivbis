@@ -14,7 +14,7 @@ import spray.json.{JsNumber, JsObject, JsString, deserializationError}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait Ariyala {
+object Ariyala {
 
   def idParser(job: Job.Job, js: JsObject)
               (implicit executionContext: ExecutionContext): Future[Map[String, Long]] =

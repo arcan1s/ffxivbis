@@ -19,11 +19,7 @@ import spray.json._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class BisProvider extends Actor with XivApi with StrictLogging {
-
-  def idParser(job: Job.Job, js: JsObject)
-              (implicit executionContext: ExecutionContext): Future[Map[String, Long]]
-  def uri(root: Uri, id: String): Uri
+class BisProvider extends Actor with XivApi with StrictLogging {
 
   override def receive: Receive = {
     case BisProvider.GetBiS(link, job) =>
@@ -40,15 +36,20 @@ abstract class BisProvider extends Actor with XivApi with StrictLogging {
     val url = Uri(link)
     val id = Paths.get(link).normalize.getFileName.toString
 
-    sendRequest(uri(url, id), BisProvider.parseBisJsonToPieces(job, idParser, getPieceType))
+    val (idParser, uri) =
+      if (url.authority.host.address().contains("etro")) {
+        (Etro.idParser(_, _), Etro.uri(url, id))
+      } else {
+        (Ariyala.idParser(_, _), Ariyala.uri(url, id))
+      }
+
+    sendRequest(uri, BisProvider.parseBisJsonToPieces(job, idParser, getPieceType))
   }
 }
 
 object BisProvider {
 
-  def props(useEtro: Boolean): Props =
-    if (useEtro) Props(new BisProvider with Etro)
-    else Props(new BisProvider with Ariyala)
+  def props: Props = Props(new BisProvider)
 
   case class GetBiS(link: String, job: Job.Job)
 

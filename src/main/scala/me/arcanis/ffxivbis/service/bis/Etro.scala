@@ -14,7 +14,7 @@ import spray.json.{JsNumber, JsObject}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait Etro {
+object Etro {
 
   def idParser(job: Job.Job, js: JsObject)
               (implicit executionContext: ExecutionContext): Future[Map[String, Long]] =

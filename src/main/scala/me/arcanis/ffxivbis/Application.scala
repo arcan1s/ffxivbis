@@ -34,9 +34,7 @@ class Application extends Actor with StrictLogging {
 
   Migration(config).onComplete {
     case Success(_) =>
-      val useEtro = config.getBoolean("me.arcanis.ffxivbis.bis-provider.use-etro")
-
-      val bisProvider = context.system.actorOf(BisProvider.props(useEtro), "bis-provider")
+      val bisProvider = context.system.actorOf(BisProvider.props, "bis-provider")
       val storage = context.system.actorOf(DatabaseImpl.props, "storage")
       val party = context.system.actorOf(PartyService.props(storage), "party")
       val http = new RootEndpoint(context.system, party, bisProvider)

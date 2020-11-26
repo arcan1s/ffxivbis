@@ -23,7 +23,7 @@ class LootSelectorTest extends TestKit(ActorSystem("lootselector"))
   private val timeout: FiniteDuration = 60 seconds
 
   override def beforeAll(): Unit = {
-    val provider = system.actorOf(BisProvider.props(false))
+    val provider = system.actorOf(BisProvider.props)
 
     val dncSet = Await.result((provider ? BisProvider.GetBiS(Fixtures.link, Job.DNC) )(timeout).mapTo[BiS], timeout)
     dnc = dnc.withBiS(Some(dncSet))

@@ -30,7 +30,7 @@ class PlayerEndpointTest extends WordSpec
   implicit private val routeTimeout: RouteTestTimeout = RouteTestTimeout(timeout)
 
   private val storage: ActorRef = system.actorOf(impl.DatabaseImpl.props)
-  private val provider: ActorRef = system.actorOf(BisProvider.props(false))
+  private val provider: ActorRef = system.actorOf(BisProvider.props)
   private val party: ActorRef = system.actorOf(PartyService.props(storage))
   private val route: Route = new PlayerEndpoint(party, provider)(timeout).route
 

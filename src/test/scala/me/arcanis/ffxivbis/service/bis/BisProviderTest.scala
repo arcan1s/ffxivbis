@@ -19,13 +19,13 @@ class BisProviderTest extends TestKit(ActorSystem("bis-provider"))
   "ariyala actor" must {
 
     "get best in slot set (ariyala)" in {
-      val provider = system.actorOf(BisProvider.props(false))
+      val provider = system.actorOf(BisProvider.props)
       provider ! BisProvider.GetBiS(Fixtures.link, Job.DNC)
       expectMsg(timeout, Fixtures.bis)
     }
 
     "get best in slot set (etro)" in {
-      val provider = system.actorOf(BisProvider.props(true))
+      val provider = system.actorOf(BisProvider.props)
       provider ! BisProvider.GetBiS(Fixtures.link3, Job.DNC)
       expectMsg(timeout, Fixtures.bis)
     }

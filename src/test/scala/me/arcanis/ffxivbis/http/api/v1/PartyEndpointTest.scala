@@ -30,7 +30,7 @@ class PartyEndpointTest extends WordSpec
   implicit private val routeTimeout: RouteTestTimeout = RouteTestTimeout(timeout)
 
   private val storage: ActorRef = system.actorOf(impl.DatabaseImpl.props)
-  private val provider: ActorRef = system.actorOf(BisProvider.props(false))
+  private val provider: ActorRef = system.actorOf(BisProvider.props)
   private val route: Route = new PartyEndpoint(storage, provider)(timeout).route
 
   override def testConfig: Config = Settings.withRandomDatabase
