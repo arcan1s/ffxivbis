@@ -11,7 +11,8 @@ import com.typesafe.config.Config
 import me.arcanis.ffxivbis.{Fixtures, Settings}
 import me.arcanis.ffxivbis.http.api.v1.json._
 import me.arcanis.ffxivbis.models.PartyDescription
-import me.arcanis.ffxivbis.service.{Ariyala, impl}
+import me.arcanis.ffxivbis.service.bis.BisProvider
+import me.arcanis.ffxivbis.service.impl
 import me.arcanis.ffxivbis.storage.Migration
 import org.scalatest.{Matchers, WordSpec}
 
@@ -29,8 +30,8 @@ class PartyEndpointTest extends WordSpec
   implicit private val routeTimeout: RouteTestTimeout = RouteTestTimeout(timeout)
 
   private val storage: ActorRef = system.actorOf(impl.DatabaseImpl.props)
-  private val ariyala: ActorRef = system.actorOf(Ariyala.props)
-  private val route: Route = new PartyEndpoint(storage, ariyala)(timeout).route
+  private val provider: ActorRef = system.actorOf(BisProvider.props(false))
+  private val route: Route = new PartyEndpoint(storage, provider)(timeout).route
 
   override def testConfig: Config = Settings.withRandomDatabase
 

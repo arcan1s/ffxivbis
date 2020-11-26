@@ -22,6 +22,7 @@ object Fixtures {
 
   lazy val link: String = "https://ffxiv.ariyala.com/19V5R"
   lazy val link2: String = "https://ffxiv.ariyala.com/1A0WM"
+  lazy val link3: String = "https://etro.gg/gearset/26a67536-b4ce-4adc-a46a-f70e348bb138"
 
   lazy val lootWeapon: Piece = Weapon(pieceType = PieceType.Tome, Job.AnyJob)
   lazy val lootBody: Piece = Body(pieceType = PieceType.Savage, Job.AnyJob)

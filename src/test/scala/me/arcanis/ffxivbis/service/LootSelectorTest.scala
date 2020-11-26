@@ -5,6 +5,7 @@ import akka.pattern.ask
 import akka.testkit.{ImplicitSender, TestKit}
 import me.arcanis.ffxivbis.{Fixtures, Settings}
 import me.arcanis.ffxivbis.models._
+import me.arcanis.ffxivbis.service.bis.BisProvider
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.Await
@@ -22,16 +23,16 @@ class LootSelectorTest extends TestKit(ActorSystem("lootselector"))
   private val timeout: FiniteDuration = 60 seconds
 
   override def beforeAll(): Unit = {
-    val ariyala = system.actorOf(Ariyala.props)
+    val provider = system.actorOf(BisProvider.props(false))
 
-    val dncSet = Await.result((ariyala ? Ariyala.GetBiS(Fixtures.link, Job.DNC) )(timeout).mapTo[BiS], timeout)
+    val dncSet = Await.result((provider ? BisProvider.GetBiS(Fixtures.link, Job.DNC) )(timeout).mapTo[BiS], timeout)
     dnc = dnc.withBiS(Some(dncSet))
 
-    val drgSet = Await.result((ariyala ? Ariyala.GetBiS(Fixtures.link2, Job.DRG) )(timeout).mapTo[BiS], timeout)
+    val drgSet = Await.result((provider ? BisProvider.GetBiS(Fixtures.link2, Job.DRG) )(timeout).mapTo[BiS], timeout)
     drg = drg.withBiS(Some(drgSet))
 
     default = default.withPlayer(dnc).withPlayer(drg)
-    system.stop(ariyala)
+    system.stop(provider)
   }
 
   "loot selector" must {

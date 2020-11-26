@@ -11,7 +11,8 @@ import com.typesafe.config.Config
 import me.arcanis.ffxivbis.{Fixtures, Settings}
 import me.arcanis.ffxivbis.http.api.v1.json._
 import me.arcanis.ffxivbis.models.BiS
-import me.arcanis.ffxivbis.service.{Ariyala, PartyService, impl}
+import me.arcanis.ffxivbis.service.bis.BisProvider
+import me.arcanis.ffxivbis.service.{PartyService, impl}
 import me.arcanis.ffxivbis.storage.Migration
 import org.scalatest.{Matchers, WordSpec}
 
@@ -30,9 +31,9 @@ class BiSEndpointTest extends WordSpec
   implicit private val routeTimeout: RouteTestTimeout = RouteTestTimeout(timeout)
 
   private val storage: ActorRef = system.actorOf(impl.DatabaseImpl.props)
-  private val ariyala: ActorRef = system.actorOf(Ariyala.props)
+  private val provider: ActorRef = system.actorOf(BisProvider.props(false))
   private val party: ActorRef = system.actorOf(PartyService.props(storage))
-  private val route: Route = new BiSEndpoint(party, ariyala)(timeout).route
+  private val route: Route = new BiSEndpoint(party, provider)(timeout).route
 
   override def testConfig: Config = Settings.withRandomDatabase
 

@@ -106,7 +106,7 @@ object Piece {
       case "feet" => Feet(pieceType, job)
       case "ears" => Ears(pieceType, job)
       case "neck" => Neck(pieceType, job)
-      case "wrist" => Wrist(pieceType, job)
+      case "wrist" | "wrists" => Wrist(pieceType, job)
       case ring @ ("ring" | "left ring" | "right ring") => Ring(pieceType, job, ring)
       case "accessory upgrade" => AccessoryUpgrade
       case "body upgrade" => BodyUpgrade

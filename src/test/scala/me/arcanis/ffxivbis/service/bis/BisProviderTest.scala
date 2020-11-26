@@ -1,4 +1,4 @@
-package me.arcanis.ffxivbis.service
+package me.arcanis.ffxivbis.service.bis
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
@@ -9,7 +9,7 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class AriyalaTest extends TestKit(ActorSystem("ariyala"))
+class BisProviderTest extends TestKit(ActorSystem("bis-provider"))
   with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
 
   private val timeout: FiniteDuration = 60 seconds
@@ -18,9 +18,15 @@ class AriyalaTest extends TestKit(ActorSystem("ariyala"))
 
   "ariyala actor" must {
 
-    "get best in slot set" in {
-      val ariyala = system.actorOf(Ariyala.props)
-      ariyala ! Ariyala.GetBiS(Fixtures.link, Job.DNC)
+    "get best in slot set (ariyala)" in {
+      val provider = system.actorOf(BisProvider.props(false))
+      provider ! BisProvider.GetBiS(Fixtures.link, Job.DNC)
+      expectMsg(timeout, Fixtures.bis)
+    }
+
+    "get best in slot set (etro)" in {
+      val provider = system.actorOf(BisProvider.props(true))
+      provider ! BisProvider.GetBiS(Fixtures.link3, Job.DNC)
       expectMsg(timeout, Fixtures.bis)
     }
 

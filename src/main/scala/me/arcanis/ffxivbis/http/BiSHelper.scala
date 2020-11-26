@@ -17,7 +17,7 @@ import me.arcanis.ffxivbis.service.impl.DatabaseBiSHandler
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait BiSHelper extends AriyalaHelper {
+trait BiSHelper extends BisProviderHelper {
 
   def storage: ActorRef
 
