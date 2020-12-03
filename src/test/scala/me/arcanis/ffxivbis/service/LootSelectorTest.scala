@@ -18,8 +18,8 @@ class LootSelectorTest extends TestKit(ActorSystem("lootselector"))
   import me.arcanis.ffxivbis.utils.Converters._
 
   private var default: Party = Party(PartyDescription.empty(Fixtures.partyId), Settings.config(Map.empty), Map.empty, Seq.empty, Seq.empty)
-  private var dnc: Player = Player(-1, Fixtures.partyId, Job.DNC, "a nick", BiS(), Seq.empty, Some(Fixtures.link))
-  private var drg: Player = Player(-1, Fixtures.partyId, Job.DRG, "another nick", BiS(), Seq.empty, Some(Fixtures.link2))
+  private var dnc: Player = Player(-1, Fixtures.partyId, Job.DNC, "a nick", BiS.empty, Seq.empty, Some(Fixtures.link))
+  private var drg: Player = Player(-1, Fixtures.partyId, Job.DRG, "another nick", BiS.empty, Seq.empty, Some(Fixtures.link2))
   private val timeout: FiniteDuration = 60 seconds
 
   override def beforeAll(): Unit = {
@@ -51,7 +51,7 @@ class LootSelectorTest extends TestKit(ActorSystem("lootselector"))
     "suggest upgrade" in {
       val party = default.withPlayer(
         dnc.withBiS(
-          Some(dnc.bis.copy(weapon = Some(Weapon(pieceType = PieceType.Tome, Job.DNC))))
+          Some(dnc.bis.withPiece(Weapon(pieceType = PieceType.Tome, Job.DNC)))
         )
       )
 

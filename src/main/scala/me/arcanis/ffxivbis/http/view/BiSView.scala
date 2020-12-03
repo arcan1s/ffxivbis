@@ -113,7 +113,7 @@ object BiSView {
             input(name:="add", id:="add", `type`:="submit", value:="add")
           ),
 
-          form(action:="/bis", method:="post")(
+          form(action:=s"/party/$partyId/bis", method:="post")(
             select(name:="player", id:="player", title:="player")
                   (for (player <- party) yield option(player.playerId.toString)),
             input(name:="link", id:="link", placeholder:="player bis link", title:="link", `type`:="text"),

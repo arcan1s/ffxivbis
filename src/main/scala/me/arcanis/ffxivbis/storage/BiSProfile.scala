@@ -46,14 +46,21 @@ trait BiSProfile { this: DatabaseProfile =>
 
   def deletePieceBiSById(piece: Piece)(playerId: Long): Future[Int] =
     db.run(pieceBiS(BiSRep.fromPiece(playerId, piece)).delete)
+  def deletePiecesBiSById(playerId: Long): Future[Int] =
+    db.run(piecesBiS(Seq(playerId)).delete)
   def getPiecesBiSById(playerId: Long): Future[Seq[Loot]] = getPiecesBiSById(Seq(playerId))
   def getPiecesBiSById(playerIds: Seq[Long]): Future[Seq[Loot]] =
     db.run(piecesBiS(playerIds).result).map(_.map(_.toLoot))
   def insertPieceBiSById(piece: Piece)(playerId: Long): Future[Int] =
-    db.run(bisTable.insertOrUpdate(BiSRep.fromPiece(playerId, piece)))
+    getPiecesBiSById(playerId).flatMap {
+      case pieces if pieces.exists(loot => loot.piece.strictEqual(piece)) => Future.successful(0)
+      case _ => db.run(bisTable.insertOrUpdate(BiSRep.fromPiece(playerId, piece)))
+    }
 
   private def pieceBiS(piece: BiSRep) =
-    piecesBiS(Seq(piece.playerId)).filter(_.piece === piece.piece)
+    piecesBiS(Seq(piece.playerId)).filter { stored =>
+      (stored.piece === piece.piece) && (stored.pieceType === piece.pieceType)
+    }
   private def piecesBiS(playerIds: Seq[Long]) =
     bisTable.filter(_.playerId.inSet(playerIds.toSet))
 }

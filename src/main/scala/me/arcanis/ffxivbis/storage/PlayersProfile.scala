@@ -19,7 +19,7 @@ trait PlayersProfile { this: DatabaseProfile =>
                        nick: String, job: String, link: Option[String], priority: Int) {
     def toPlayer: Player =
       Player(playerId.getOrElse(-1), partyId, Job.withName(job), nick,
-        BiS(Seq.empty), List.empty, link, priority)
+        BiS.empty, Seq.empty, link, priority)
   }
   object PlayerRep {
     def fromPlayer(player: Player, id: Option[Long]): PlayerRep =

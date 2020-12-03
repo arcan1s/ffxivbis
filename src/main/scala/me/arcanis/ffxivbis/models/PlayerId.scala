@@ -12,6 +12,7 @@ import scala.util.Try
 import scala.util.matching.Regex
 
 trait PlayerIdBase {
+
   def job: Job.Job
   def nick: String
 
@@ -21,6 +22,7 @@ trait PlayerIdBase {
 case class PlayerId(partyId: String, job: Job.Job, nick: String) extends PlayerIdBase
 
 object PlayerId {
+
   def apply(partyId: String, maybeNick: Option[String], maybeJob: Option[String]): Option[PlayerId] =
     (maybeNick, maybeJob) match {
       case (Some(nick), Some(job)) => Try(PlayerId(partyId, Job.withName(job), nick)).toOption

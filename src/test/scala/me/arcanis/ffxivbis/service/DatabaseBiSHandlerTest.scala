@@ -72,7 +72,7 @@ class DatabaseBiSHandlerTest
 
       database ! impl.DatabaseBiSHandler.GetBiS(Fixtures.playerEmpty.partyId, None)
       expectMsgPF(timeout) {
-        case party: Seq[_] if partyBiSCompare(party, Seq(newPiece)) => ()
+        case party: Seq[_] if partyBiSCompare(party, Seq(Fixtures.lootHands, newPiece)) => ()
       }
     }
 

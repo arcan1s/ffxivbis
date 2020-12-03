@@ -29,6 +29,10 @@ trait DatabaseBiSHandler { this: Database  =>
     case RemovePieceFromBiS(playerId, piece) =>
       val client = sender()
       profile.deletePieceBiS(playerId, piece).pipeTo(client)
+
+    case RemovePiecesFromBiS(playerId) =>
+      val client = sender()
+      profile.deletePiecesBiS(playerId).pipeTo(client)
   }
 }
 
@@ -38,6 +42,9 @@ object DatabaseBiSHandler {
   }
   case class GetBiS(partyId: String, playerId: Option[PlayerId]) extends Database.DatabaseRequest
   case class RemovePieceFromBiS(playerId: PlayerId, piece: Piece) extends Database.DatabaseRequest {
+    override def partyId: String = playerId.partyId
+  }
+  case class RemovePiecesFromBiS(playerId: PlayerId) extends Database.DatabaseRequest {
     override def partyId: String = playerId.partyId
   }
 }

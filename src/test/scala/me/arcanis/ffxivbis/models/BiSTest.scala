@@ -29,18 +29,14 @@ class BiSTest extends WordSpecLike with Matchers with BeforeAndAfterAll {
       val bis = BiS(Seq(Fixtures.lootLegs))
       val newBis = bis.withPiece(Fixtures.lootHands)
 
-      newBis.legs shouldEqual Some(Fixtures.lootLegs)
-      newBis.hands shouldEqual Some(Fixtures.lootHands)
-      newBis.pieces.length shouldEqual 2
+      newBis shouldEqual BiS(Seq(Fixtures.lootLegs, Fixtures.lootHands))
     }
 
     "create copy without piece" in {
       val bis = BiS(Seq(Fixtures.lootHands, Fixtures.lootLegs))
       val newBis = bis.withoutPiece(Fixtures.lootHands)
 
-      newBis.legs shouldEqual Some(Fixtures.lootLegs)
-      newBis.hands shouldEqual None
-      newBis.pieces.length shouldEqual 1
+      newBis shouldEqual BiS(Seq(Fixtures.lootLegs))
     }
 
     "ignore upgrade on modification" in {

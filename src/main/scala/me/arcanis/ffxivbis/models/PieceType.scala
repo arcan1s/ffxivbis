@@ -1,6 +1,7 @@
 package me.arcanis.ffxivbis.models
 
 object PieceType {
+
   sealed trait PieceType
 
   case object Crafted extends PieceType

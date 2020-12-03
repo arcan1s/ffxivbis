@@ -8,7 +8,8 @@
  */
 package me.arcanis.ffxivbis.models
 
-sealed trait Piece {
+sealed trait Piece extends Equals {
+
   def pieceType: PieceType.PieceType
   def job: Job.Job
   def piece: String
@@ -22,6 +23,9 @@ sealed trait Piece {
     case _: PieceBody => Some(BodyUpgrade)
     case _: PieceWeapon => Some(WeaponUpgrade)
   }
+
+  // used for ring comparison
+  def strictEqual(obj: Any): Boolean = equals(obj)
 }
 
 trait PieceAccessory extends Piece
@@ -78,8 +82,14 @@ case class Wrist(override val pieceType: PieceType.PieceType, override val job: 
 case class Ring(override val pieceType: PieceType.PieceType, override val job: Job.Job, override val piece: String = "ring")
   extends PieceAccessory {
   def withJob(other: Job.Job): Piece = copy(job = other)
+
   override def equals(obj: Any): Boolean = obj match {
     case Ring(thatPieceType, thatJob, _) => (thatPieceType == pieceType) && (thatJob == job)
+    case _ => false
+  }
+
+  override def strictEqual(obj: Any): Boolean = obj match {
+    case ring: Ring => equals(obj) && (ring.piece == this.piece)
     case _ => false
   }
 }

@@ -9,6 +9,7 @@
 package me.arcanis.ffxivbis.models
 
 object Job {
+
   sealed trait RightSide
   object AccessoriesDex extends RightSide
   object AccessoriesInt extends RightSide
@@ -26,6 +27,7 @@ object Job {
   object BodyRanges extends LeftSide
 
   sealed trait Job {
+
     def leftSide: LeftSide
     def rightSide: RightSide
 

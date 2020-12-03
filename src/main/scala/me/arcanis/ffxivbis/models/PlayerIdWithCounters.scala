@@ -38,6 +38,7 @@ case class PlayerIdWithCounters(partyId: String,
 }
 
 object PlayerIdWithCounters {
+
   private case class PlayerCountersComparator(values: Int*) {
     def >(that: PlayerCountersComparator): Boolean = {
       @scala.annotation.tailrec

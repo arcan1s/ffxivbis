@@ -36,6 +36,7 @@ case class Party(partyDescription: PartyDescription, rules: Seq[String], players
 }
 
 object Party {
+
   def apply(party: PartyDescription, config: Config,
             players: Map[Long, Player], bis: Seq[Loot], loot: Seq[Loot]): Party = {
     val bisByPlayer = bis.groupBy(_.playerId).view.mapValues(piece => BiS(piece.map(_.piece)))

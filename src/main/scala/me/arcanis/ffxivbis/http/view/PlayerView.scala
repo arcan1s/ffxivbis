@@ -47,8 +47,8 @@ class PlayerView(override val storage: ActorRef, override val ariyala: ActorRef)
           post {
             formFields("nick".as[String], "job".as[String], "priority".as[Int].?, "link".as[String].?, "action".as[String]) {
               (nick, job, maybePriority, maybeLink, action) =>
-                onComplete(modifyPartyCall(partyId, nick, job, maybePriority, maybeLink, action)) {
-                  case _ => redirect(s"/party/$partyId/players", StatusCodes.Found)
+                onComplete(modifyPartyCall(partyId, nick, job, maybePriority, maybeLink, action)) { _ =>
+                  redirect(s"/party/$partyId/players", StatusCodes.Found)
                 }
             }
           }
@@ -62,7 +62,7 @@ class PlayerView(override val storage: ActorRef, override val ariyala: ActorRef)
                              (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Unit] = {
     def maybePlayerId = PlayerId(partyId, Some(nick), Some(job))
     def player(playerId: PlayerId) =
-      Player(-1, partyId, playerId.job, playerId.nick, BiS(), Seq.empty, maybeLink, maybePriority.getOrElse(0))
+      Player(-1, partyId, playerId.job, playerId.nick, BiS.empty, Seq.empty, maybeLink, maybePriority.getOrElse(0))
 
     (action, maybePlayerId) match {
       case ("add", Some(playerId)) => addPlayer(player(playerId)).map(_ => ())

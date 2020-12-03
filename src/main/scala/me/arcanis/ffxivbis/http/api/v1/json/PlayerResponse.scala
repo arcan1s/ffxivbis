@@ -21,13 +21,15 @@ case class PlayerResponse(
   @Schema(description = "player loot priority", `type` = "number") priority: Option[Int]) {
   def toPlayer: Player =
     Player(-1, partyId, Job.withName(job), nick,
-      BiS(bis.getOrElse(Seq.empty).map(_.toPiece)), loot.getOrElse(Seq.empty).map(_.toLoot),
+      BiS(bis.getOrElse(Seq.empty).map(_.toPiece)),
+      loot.getOrElse(Seq.empty).map(_.toLoot),
       link, priority.getOrElse(0))
 }
 
 object PlayerResponse {
   def fromPlayer(player: Player): PlayerResponse =
     PlayerResponse(player.partyId, player.job.toString, player.nick,
-      Some(player.bis.pieces.map(PieceResponse.fromPiece)), Some(player.loot.map(LootResponse.fromLoot)),
+      Some(player.bis.pieces.map(PieceResponse.fromPiece)),
+      Some(player.loot.map(LootResponse.fromLoot)),
       player.link, Some(player.priority))
 }

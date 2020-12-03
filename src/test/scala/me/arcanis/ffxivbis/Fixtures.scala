@@ -26,6 +26,7 @@ object Fixtures {
 
   lazy val lootWeapon: Piece = Weapon(pieceType = PieceType.Tome, Job.AnyJob)
   lazy val lootBody: Piece = Body(pieceType = PieceType.Savage, Job.AnyJob)
+  lazy val lootBodyCrafted: Piece = Body(pieceType = PieceType.Crafted, Job.AnyJob)
   lazy val lootHands: Piece = Hands(pieceType = PieceType.Tome, Job.AnyJob)
   lazy val lootWaist: Piece = Waist(pieceType = PieceType.Tome, Job.AnyJob)
   lazy val lootLegs: Piece = Legs(pieceType = PieceType.Savage, Job.AnyJob)
@@ -40,7 +41,7 @@ object Fixtures {
   lazy val partyId2: String = Party.randomPartyId
 
   lazy val playerEmpty: Player =
-    Player(1, partyId, Job.DNC, "Siuan Sanche", BiS(), Seq.empty, Some(link))
+    Player(1, partyId, Job.DNC, "Siuan Sanche", BiS.empty, Seq.empty, Some(link))
   lazy val playerWithBiS: Player = playerEmpty.copy(bis = bis)
 
   lazy val userPassword: String = "password"

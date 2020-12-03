@@ -36,6 +36,8 @@ class DatabaseProfile(context: ExecutionContext, config: Config)
   // generic bis api
   def deletePieceBiS(playerId: PlayerId, piece: Piece): Future[Int] =
     byPlayerId(playerId, deletePieceBiSById(piece))
+  def deletePiecesBiS(playerId: PlayerId): Future[Int] =
+    byPlayerId(playerId, deletePiecesBiSById)
   def getPiecesBiS(playerId: PlayerId): Future[Seq[Loot]] =
     byPlayerId(playerId, getPiecesBiSById)
   def getPiecesBiS(partyId: String): Future[Seq[Loot]] =
@@ -57,7 +59,7 @@ class DatabaseProfile(context: ExecutionContext, config: Config)
     byPlayerId(playerId, insertPieceById(loot))
 
   private def byPartyId[T](partyId: String, callback: Seq[Long] => Future[T]): Future[T] =
-    getPlayers(partyId).map(callback).flatten
+    getPlayers(partyId).flatMap(callback)
   private def byPlayerId[T](playerId: PlayerId, callback: Long => Future[T]): Future[T] =
     getPlayer(playerId).flatMap {
       case Some(id) => callback(id)

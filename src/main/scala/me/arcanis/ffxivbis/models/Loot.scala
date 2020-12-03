@@ -11,5 +11,6 @@ package me.arcanis.ffxivbis.models
 import java.time.Instant
 
 case class Loot(playerId: Long, piece: Piece, timestamp: Instant, isFreeLoot: Boolean) {
+
   def isFreeLootToString: String = if (isFreeLoot) "yes" else "no"
 }
