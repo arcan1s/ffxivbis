@@ -8,30 +8,29 @@
  */
 package me.arcanis.ffxivbis.service.impl
 
-import akka.pattern.pipe
-import me.arcanis.ffxivbis.models.{BiS, PartyDescription, Player, PlayerId}
+import akka.actor.typed.scaladsl.Behaviors
+import me.arcanis.ffxivbis.messages.{AddPlayer, DatabaseMessage, GetParty, GetPartyDescription, GetPlayer, RemovePlayer, UpdateParty}
+import me.arcanis.ffxivbis.models.{BiS, Player}
 import me.arcanis.ffxivbis.service.Database
 
 import scala.concurrent.Future
 
 trait DatabasePartyHandler { this: Database  =>
-  import DatabasePartyHandler._
 
-  def partyHandler: Receive = {
-    case AddPlayer(player) =>
-      val client = sender()
-      profile.insertPlayer(player).pipeTo(client)
+  def partyHandler: DatabaseMessage.Handler = {
+    case AddPlayer(player, client) =>
+      profile.insertPlayer(player).foreach(_ => client ! _)
+      Behaviors.same
 
-    case GetParty(partyId) =>
-      val client = sender()
-      getParty(partyId, withBiS = true, withLoot = true).pipeTo(client)
+    case GetParty(partyId, client) =>
+      getParty(partyId, withBiS = true, withLoot = true).foreach(client ! _)
+      Behaviors.same
 
-    case GetPartyDescription(partyId) =>
-      val client = sender()
-      profile.getPartyDescription(partyId).pipeTo(client)
+    case GetPartyDescription(partyId, client) =>
+      profile.getPartyDescription(partyId).foreach(client ! _)
+      Behaviors.same
 
-    case GetPlayer(playerId) =>
-      val client = sender()
+    case GetPlayer(playerId, client) =>
       val player = profile.getPlayerFull(playerId).flatMap { maybePlayerData =>
         Future.traverse(maybePlayerData.toSeq) { playerData =>
           for {
@@ -42,31 +41,15 @@ trait DatabasePartyHandler { this: Database  =>
             playerData.link, playerData.priority)
         }
       }.map(_.headOption)
-      player.pipeTo(client)
+      player.foreach(client ! _)
+      Behaviors.same
 
-    case RemovePlayer(playerId) =>
-      val client = sender()
-      profile.deletePlayer(playerId).pipeTo(client)
+    case RemovePlayer(playerId, client) =>
+      profile.deletePlayer(playerId).foreach(_ => client ! ())
+      Behaviors.same
 
-    case UpdateParty(description) =>
-      val client = sender()
-      profile.insertPartyDescription(description).pipeTo(client)
-  }
-}
-
-object DatabasePartyHandler {
-  case class AddPlayer(player: Player) extends Database.DatabaseRequest {
-    override def partyId: String = player.partyId
-  }
-  case class GetParty(partyId: String) extends Database.DatabaseRequest
-  case class GetPartyDescription(partyId: String) extends Database.DatabaseRequest
-  case class GetPlayer(playerId: PlayerId) extends Database.DatabaseRequest {
-    override def partyId: String = playerId.partyId
-  }
-  case class RemovePlayer(playerId: PlayerId) extends Database.DatabaseRequest {
-    override def partyId: String = playerId.partyId
-  }
-  case class UpdateParty(partyDescription: PartyDescription) extends Database.DatabaseRequest {
-    override def partyId: String = partyDescription.partyId
+    case UpdateParty(description, client) =>
+      profile.insertPartyDescription(description).foreach(_ => client ! ())
+      Behaviors.same
   }
 }

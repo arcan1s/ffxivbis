@@ -1,79 +1,85 @@
 package me.arcanis.ffxivbis.service
 
-import akka.actor.ActorSystem
-import akka.pattern.ask
-import akka.testkit.{ImplicitSender, TestKit}
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import akka.actor.typed.scaladsl.AskPattern.Askable
+import me.arcanis.ffxivbis.messages.{AddPieceToBis, AddPlayer, GetBiS, RemovePieceFromBiS}
 import me.arcanis.ffxivbis.{Fixtures, Settings}
 import me.arcanis.ffxivbis.models._
 import me.arcanis.ffxivbis.storage.Migration
 import me.arcanis.ffxivbis.utils.Compare
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.wordspec.AnyWordSpecLike
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class DatabaseBiSHandlerTest
-  extends TestKit(ActorSystem("database-bis-handler", Settings.withRandomDatabase))
-    with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
+class DatabaseBiSHandlerTest extends ScalaTestWithActorTestKit(Settings.withRandomDatabase)
+  with AnyWordSpecLike {
 
-  private val database = system.actorOf(impl.DatabaseImpl.props)
-  private val timeout: FiniteDuration = 60 seconds
+  private val database = testKit.spawn(Database())
+  private val askTimeout: FiniteDuration = 60 seconds
 
   override def beforeAll: Unit = {
-    Await.result(Migration(system.settings.config), timeout)
-    Await.result((database ? impl.DatabasePartyHandler.AddPlayer(Fixtures.playerEmpty))(timeout).mapTo[Int], timeout)
+    Await.result(Migration(testKit.system.settings.config), askTimeout)
+    Await.result(database.ask(AddPlayer(Fixtures.playerEmpty, _))(askTimeout, testKit.scheduler), askTimeout)
   }
 
   override def afterAll: Unit = {
-    TestKit.shutdownActorSystem(system)
-    Settings.clearDatabase(system.settings.config)
+    super.afterAll()
+    Settings.clearDatabase(testKit.system.settings.config)
   }
 
   "database bis handler" must {
 
     "add pieces to bis" in {
-      database ! impl.DatabaseBiSHandler.AddPieceToBis(Fixtures.playerEmpty.playerId, Fixtures.lootBody)
-      expectMsg(timeout, 1)
+      val probe = testKit.createTestProbe[Unit]()
+      database ! AddPieceToBis(Fixtures.playerEmpty.playerId, Fixtures.lootBody, probe.ref)
+      probe.expectMessage(askTimeout, ())
 
-      database ! impl.DatabaseBiSHandler.AddPieceToBis(Fixtures.playerEmpty.playerId, Fixtures.lootHands)
-      expectMsg(timeout, 1)
+      database ! AddPieceToBis(Fixtures.playerEmpty.playerId, Fixtures.lootHands, probe.ref)
+      probe.expectMessage(askTimeout, ())
     }
 
     "get party bis set" in {
-      database ! impl.DatabaseBiSHandler.GetBiS(Fixtures.playerEmpty.partyId, None)
-      expectMsgPF(timeout) {
-        case party: Seq[_] if partyBiSCompare(party, Seq(Fixtures.lootBody, Fixtures.lootHands)) => ()
-      }
+      val probe = testKit.createTestProbe[Seq[Player]]()
+      database ! GetBiS(Fixtures.playerEmpty.partyId, None, probe.ref)
+
+      val party = probe.expectMessageType[Seq[Player]](askTimeout)
+      partyBiSCompare(party, Seq(Fixtures.lootBody, Fixtures.lootHands)) shouldEqual true
     }
 
     "get bis set" in {
-      database ! impl.DatabaseBiSHandler.GetBiS(Fixtures.playerEmpty.partyId, Some(Fixtures.playerEmpty.playerId))
-      expectMsgPF(timeout) {
-        case party: Seq[_] if partyBiSCompare(party, Seq(Fixtures.lootBody, Fixtures.lootHands)) => ()
-      }
+      val probe = testKit.createTestProbe[Seq[Player]]()
+      database ! GetBiS(Fixtures.playerEmpty.partyId, Some(Fixtures.playerEmpty.playerId), probe.ref)
+
+      val party = probe.expectMessageType[Seq[Player]](askTimeout)
+      partyBiSCompare(party, Seq(Fixtures.lootBody, Fixtures.lootHands)) shouldEqual true
     }
 
     "remove piece from bis set" in {
-      database ! impl.DatabaseBiSHandler.RemovePieceFromBiS(Fixtures.playerEmpty.playerId, Fixtures.lootBody)
-      expectMsg(timeout, 1)
+      val updateProbe = testKit.createTestProbe[Unit]()
+      database ! RemovePieceFromBiS(Fixtures.playerEmpty.playerId, Fixtures.lootBody, updateProbe.ref)
+      updateProbe.expectMessage(askTimeout, ())
 
-      database ! impl.DatabaseBiSHandler.GetBiS(Fixtures.playerEmpty.partyId, None)
-      expectMsgPF(timeout) {
-        case party: Seq[_] if partyBiSCompare(party, Seq(Fixtures.lootHands)) => ()
-      }
+      val probe = testKit.createTestProbe[Seq[Player]]()
+      database ! GetBiS(Fixtures.playerEmpty.partyId, None, probe.ref)
+
+      val party = probe.expectMessageType[Seq[Player]](askTimeout)
+      partyBiSCompare(party, Seq(Fixtures.lootHands)) shouldEqual true
     }
 
     "update piece in bis set" in {
+      val updateProbe = testKit.createTestProbe[Unit]()
       val newPiece = Hands(pieceType = PieceType.Savage, Job.DNC)
 
-      database ! impl.DatabaseBiSHandler.AddPieceToBis(Fixtures.playerEmpty.playerId, newPiece)
-      expectMsg(timeout, 1)
+      database ! AddPieceToBis(Fixtures.playerEmpty.playerId, newPiece, updateProbe.ref)
+      updateProbe.expectMessage(askTimeout, ())
 
-      database ! impl.DatabaseBiSHandler.GetBiS(Fixtures.playerEmpty.partyId, None)
-      expectMsgPF(timeout) {
-        case party: Seq[_] if partyBiSCompare(party, Seq(Fixtures.lootHands, newPiece)) => ()
-      }
+      val probe = testKit.createTestProbe[Seq[Player]]()
+      database ! GetBiS(Fixtures.playerEmpty.partyId, None, probe.ref)
+
+      val party = probe.expectMessageType[Seq[Player]](askTimeout)
+      partyBiSCompare(party, Seq(Fixtures.lootHands, newPiece)) shouldEqual true
     }
 
   }

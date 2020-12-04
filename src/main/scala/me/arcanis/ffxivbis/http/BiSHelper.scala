@@ -8,37 +8,37 @@
  */
 package me.arcanis.ffxivbis.http
 
-import akka.actor.ActorRef
-import akka.pattern.ask
+import akka.actor.typed.scaladsl.AskPattern.Askable
+import akka.actor.typed.{ActorRef, Scheduler}
 import akka.util.Timeout
 import me.arcanis.ffxivbis.http.api.v1.json.ApiAction
+import me.arcanis.ffxivbis.messages.{AddPieceToBis, GetBiS, Message, RemovePieceFromBiS, RemovePiecesFromBiS}
 import me.arcanis.ffxivbis.models.{Piece, Player, PlayerId}
-import me.arcanis.ffxivbis.service.impl.DatabaseBiSHandler
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait BiSHelper extends BisProviderHelper {
 
-  def storage: ActorRef
+  def storage: ActorRef[Message]
 
   def addPieceBiS(playerId: PlayerId, piece: Piece)
-                 (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
-    (storage ? DatabaseBiSHandler.AddPieceToBis(playerId, piece.withJob(playerId.job))).mapTo[Int]
+                 (implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
+    storage.ask(AddPieceToBis(playerId, piece.withJob(playerId.job), _))
 
   def bis(partyId: String, playerId: Option[PlayerId])
-         (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Seq[Player]] =
-    (storage ? DatabaseBiSHandler.GetBiS(partyId, playerId)).mapTo[Seq[Player]]
+         (implicit timeout: Timeout, scheduler: Scheduler): Future[Seq[Player]] =
+    storage.ask(GetBiS(partyId, playerId, _))
 
   def doModifyBiS(action: ApiAction.Value, playerId: PlayerId, piece: Piece)
-                 (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
+                 (implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
     action match {
       case ApiAction.add => addPieceBiS(playerId, piece)
       case ApiAction.remove => removePieceBiS(playerId, piece)
     }
 
   def putBiS(playerId: PlayerId, link: String)
-            (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Unit] = {
-    (storage ? DatabaseBiSHandler.RemovePiecesFromBiS(playerId)).flatMap { _ =>
+            (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Unit] = {
+    storage.ask(RemovePiecesFromBiS(playerId, _)).flatMap { _ =>
       downloadBiS(link, playerId.job).flatMap { bis =>
         Future.traverse(bis.pieces)(addPieceBiS(playerId, _))
       }.map(_ => ())
@@ -46,7 +46,7 @@ trait BiSHelper extends BisProviderHelper {
   }
 
   def removePieceBiS(playerId: PlayerId, piece: Piece)
-                    (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
-    (storage ? DatabaseBiSHandler.RemovePieceFromBiS(playerId, piece)).mapTo[Int]
+                    (implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
+    storage.ask(RemovePieceFromBiS(playerId, piece, _))
 
 }

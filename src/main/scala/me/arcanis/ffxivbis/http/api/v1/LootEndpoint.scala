@@ -8,7 +8,7 @@
  */
 package me.arcanis.ffxivbis.http.api.v1
 
-import akka.actor.ActorRef
+import akka.actor.typed.{ActorRef, Scheduler}
 import akka.http.scaladsl.model.{HttpEntity, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
@@ -22,12 +22,14 @@ import io.swagger.v3.oas.annotations.{Operation, Parameter}
 import javax.ws.rs._
 import me.arcanis.ffxivbis.http.api.v1.json._
 import me.arcanis.ffxivbis.http.{Authorization, LootHelper}
+import me.arcanis.ffxivbis.messages.Message
 import me.arcanis.ffxivbis.models.PlayerId
 
 import scala.util.{Failure, Success}
 
 @Path("api/v1")
-class LootEndpoint(override val storage: ActorRef)(implicit timeout: Timeout)
+class LootEndpoint(override val storage: ActorRef[Message])
+                  (implicit timeout: Timeout, scheduler: Scheduler)
   extends LootHelper with Authorization with JsonSupport with HttpHandler {
 
   def route: Route = getLoot ~ modifyLoot

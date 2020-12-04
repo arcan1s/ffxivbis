@@ -2,21 +2,21 @@ package me.arcanis.ffxivbis.http.api.v1
 
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import akka.http.scaladsl.server._
 import com.typesafe.config.Config
 import me.arcanis.ffxivbis.Settings
 import me.arcanis.ffxivbis.http.api.v1.json._
 import me.arcanis.ffxivbis.models.{Job, Party, Permission, Piece, PieceType}
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
 import scala.language.postfixOps
 
-class TypesEndpointTest extends WordSpec
+class TypesEndpointTest extends AnyWordSpecLike
   with Matchers with ScalatestRouteTest with JsonSupport {
 
-  private val route: Route = new TypesEndpoint(testConfig).route
+  override val testConfig: Config = Settings.withRandomDatabase
 
-  override def testConfig: Config = Settings.withRandomDatabase
+  private val route = new TypesEndpoint(testConfig).route
 
   "api v1 types endpoint" must {
 

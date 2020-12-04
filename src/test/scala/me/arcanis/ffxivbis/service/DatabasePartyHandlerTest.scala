@@ -1,73 +1,80 @@
 package me.arcanis.ffxivbis.service
 
-import akka.actor.ActorSystem
-import akka.testkit.{ImplicitSender, TestKit}
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import me.arcanis.ffxivbis.messages.{AddPlayer, GetParty, GetPlayer, RemovePlayer}
 import me.arcanis.ffxivbis.{Fixtures, Settings}
 import me.arcanis.ffxivbis.models._
 import me.arcanis.ffxivbis.storage.Migration
 import me.arcanis.ffxivbis.utils.Compare
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.wordspec.AnyWordSpecLike
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class DatabasePartyHandlerTest
-  extends TestKit(ActorSystem("database-party-handler", Settings.withRandomDatabase))
-  with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
+class DatabasePartyHandlerTest extends ScalaTestWithActorTestKit(Settings.withRandomDatabase)
+  with AnyWordSpecLike {
 
-  private val database = system.actorOf(impl.DatabaseImpl.props)
-  private val timeout: FiniteDuration = 60 seconds
+  private val database = testKit.spawn(Database())
+  private val askTimeout = 60 seconds
 
   override def beforeAll: Unit = {
-    Await.result(Migration(system.settings.config), timeout)
+    Await.result(Migration(testKit.system.settings.config), askTimeout)
   }
 
   override def afterAll: Unit = {
-    TestKit.shutdownActorSystem(system)
-    Settings.clearDatabase(system.settings.config)
+    super.afterAll()
+    Settings.clearDatabase(testKit.system.settings.config)
   }
 
   "database party handler actor" must {
 
     "add player" in {
-      database ! impl.DatabasePartyHandler.AddPlayer(Fixtures.playerEmpty)
-      expectMsg(timeout, 1)
+      val probe = testKit.createTestProbe[Unit]()
+      database ! AddPlayer(Fixtures.playerEmpty, probe.ref)
+      probe.expectMessage(askTimeout, ())
     }
 
     "get party" in {
-      database ! impl.DatabasePartyHandler.GetParty(Fixtures.partyId)
-      expectMsgPF(timeout) {
-        case p: Party if Compare.seqEquals(p.getPlayers, Seq(Fixtures.playerEmpty)) => ()
-      }
+      val probe = testKit.createTestProbe[Party]()
+      database ! GetParty(Fixtures.partyId, probe.ref)
+
+      val party = probe.expectMessageType[Party](askTimeout)
+      Compare.seqEquals(party.getPlayers, Seq(Fixtures.playerEmpty)) shouldEqual true
     }
 
     "get player" in {
-      database ! impl.DatabasePartyHandler.GetPlayer(Fixtures.playerEmpty.playerId)
-      expectMsg(timeout, Some(Fixtures.playerEmpty))
+      val probe = testKit.createTestProbe[Option[Player]]()
+      database ! GetPlayer(Fixtures.playerEmpty.playerId, probe.ref)
+      probe.expectMessage(askTimeout, Some(Fixtures.playerEmpty))
     }
 
     "update player" in {
+      val updateProbe = testKit.createTestProbe[Unit]()
       val newPlayer = Fixtures.playerEmpty.copy(priority = 2)
 
-      database ! impl.DatabasePartyHandler.AddPlayer(newPlayer)
-      expectMsg(timeout, 1)
+      database ! AddPlayer(newPlayer, updateProbe.ref)
+      updateProbe.expectMessage(askTimeout, ())
 
-      database ! impl.DatabasePartyHandler.GetPlayer(newPlayer.playerId)
-      expectMsg(timeout, Some(newPlayer))
+      val probe = testKit.createTestProbe[Option[Player]]()
+      database ! GetPlayer(newPlayer.playerId, probe.ref)
+      probe.expectMessage(askTimeout, Some(newPlayer))
 
-      database ! impl.DatabasePartyHandler.GetParty(Fixtures.partyId)
-      expectMsgPF(timeout) {
-        case p: Party if Compare.seqEquals(p.getPlayers, Seq(newPlayer)) => ()
-      }
+      val partyProbe = testKit.createTestProbe[Party]()
+      database ! GetParty(Fixtures.partyId, partyProbe.ref)
+
+      val party = partyProbe.expectMessageType[Party](askTimeout)
+      Compare.seqEquals(party.getPlayers, Seq(newPlayer)) shouldEqual true
     }
 
     "remove player" in {
-      database ! impl.DatabasePartyHandler.RemovePlayer(Fixtures.playerEmpty.playerId)
-      expectMsg(timeout, 1)
+      val updateProbe = testKit.createTestProbe[Unit]()
+      database ! RemovePlayer(Fixtures.playerEmpty.playerId, updateProbe.ref)
+      updateProbe.expectMessage(askTimeout, ())
 
-      database ! impl.DatabasePartyHandler.GetPlayer(Fixtures.playerEmpty.playerId)
-      expectMsg(timeout, None)
+      val probe = testKit.createTestProbe[Option[Player]]()
+      database ! GetPlayer(Fixtures.playerEmpty.playerId, probe.ref)
+      probe.expectMessage(askTimeout, None)
     }
 
   }

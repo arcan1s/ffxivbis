@@ -10,26 +10,33 @@ package me.arcanis.ffxivbis.service.bis
 
 import java.nio.file.Paths
 
-import akka.actor.{Actor, Props}
+import akka.actor.ClassicActorSystemProvider
+import akka.actor.typed.{Behavior, PostStop, Signal}
+import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.http.scaladsl.model._
-import akka.pattern.pipe
 import com.typesafe.scalalogging.StrictLogging
+import me.arcanis.ffxivbis.messages.{BiSProviderMessage, DownloadBiS}
 import me.arcanis.ffxivbis.models.{BiS, Job, Piece, PieceType}
 import spray.json._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class BisProvider extends Actor with XivApi with StrictLogging {
+class BisProvider(context: ActorContext[BiSProviderMessage])
+  extends AbstractBehavior[BiSProviderMessage](context) with XivApi with StrictLogging {
 
-  override def receive: Receive = {
-    case BisProvider.GetBiS(link, job) =>
-      val client = sender()
-      get(link, job).map(BiS(_)).pipeTo(client)
-  }
+  override def system: ClassicActorSystemProvider = context.system
 
-  override def postStop(): Unit = {
-    shutdown()
-    super.postStop()
+  override def onMessage(msg: BiSProviderMessage): Behavior[BiSProviderMessage] =
+    msg match {
+      case DownloadBiS(link, job, client) =>
+        get(link, job).map(BiS(_)).foreach(client ! _)
+        Behaviors.same
+    }
+
+  override def onSignal: PartialFunction[Signal, Behavior[BiSProviderMessage]] = {
+    case PostStop =>
+      shutdown()
+      Behaviors.same
   }
 
   private def get(link: String, job: Job.Job): Future[Seq[Piece]] = {
@@ -49,9 +56,8 @@ class BisProvider extends Actor with XivApi with StrictLogging {
 
 object BisProvider {
 
-  def props: Props = Props(new BisProvider)
-
-  case class GetBiS(link: String, job: Job.Job)
+  def apply(): Behavior[BiSProviderMessage] =
+    Behaviors.setup[BiSProviderMessage](context => new BisProvider(context))
 
   private def parseBisJsonToPieces(job: Job.Job,
                                    idParser: (Job.Job, JsObject) => Future[Map[String, Long]],

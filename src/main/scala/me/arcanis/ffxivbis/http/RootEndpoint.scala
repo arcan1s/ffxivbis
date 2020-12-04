@@ -10,25 +10,29 @@ package me.arcanis.ffxivbis.http
 
 import java.time.Instant
 
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.typed.{ActorRef, ActorSystem, Scheduler}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.util.Timeout
 import com.typesafe.scalalogging.{Logger, StrictLogging}
 import me.arcanis.ffxivbis.http.api.v1.RootApiV1Endpoint
 import me.arcanis.ffxivbis.http.view.RootView
+import me.arcanis.ffxivbis.messages.{BiSProviderMessage, Message}
 
-class RootEndpoint(system: ActorSystem, storage: ActorRef, ariyala: ActorRef)
+class RootEndpoint(system: ActorSystem[Nothing],
+                   storage: ActorRef[Message],
+                   provider: ActorRef[BiSProviderMessage])
   extends StrictLogging {
   import me.arcanis.ffxivbis.utils.Implicits._
 
   private val config = system.settings.config
 
+  implicit val scheduler: Scheduler = system.scheduler
   implicit val timeout: Timeout =
     config.getDuration("me.arcanis.ffxivbis.settings.request-timeout")
 
-  private val rootApiV1Endpoint: RootApiV1Endpoint = new RootApiV1Endpoint(storage, ariyala, config)
-  private val rootView: RootView = new RootView(storage, ariyala)
+  private val rootApiV1Endpoint: RootApiV1Endpoint = new RootApiV1Endpoint(storage, provider, config)
+  private val rootView: RootView = new RootView(storage, provider)
   private val swagger: Swagger = new Swagger(config)
   private val httpLogger = Logger("http")
 

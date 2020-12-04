@@ -12,6 +12,7 @@ import scalatags.Text
 import scalatags.Text.all._
 
 object ExportToCSVView {
+
   def template: Text.TypedTag[String] =
     div(
       button(onclick:="exportTableToCsv('result.csv')")("Export to CSV"),

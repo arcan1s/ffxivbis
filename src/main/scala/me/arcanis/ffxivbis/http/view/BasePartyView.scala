@@ -8,16 +8,19 @@
  */
 package me.arcanis.ffxivbis.http.view
 
-import akka.actor.ActorRef
+import akka.actor.typed.{ActorRef, Scheduler}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.util.Timeout
 import me.arcanis.ffxivbis.http.{Authorization, PlayerHelper}
+import me.arcanis.ffxivbis.messages.{BiSProviderMessage, Message}
 
 import scala.util.{Failure, Success}
 
-class BasePartyView(override val storage: ActorRef, override val ariyala: ActorRef)(implicit timeout: Timeout)
+class BasePartyView(override val storage: ActorRef[Message],
+                    override val provider: ActorRef[BiSProviderMessage])
+                   (implicit timeout: Timeout, scheduler: Scheduler)
   extends PlayerHelper with Authorization {
 
   def route: Route = getIndex

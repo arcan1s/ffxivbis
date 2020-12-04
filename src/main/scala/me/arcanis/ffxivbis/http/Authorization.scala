@@ -8,22 +8,22 @@
  */
 package me.arcanis.ffxivbis.http
 
-import akka.actor.ActorRef
+import akka.actor.typed.scaladsl.AskPattern.Askable
+import akka.actor.typed.{ActorRef, Scheduler}
 import akka.http.scaladsl.model.headers._
 import akka.http.scaladsl.server.AuthenticationFailedRejection._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
-import akka.pattern.ask
 import akka.util.Timeout
-import me.arcanis.ffxivbis.models.{Permission, User}
-import me.arcanis.ffxivbis.service.impl.DatabaseUserHandler
+import me.arcanis.ffxivbis.messages.{GetUser, Message}
+import me.arcanis.ffxivbis.models.Permission
 
 import scala.concurrent.{ExecutionContext, Future}
 
 // idea comes from https://synkre.com/bcrypt-for-akka-http-password-encryption/
 trait Authorization {
 
-  def storage: ActorRef
+  def storage: ActorRef[Message]
 
   def authenticateBasicBCrypt[T](realm: String,
                                  authenticate: (String, String) => Future[Option[T]]): Directive1[T] = {
@@ -40,21 +40,21 @@ trait Authorization {
   }
 
   def authenticator(scope: Permission.Value, partyId: String)(username: String, password: String)
-                   (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Option[String]] =
-    (storage ? DatabaseUserHandler.GetUser(partyId, username)).mapTo[Option[User]].map {
+                   (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Option[String]] =
+    storage.ask(GetUser(partyId, username, _)).map {
       case Some(user) if user.verify(password) && user.verityScope(scope) => Some(username)
       case _ => None
     }
 
   def authAdmin(partyId: String)(username: String, password: String)
-               (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Option[String]] =
+               (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Option[String]] =
     authenticator(Permission.admin, partyId)(username, password)
 
   def authGet(partyId: String)(username: String, password: String)
-             (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Option[String]] =
+             (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Option[String]] =
     authenticator(Permission.get, partyId)(username, password)
 
   def authPost(partyId: String)(username: String, password: String)
-              (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Option[String]] =
+              (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Option[String]] =
     authenticator(Permission.post, partyId)(username, password)
 }

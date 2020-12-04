@@ -26,14 +26,15 @@ object Job {
   object BodyTanks extends LeftSide
   object BodyRanges extends LeftSide
 
-  sealed trait Job {
+  sealed trait Job extends Equals {
 
     def leftSide: LeftSide
     def rightSide: RightSide
 
     // conversion to string to avoid recursion
+    override def canEqual(that: Any): Boolean = that.isInstanceOf[Job]
+
     override def equals(obj: Any): Boolean = {
-      def canEqual(obj: Any): Boolean = obj.isInstanceOf[Job]
       def equality(objRepr: String): Boolean = objRepr match {
         case _ if objRepr == AnyJob.toString => true
         case _ if this.toString == AnyJob.toString => true

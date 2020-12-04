@@ -8,35 +8,34 @@
  */
 package me.arcanis.ffxivbis.http
 
-import akka.actor.ActorRef
-import akka.pattern.ask
+import akka.actor.typed.scaladsl.AskPattern.Askable
+import akka.actor.typed.{ActorRef, Scheduler}
 import akka.util.Timeout
+import me.arcanis.ffxivbis.messages.{AddUser, DeleteUser, GetNewPartyId, GetUser, GetUsers, Message}
 import me.arcanis.ffxivbis.models.User
-import me.arcanis.ffxivbis.service.PartyService
-import me.arcanis.ffxivbis.service.impl.DatabaseUserHandler
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 trait UserHelper {
 
-  def storage: ActorRef
+  def storage: ActorRef[Message]
 
   def addUser(user: User, isHashedPassword: Boolean)
-             (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
-    (storage ? DatabaseUserHandler.AddUser(user, isHashedPassword)).mapTo[Int]
+             (implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
+    storage.ask(AddUser(user, isHashedPassword, _))
 
-  def newPartyId(implicit executionContext: ExecutionContext, timeout: Timeout): Future[String] =
-    (storage ? PartyService.GetNewPartyId).mapTo[String]
+  def newPartyId(implicit timeout: Timeout, scheduler: Scheduler): Future[String] =
+    storage.ask(GetNewPartyId)
 
   def user(partyId: String, username: String)
-          (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Option[User]] =
-    (storage ? DatabaseUserHandler.GetUser(partyId, username)).mapTo[Option[User]]
+          (implicit timeout: Timeout, scheduler: Scheduler): Future[Option[User]] =
+    storage.ask(GetUser(partyId, username, _))
 
   def users(partyId: String)
-           (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Seq[User]] =
-    (storage ? DatabaseUserHandler.GetUsers(partyId)).mapTo[Seq[User]]
+           (implicit timeout: Timeout, scheduler: Scheduler): Future[Seq[User]] =
+    storage.ask(GetUsers(partyId, _))
 
   def removeUser(partyId: String, username: String)
-                (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
-    (storage ? DatabaseUserHandler.DeleteUser(partyId, username)).mapTo[Int]
+                (implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
+    storage.ask(DeleteUser(partyId, username, _))
 }

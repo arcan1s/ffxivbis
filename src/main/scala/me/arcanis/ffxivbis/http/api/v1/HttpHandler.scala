@@ -31,7 +31,7 @@ trait HttpHandler extends StrictLogging { this: JsonSupport =>
       .mapRejectionResponse {
         case response @ HttpResponse(_, _, entity: HttpEntity.Strict, _) =>
           val message = ErrorResponse(entity.data.utf8String).toJson
-          response.copy(entity = HttpEntity(ContentTypes.`application/json`, message.compactPrint))
+          response.withEntity(HttpEntity(ContentTypes.`application/json`, message.compactPrint))
         case other => other
       }
 }

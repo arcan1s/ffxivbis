@@ -8,21 +8,23 @@
  */
 package me.arcanis.ffxivbis.http.api.v1
 
-import akka.actor.ActorRef
+import akka.actor.typed.{ActorRef, Scheduler}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
 import com.typesafe.config.Config
 import me.arcanis.ffxivbis.http.api.v1.json.JsonSupport
+import me.arcanis.ffxivbis.messages.{BiSProviderMessage, Message}
 
-class RootApiV1Endpoint(storage: ActorRef, ariyala: ActorRef, config: Config)
-                       (implicit timeout: Timeout)
+class RootApiV1Endpoint(storage: ActorRef[Message],
+                        provider: ActorRef[BiSProviderMessage],
+                        config: Config)(implicit timeout: Timeout, scheduler: Scheduler)
   extends JsonSupport with HttpHandler {
 
-  private val biSEndpoint = new BiSEndpoint(storage, ariyala)
+  private val biSEndpoint = new BiSEndpoint(storage, provider)
   private val lootEndpoint = new LootEndpoint(storage)
-  private val partyEndpoint = new PartyEndpoint(storage, ariyala)
-  private val playerEndpoint = new PlayerEndpoint(storage, ariyala)
+  private val partyEndpoint = new PartyEndpoint(storage, provider)
+  private val playerEndpoint = new PlayerEndpoint(storage, provider)
   private val typesEndpoint = new TypesEndpoint(config)
   private val userEndpoint = new UserEndpoint(storage)
 

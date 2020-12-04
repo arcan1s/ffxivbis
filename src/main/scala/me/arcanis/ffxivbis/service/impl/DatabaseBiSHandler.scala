@@ -8,43 +8,30 @@
  */
 package me.arcanis.ffxivbis.service.impl
 
-import akka.pattern.pipe
-import me.arcanis.ffxivbis.models.{Piece, PlayerId}
+import akka.actor.typed.scaladsl.Behaviors
+import me.arcanis.ffxivbis.messages.{AddPieceToBis, DatabaseMessage, GetBiS, RemovePieceFromBiS, RemovePiecesFromBiS}
 import me.arcanis.ffxivbis.service.Database
 
 trait DatabaseBiSHandler { this: Database  =>
-  import DatabaseBiSHandler._
 
-  def bisHandler: Receive = {
-    case AddPieceToBis(playerId, piece) =>
-      val client = sender()
-      profile.insertPieceBiS(playerId, piece).pipeTo(client)
+  def bisHandler: DatabaseMessage.Handler = {
+    case AddPieceToBis(playerId, piece, client) =>
+      profile.insertPieceBiS(playerId, piece).foreach(_ => client ! ())
+      Behaviors.same
 
-    case GetBiS(partyId, maybePlayerId) =>
-      val client = sender()
+    case GetBiS(partyId, maybePlayerId, client) =>
       getParty(partyId, withBiS = true, withLoot = false)
         .map(filterParty(_, maybePlayerId))
-        .pipeTo(client)
+        .foreach(client ! _)
+       Behaviors.same
 
-    case RemovePieceFromBiS(playerId, piece) =>
-      val client = sender()
-      profile.deletePieceBiS(playerId, piece).pipeTo(client)
+    case RemovePieceFromBiS(playerId, piece, client) =>
+      profile.deletePieceBiS(playerId, piece).foreach(_ => client ! ())
+      Behaviors.same
 
-    case RemovePiecesFromBiS(playerId) =>
-      val client = sender()
-      profile.deletePiecesBiS(playerId).pipeTo(client)
+    case RemovePiecesFromBiS(playerId, client) =>
+      profile.deletePiecesBiS(playerId).foreach(_ => client ! ())
+      Behaviors.same
   }
 }
 
-object DatabaseBiSHandler {
-  case class AddPieceToBis(playerId: PlayerId, piece: Piece) extends Database.DatabaseRequest {
-    override def partyId: String = playerId.partyId
-  }
-  case class GetBiS(partyId: String, playerId: Option[PlayerId]) extends Database.DatabaseRequest
-  case class RemovePieceFromBiS(playerId: PlayerId, piece: Piece) extends Database.DatabaseRequest {
-    override def partyId: String = playerId.partyId
-  }
-  case class RemovePiecesFromBiS(playerId: PlayerId) extends Database.DatabaseRequest {
-    override def partyId: String = playerId.partyId
-  }
-}

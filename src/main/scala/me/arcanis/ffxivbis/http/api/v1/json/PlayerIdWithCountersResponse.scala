@@ -23,6 +23,7 @@ case class PlayerIdWithCountersResponse(
   @Schema(description = "total count of looted pieces", required = true) lootCountTotal: Int)
 
 object PlayerIdWithCountersResponse {
+
   def fromPlayerId(playerIdWithCounters: PlayerIdWithCounters): PlayerIdWithCountersResponse =
     PlayerIdWithCountersResponse(
       playerIdWithCounters.partyId,

@@ -14,10 +14,12 @@ import me.arcanis.ffxivbis.models.PartyDescription
 case class PartyDescriptionResponse(
   @Schema(description = "party id", required = true) partyId: String,
   @Schema(description = "party name") partyAlias: Option[String]) {
+
   def toDescription: PartyDescription = PartyDescription(partyId, partyAlias)
 }
 
 object PartyDescriptionResponse {
+
   def fromDescription(description: PartyDescription): PartyDescriptionResponse =
     PartyDescriptionResponse(description.partyId, description.partyAlias)
 }

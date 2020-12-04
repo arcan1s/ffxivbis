@@ -1,83 +1,89 @@
 package me.arcanis.ffxivbis.service
 
-import akka.actor.ActorSystem
-import akka.pattern.ask
-import akka.testkit.{ImplicitSender, TestKit}
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import akka.actor.typed.scaladsl.AskPattern.Askable
+import me.arcanis.ffxivbis.messages.{AddPieceTo, AddPlayer, GetLoot, RemovePieceFrom}
 import me.arcanis.ffxivbis.{Fixtures, Settings}
 import me.arcanis.ffxivbis.models._
 import me.arcanis.ffxivbis.storage.Migration
 import me.arcanis.ffxivbis.utils.Compare
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.wordspec.AnyWordSpecLike
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class DatabaseLootHandlerTest
-  extends TestKit(ActorSystem("database-loot-handler", Settings.withRandomDatabase))
-    with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
+class DatabaseLootHandlerTest extends ScalaTestWithActorTestKit(Settings.withRandomDatabase)
+  with AnyWordSpecLike {
 
-  private val database = system.actorOf(impl.DatabaseImpl.props)
-  private val timeout: FiniteDuration = 60 seconds
+  private val database = testKit.spawn(Database())
+  private val askTimeout = 60 seconds
 
   override def beforeAll: Unit = {
-    Await.result(Migration(system.settings.config), timeout)
-    Await.result((database ? impl.DatabasePartyHandler.AddPlayer(Fixtures.playerEmpty))(timeout).mapTo[Int], timeout)
+    Await.result(Migration(testKit.system.settings.config), askTimeout)
+    Await.result(database.ask(AddPlayer(Fixtures.playerEmpty, _))(askTimeout, testKit.scheduler), askTimeout)
   }
 
   override def afterAll: Unit = {
-    TestKit.shutdownActorSystem(system)
-    Settings.clearDatabase(system.settings.config)
+    super.afterAll()
+    Settings.clearDatabase(testKit.system.settings.config)
   }
 
   "database loot handler actor" must {
 
     "add loot" in {
+      val probe = testKit.createTestProbe[Unit]()
       Fixtures.loot.foreach { piece =>
-        database ! impl.DatabaseLootHandler.AddPieceTo(Fixtures.playerEmpty.playerId, piece, isFreeLoot = false)
-        expectMsg(timeout, 1)
+        database ! AddPieceTo(Fixtures.playerEmpty.playerId, piece, isFreeLoot = false, probe.ref)
+        probe.expectMessage(askTimeout, ())
       }
     }
 
     "get party loot" in {
-      database ! impl.DatabaseLootHandler.GetLoot(Fixtures.playerEmpty.partyId, None)
-      expectMsgPF(timeout) {
-        case party: Seq[_] if partyLootCompare(party, Fixtures.loot) => ()
-      }
+      val probe = testKit.createTestProbe[Seq[Player]]()
+      database ! GetLoot(Fixtures.playerEmpty.partyId, None, probe.ref)
+
+      val party = probe.expectMessageType[Seq[Player]](askTimeout)
+      partyLootCompare(party, Fixtures.loot) shouldEqual true
     }
 
     "get loot" in {
-      database ! impl.DatabaseLootHandler.GetLoot(Fixtures.playerEmpty.partyId, Some(Fixtures.playerEmpty.playerId))
-      expectMsgPF(timeout) {
-        case party: Seq[_] if partyLootCompare(party, Fixtures.loot) => ()
-      }
+      val probe = testKit.createTestProbe[Seq[Player]]()
+      database ! GetLoot(Fixtures.playerEmpty.partyId, Some(Fixtures.playerEmpty.playerId), probe.ref)
+
+      val party = probe.expectMessageType[Seq[Player]](askTimeout)
+      partyLootCompare(party, Fixtures.loot) shouldEqual true
     }
 
     "remove loot" in {
-      database ! impl.DatabaseLootHandler.RemovePieceFrom(Fixtures.playerEmpty.playerId, Fixtures.lootBody)
-      expectMsg(timeout, 1)
+      val updateProbe = testKit.createTestProbe[Unit]()
+      database ! RemovePieceFrom(Fixtures.playerEmpty.playerId, Fixtures.lootBody, updateProbe.ref)
+      updateProbe.expectMessage(askTimeout, ())
 
       val newLoot = Fixtures.loot.filterNot(_ == Fixtures.lootBody)
 
-      database ! impl.DatabaseLootHandler.GetLoot(Fixtures.playerEmpty.partyId, None)
-      expectMsgPF(timeout) {
-        case party: Seq[_] if partyLootCompare(party, newLoot) => ()
-      }
+      val probe = testKit.createTestProbe[Seq[Player]]()
+      database ! GetLoot(Fixtures.playerEmpty.partyId, None, probe.ref)
+
+      val party = probe.expectMessageType[Seq[Player]](askTimeout)
+      partyLootCompare(party, newLoot) shouldEqual true
     }
 
     "add same loot" in {
-      database ! impl.DatabaseLootHandler.AddPieceTo(Fixtures.playerEmpty.playerId, Fixtures.lootBody, isFreeLoot = false)
-      expectMsg(timeout, 1)
+      val updateProbe = testKit.createTestProbe[Unit]()
+      database ! AddPieceTo(Fixtures.playerEmpty.playerId, Fixtures.lootBody, isFreeLoot = false, updateProbe.ref)
+      updateProbe.expectMessage(askTimeout, ())
 
       Fixtures.loot.foreach { piece =>
-        database ! impl.DatabaseLootHandler.AddPieceTo(Fixtures.playerEmpty.playerId, piece, isFreeLoot = false)
-        expectMsg(timeout, 1)
+        database ! AddPieceTo(Fixtures.playerEmpty.playerId, piece, isFreeLoot = false, updateProbe.ref)
+        updateProbe.expectMessage(askTimeout, ())
       }
 
-      database ! impl.DatabaseLootHandler.GetLoot(Fixtures.playerEmpty.partyId, None)
-      expectMsgPF(timeout) {
-        case party: Seq[_] if partyLootCompare(party, Fixtures.loot ++ Fixtures.loot) => ()
-      }
+      val probe = testKit.createTestProbe[Seq[Player]]()
+      database ! GetLoot(Fixtures.playerEmpty.partyId, None, probe.ref)
+
+      val party = probe.expectMessageType[Seq[Player]](askTimeout)
+      partyLootCompare(party, Fixtures.loot ++ Fixtures.loot) shouldEqual true
     }
 
   }

@@ -10,42 +10,33 @@ package me.arcanis.ffxivbis.service.impl
 
 import java.time.Instant
 
-import akka.pattern.pipe
-import me.arcanis.ffxivbis.models.{Loot, Piece, PlayerId}
+import akka.actor.typed.scaladsl.Behaviors
+import me.arcanis.ffxivbis.messages.{AddPieceTo, DatabaseMessage, GetLoot, RemovePieceFrom, SuggestLoot}
+import me.arcanis.ffxivbis.models.Loot
 import me.arcanis.ffxivbis.service.Database
 
 trait DatabaseLootHandler { this: Database =>
-  import DatabaseLootHandler._
 
-  def lootHandler: Receive = {
-    case AddPieceTo(playerId, piece, isFreeLoot) =>
-      val client = sender()
+  def lootHandler: DatabaseMessage.Handler = {
+    case AddPieceTo(playerId, piece, isFreeLoot, client) =>
       val loot = Loot(-1, piece, Instant.now, isFreeLoot)
-      profile.insertPiece(playerId, loot).pipeTo(client)
+      profile.insertPiece(playerId, loot).foreach(_ => client ! ())
+      Behaviors.same
 
-    case GetLoot(partyId, maybePlayerId) =>
-      val client = sender()
+    case GetLoot(partyId, maybePlayerId, client) =>
       getParty(partyId, withBiS = false, withLoot = true)
         .map(filterParty(_, maybePlayerId))
-        .pipeTo(client)
+        .foreach(client ! _)
+      Behaviors.same
 
-    case RemovePieceFrom(playerId, piece) =>
-      val client = sender()
-      profile.deletePiece(playerId, piece).pipeTo(client)
+    case RemovePieceFrom(playerId, piece, client) =>
+      profile.deletePiece(playerId, piece).foreach(_ => client ! ())
+      Behaviors.same
 
-    case SuggestLoot(partyId, piece) =>
-      val client = sender()
-      getParty(partyId, withBiS = true, withLoot = true).map(_.suggestLoot(piece)).pipeTo(client)
+    case SuggestLoot(partyId, piece, client) =>
+      getParty(partyId, withBiS = true, withLoot = true)
+        .map(_.suggestLoot(piece))
+        .foreach(client ! _)
+      Behaviors.same
   }
-}
-
-object DatabaseLootHandler {
-  case class AddPieceTo(playerId: PlayerId, piece: Piece, isFreeLoot: Boolean) extends Database.DatabaseRequest {
-    override def partyId: String = playerId.partyId
-  }
-  case class GetLoot(partyId: String, playerId: Option[PlayerId]) extends Database.DatabaseRequest
-  case class RemovePieceFrom(playerId: PlayerId, piece: Piece) extends Database.DatabaseRequest {
-    override def partyId: String = playerId.partyId
-  }
-  case class SuggestLoot(partyId: String, piece: Piece) extends Database.DatabaseRequest
 }

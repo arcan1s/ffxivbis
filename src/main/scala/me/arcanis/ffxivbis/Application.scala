@@ -8,46 +8,53 @@
  */
 package me.arcanis.ffxivbis
 
-import akka.actor.{Actor, Props}
+import akka.actor.typed.{Behavior, PostStop, Signal}
+import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.http.scaladsl.Http
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import com.typesafe.scalalogging.StrictLogging
 import me.arcanis.ffxivbis.http.RootEndpoint
 import me.arcanis.ffxivbis.service.bis.BisProvider
-import me.arcanis.ffxivbis.service.impl.DatabaseImpl
-import me.arcanis.ffxivbis.service.PartyService
+import me.arcanis.ffxivbis.service.{Database, PartyService}
 import me.arcanis.ffxivbis.storage.Migration
 
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext}
-import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext
 
-class Application extends Actor with StrictLogging {
-  implicit private val executionContext: ExecutionContext = context.system.dispatcher
-  implicit private val materializer: ActorMaterializer = ActorMaterializer()
+class Application(context: ActorContext[Nothing])
+  extends AbstractBehavior[Nothing](context) with StrictLogging {
 
-  private val config = context.system.settings.config
-  private val host = config.getString("me.arcanis.ffxivbis.web.host")
-  private val port = config.getInt("me.arcanis.ffxivbis.web.port")
+  logger.info("root supervisor started")
+  startApplication()
 
-  override def receive: Receive = Actor.emptyBehavior
+  override def onMessage(msg: Nothing): Behavior[Nothing] = Behaviors.unhandled
 
-  Migration(config).onComplete {
-    case Success(_) =>
-      val bisProvider = context.system.actorOf(BisProvider.props, "bis-provider")
-      val storage = context.system.actorOf(DatabaseImpl.props, "storage")
-      val party = context.system.actorOf(PartyService.props(storage), "party")
-      val http = new RootEndpoint(context.system, party, bisProvider)
+  override def onSignal: PartialFunction[Signal, Behavior[Nothing]] = {
+    case PostStop =>
+      logger.info("root supervisor stopped")
+      Behaviors.same
+  }
 
-      logger.info(s"start server at $host:$port")
-      val bind = Http()(context.system).bindAndHandle(http.route, host, port)
-      Await.result(context.system.whenTerminated, Duration.Inf)
-      bind.foreach(_.unbind())
+  private def startApplication(): Unit = {
+    val config = context.system.settings.config
+    val host = config.getString("me.arcanis.ffxivbis.web.host")
+    val port = config.getInt("me.arcanis.ffxivbis.web.port")
 
-    case Failure(exception) => throw exception
+    implicit val executionContext: ExecutionContext = context.system.executionContext
+    implicit val materializer: Materializer = Materializer(context)
+
+    Migration(config)
+
+    val bisProvider = context.spawn(BisProvider(), "bis-provider")
+    val storage = context.spawn(Database(), "storage")
+    val party = context.spawn(PartyService(storage), "party")
+    val http = new RootEndpoint(context.system, party, bisProvider)
+
+    Http()(context.system).newServerAt(host, port).bindFlow(http.route)
   }
 }
 
 object Application {
-  def props: Props = Props(new Application)
+
+  def apply(): Behavior[Nothing] =
+    Behaviors.setup[Nothing](context => new Application(context))
 }

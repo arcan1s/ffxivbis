@@ -8,24 +8,29 @@
  */
 package me.arcanis.ffxivbis.service.impl
 
-import akka.actor.Props
+import akka.actor.typed.{Behavior, DispatcherSelector}
+import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext}
+import com.typesafe.config.Config
+import me.arcanis.ffxivbis.messages.DatabaseMessage
 import me.arcanis.ffxivbis.service.Database
 import me.arcanis.ffxivbis.storage.DatabaseProfile
 
 import scala.concurrent.ExecutionContext
 
-class DatabaseImpl extends Database
+class DatabaseImpl(context: ActorContext[DatabaseMessage])
+  extends AbstractBehavior[DatabaseMessage](context) with Database
   with DatabaseBiSHandler with DatabaseLootHandler
   with DatabasePartyHandler with DatabaseUserHandler {
 
-  implicit val executionContext: ExecutionContext =
-    context.system.dispatchers.lookup("me.arcanis.ffxivbis.default-dispatcher")
-  val profile = new DatabaseProfile(executionContext, context.system.settings.config)
+  override implicit val executionContext: ExecutionContext = {
+    val selector = DispatcherSelector.fromConfig("me.arcanis.ffxivbis.default-dispatcher")
+    context.system.dispatchers.lookup(selector)
+  }
+  override val config: Config = context.system.settings.config
+  override val profile: DatabaseProfile = new DatabaseProfile(executionContext, config)
 
-  override def receive: Receive =
+  override def onMessage(msg: DatabaseMessage): Behavior[DatabaseMessage] = handle(msg)
+
+  private def handle: DatabaseMessage.Handler =
     bisHandler orElse lootHandler orElse partyHandler orElse userHandler
-}
-
-object DatabaseImpl {
-  def props: Props = Props(new DatabaseImpl)
 }
