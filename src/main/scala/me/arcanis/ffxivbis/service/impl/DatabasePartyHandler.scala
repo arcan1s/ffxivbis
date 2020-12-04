@@ -19,7 +19,7 @@ trait DatabasePartyHandler { this: Database  =>
 
   def partyHandler: DatabaseMessage.Handler = {
     case AddPlayer(player, client) =>
-      profile.insertPlayer(player).foreach(_ => client ! _)
+      profile.insertPlayer(player).foreach(_ => client ! ())
       Behaviors.same
 
     case GetParty(partyId, client) =>
