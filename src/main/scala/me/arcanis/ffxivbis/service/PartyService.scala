@@ -8,57 +8,65 @@
  */
 package me.arcanis.ffxivbis.service
 
-import akka.actor.{Actor, ActorRef, Props}
-import akka.pattern.{ask, pipe}
+import akka.actor.typed.scaladsl.AskPattern.Askable
+import akka.actor.typed.{ActorRef, Behavior, DispatcherSelector, Scheduler}
+import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.util.Timeout
 import com.typesafe.scalalogging.StrictLogging
+import me.arcanis.ffxivbis.messages.{DatabaseMessage, Exists, ForgetParty, GetNewPartyId, GetParty, Message, StoreParty}
 import me.arcanis.ffxivbis.models.Party
 
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 
-class PartyService(storage: ActorRef) extends Actor with StrictLogging {
-  import PartyService._
+class PartyService(context: ActorContext[Message], storage: ActorRef[DatabaseMessage])
+  extends AbstractBehavior[Message](context) with StrictLogging {
   import me.arcanis.ffxivbis.utils.Implicits._
 
   private val cacheTimeout: FiniteDuration =
     context.system.settings.config.getDuration("me.arcanis.ffxivbis.settings.cache-timeout")
-  implicit private val executionContext: ExecutionContext =
-    context.system.dispatchers.lookup("me.arcanis.ffxivbis.default-dispatcher")
+  implicit private val executionContext: ExecutionContext = {
+    val selector = DispatcherSelector.fromConfig("me.arcanis.ffxivbis.default-dispatcher")
+    context.system.dispatchers.lookup(selector)
+  }
   implicit private val timeout: Timeout =
     context.system.settings.config.getDuration("me.arcanis.ffxivbis.settings.request-timeout")
+  implicit private val scheduler: Scheduler = context.system.scheduler
 
-  override def receive: Receive = handle(Map.empty)
+  override def onMessage(msg: Message): Behavior[Message] = handle(Map.empty)(msg)
 
-  private def handle(cache: Map[String, Party]): Receive = {
+  private def handle(cache: Map[String, Party]): Message.Handler = {
     case ForgetParty(partyId) =>
-      context become handle(cache - partyId)
+      Behaviors.receiveMessage(handle(cache - partyId))
 
-    case GetNewPartyId =>
-      val client = sender()
-      getPartyId.pipeTo(client)
+    case GetNewPartyId(client) =>
+      getPartyId.foreach(client ! _)
+      Behaviors.same
 
-    case req @ impl.DatabasePartyHandler.GetParty(partyId) =>
-      val client = sender()
+    case StoreParty(partyId, party) =>
+      Behaviors.receiveMessage(handle(cache.updated(partyId, party)))
+
+    case GetParty(partyId, client) =>
       val party = cache.get(partyId) match {
         case Some(party) => Future.successful(party)
         case None =>
-          (storage ? req).mapTo[Party].map { party =>
-            context become handle(cache + (partyId -> party))
-            context.system.scheduler.scheduleOnce(cacheTimeout, self, ForgetParty(partyId))
+          storage.ask(ref => GetParty(partyId, ref)).map { party =>
+            context.self ! StoreParty(partyId, party)
+            context.system.scheduler.scheduleOnce(cacheTimeout, () => context.self ! ForgetParty(partyId))
             party
           }
       }
-      party.pipeTo(client)
+      party.foreach(client ! _)
+      Behaviors.same
 
-    case req: Database.DatabaseRequest =>
-      self ! ForgetParty(req.partyId)
-      storage.forward(req)
+    case req: DatabaseMessage =>
+      storage ! req
+      Behaviors.receiveMessage(handle(cache - req.partyId))
   }
 
   private def getPartyId: Future[String] = {
     val partyId = Party.randomPartyId
-    (storage ? impl.DatabaseUserHandler.Exists(partyId)).mapTo[Boolean].flatMap {
+    storage.ask(ref => Exists(partyId, ref)).flatMap {
       case true => getPartyId
       case false => Future.successful(partyId)
     }
@@ -66,8 +74,7 @@ class PartyService(storage: ActorRef) extends Actor with StrictLogging {
 }
 
 object PartyService {
-  def props(storage: ActorRef): Props = Props(new PartyService(storage))
 
-  case class ForgetParty(partyId: String)
-  case object GetNewPartyId
+  def apply(storage: ActorRef[DatabaseMessage]): Behavior[Message] =
+    Behaviors.setup[Message](context => new PartyService(context, storage))
 }

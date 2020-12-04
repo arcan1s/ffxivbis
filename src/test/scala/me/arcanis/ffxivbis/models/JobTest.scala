@@ -1,8 +1,9 @@
 package me.arcanis.ffxivbis.models
 
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
-class JobTest extends WordSpecLike with Matchers with BeforeAndAfterAll {
+class JobTest extends AnyWordSpecLike with Matchers {
 
   "job model" must {
 
@@ -22,7 +23,7 @@ class JobTest extends WordSpecLike with Matchers with BeforeAndAfterAll {
 
     "equal AnyJob to others" in {
       Job.available.foreach { job =>
-        Job.AnyJob shouldBe job
+        Job.AnyJob shouldEqual job
       }
     }
 

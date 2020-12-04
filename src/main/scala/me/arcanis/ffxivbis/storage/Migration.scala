@@ -15,6 +15,7 @@ import org.flywaydb.core.api.configuration.ClassicConfiguration
 import scala.concurrent.Future
 
 class Migration(config: Config) {
+
   def performMigration(): Future[Int] = {
     val section = DatabaseProfile.getSection(config)
 
@@ -37,5 +38,6 @@ class Migration(config: Config) {
 }
 
 object Migration {
+
   def apply(config: Config): Future[Int] = new Migration(config).performMigration()
 }

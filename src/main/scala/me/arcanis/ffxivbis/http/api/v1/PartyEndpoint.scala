@@ -8,7 +8,7 @@
  */
 package me.arcanis.ffxivbis.http.api.v1
 
-import akka.actor.ActorRef
+import akka.actor.typed.{ActorRef, Scheduler}
 import akka.http.scaladsl.model.{HttpEntity, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
@@ -22,11 +22,14 @@ import io.swagger.v3.oas.annotations.{Operation, Parameter}
 import javax.ws.rs._
 import me.arcanis.ffxivbis.http.api.v1.json._
 import me.arcanis.ffxivbis.http.{Authorization, PlayerHelper}
+import me.arcanis.ffxivbis.messages.{BiSProviderMessage, Message}
 
 import scala.util.{Failure, Success}
 
 @Path("api/v1")
-class PartyEndpoint(override val storage: ActorRef, override val ariyala: ActorRef)(implicit timeout: Timeout)
+class PartyEndpoint(override val storage: ActorRef[Message],
+                    override val provider: ActorRef[BiSProviderMessage])
+                   (implicit timeout: Timeout, scheduler: Scheduler)
   extends PlayerHelper with Authorization with JsonSupport with HttpHandler {
 
   def route: Route = getPartyDescription ~ modifyPartyDescription

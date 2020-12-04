@@ -8,56 +8,56 @@
  */
 package me.arcanis.ffxivbis.http
 
-import akka.actor.ActorRef
-import akka.pattern.ask
+import akka.actor.typed.{ActorRef, Scheduler}
+import akka.actor.typed.scaladsl.AskPattern.Askable
 import akka.util.Timeout
 import me.arcanis.ffxivbis.http.api.v1.json.ApiAction
-import me.arcanis.ffxivbis.models.{Party, PartyDescription, Player, PlayerId}
-import me.arcanis.ffxivbis.service.impl.{DatabaseBiSHandler, DatabasePartyHandler}
+import me.arcanis.ffxivbis.messages.{AddPieceToBis, AddPlayer, GetParty, GetPartyDescription, GetPlayer, Message, RemovePlayer, UpdateParty}
+import me.arcanis.ffxivbis.models.{PartyDescription, Player, PlayerId}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait PlayerHelper extends BisProviderHelper {
 
-  def storage: ActorRef
+  def storage: ActorRef[Message]
 
   def addPlayer(player: Player)
-               (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
-    (storage ? DatabasePartyHandler.AddPlayer(player)).mapTo[Int].map { res =>
+               (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Unit] =
+    storage.ask(ref => AddPlayer(player, ref)).map { res =>
       player.link match {
         case Some(link) =>
           downloadBiS(link, player.job).map { bis =>
-            bis.pieces.map(storage ? DatabaseBiSHandler.AddPieceToBis(player.playerId, _))
+            bis.pieces.map(piece => storage.ask(AddPieceToBis(player.playerId, piece, _)))
           }.map(_ => res)
         case None => Future.successful(res)
       }
     }.flatten
 
   def doModifyPlayer(action: ApiAction.Value, player: Player)
-                    (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
+                    (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Unit] =
     action match {
       case ApiAction.add => addPlayer(player)
       case ApiAction.remove => removePlayer(player.playerId)
     }
 
   def getPartyDescription(partyId: String)
-                         (implicit executionContext: ExecutionContext, timeout: Timeout): Future[PartyDescription] =
-    (storage ? DatabasePartyHandler.GetPartyDescription(partyId)).mapTo[PartyDescription]
+                         (implicit timeout: Timeout, scheduler: Scheduler): Future[PartyDescription] =
+    storage.ask(GetPartyDescription(partyId, _))
 
   def getPlayers(partyId: String, maybePlayerId: Option[PlayerId])
-                (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Seq[Player]] =
+                (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Seq[Player]] =
     maybePlayerId match {
       case Some(playerId) =>
-        (storage ? DatabasePartyHandler.GetPlayer(playerId)).mapTo[Option[Player]].map(_.toSeq)
+        storage.ask(GetPlayer(playerId, _)).map(_.toSeq)
       case None =>
-        (storage ? DatabasePartyHandler.GetParty(partyId)).mapTo[Party].map(_.players.values.toSeq)
+        storage.ask(GetParty(partyId, _)).map(_.players.values.toSeq)
     }
 
   def removePlayer(playerId: PlayerId)
-                  (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
-    (storage ? DatabasePartyHandler.RemovePlayer(playerId)).mapTo[Int]
+                  (implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
+    storage.ask(RemovePlayer(playerId, _))
 
   def updateDescription(partyDescription: PartyDescription)
-                       (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
-    (storage ? DatabasePartyHandler.UpdateParty(partyDescription)).mapTo[Int]
+                       (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Unit] =
+    storage.ask(UpdateParty(partyDescription, _))
 }

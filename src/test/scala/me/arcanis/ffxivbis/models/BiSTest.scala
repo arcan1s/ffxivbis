@@ -2,9 +2,10 @@ package me.arcanis.ffxivbis.models
 
 import me.arcanis.ffxivbis.Fixtures
 import me.arcanis.ffxivbis.utils.Compare
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
-class BiSTest extends WordSpecLike with Matchers with BeforeAndAfterAll {
+class BiSTest extends AnyWordSpecLike with Matchers {
 
   "bis model" must {
 

@@ -68,6 +68,7 @@ class DatabaseProfile(context: ExecutionContext, config: Config)
 }
 
 object DatabaseProfile {
+
   def now: Long = Instant.now.toEpochMilli
   def getSection(config: Config): Config = {
     val section = config.getString("me.arcanis.ffxivbis.database.mode")

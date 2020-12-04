@@ -8,26 +8,26 @@
  */
 package me.arcanis.ffxivbis.http
 
-import akka.actor.ActorRef
-import akka.pattern.ask
+import akka.actor.typed.scaladsl.AskPattern.Askable
+import akka.actor.typed.{ActorRef, Scheduler}
 import akka.util.Timeout
 import me.arcanis.ffxivbis.http.api.v1.json.ApiAction
+import me.arcanis.ffxivbis.messages.{AddPieceTo, GetLoot, Message, RemovePieceFrom, SuggestLoot}
 import me.arcanis.ffxivbis.models.{Piece, Player, PlayerId, PlayerIdWithCounters}
-import me.arcanis.ffxivbis.service.LootSelector.LootSelectorResult
-import me.arcanis.ffxivbis.service.impl.DatabaseLootHandler
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait LootHelper {
 
-  def storage: ActorRef
+  def storage: ActorRef[Message]
 
   def addPieceLoot(playerId: PlayerId, piece: Piece, isFreeLoot: Boolean)
-                  (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
-    (storage ? DatabaseLootHandler.AddPieceTo(playerId, piece, isFreeLoot)).mapTo[Int]
+                  (implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
+    storage.ask(
+      AddPieceTo(playerId, piece, isFreeLoot, _))
 
   def doModifyLoot(action: ApiAction.Value, playerId: PlayerId, piece: Piece, maybeFree: Option[Boolean])
-                  (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
+                  (implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
     (action, maybeFree) match {
       case (ApiAction.add, Some(isFreeLoot)) => addPieceLoot(playerId, piece, isFreeLoot)
       case (ApiAction.remove, _) => removePieceLoot(playerId, piece)
@@ -35,14 +35,14 @@ trait LootHelper {
     }
 
   def loot(partyId: String, playerId: Option[PlayerId])
-          (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Seq[Player]] =
-    (storage ? DatabaseLootHandler.GetLoot(partyId, playerId)).mapTo[Seq[Player]]
+          (implicit timeout: Timeout, scheduler: Scheduler): Future[Seq[Player]] =
+    storage.ask(GetLoot(partyId, playerId, _))
 
   def removePieceLoot(playerId: PlayerId, piece: Piece)
-                     (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Int] =
-    (storage ? DatabaseLootHandler.RemovePieceFrom(playerId, piece)).mapTo[Int]
+                     (implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
+    storage.ask(RemovePieceFrom(playerId, piece, _))
 
   def suggestPiece(partyId: String, piece: Piece)
-                  (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Seq[PlayerIdWithCounters]] =
-    (storage ? DatabaseLootHandler.SuggestLoot(partyId, piece)).mapTo[LootSelectorResult].map(_.result)
+                  (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Seq[PlayerIdWithCounters]] =
+    storage.ask(SuggestLoot(partyId, piece, _)).map(_.result)
 }

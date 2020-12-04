@@ -8,11 +8,11 @@
  */
 package me.arcanis.ffxivbis.service.bis
 
-import akka.actor.ActorContext
+import akka.actor.ClassicActorSystemProvider
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.headers.Location
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Uri}
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import akka.stream.scaladsl.{Keep, Sink}
 import akka.util.ByteString
 import spray.json._
@@ -21,12 +21,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait RequestExecutor {
 
-  def context: ActorContext
+  def system: ClassicActorSystemProvider
 
-  private val http = Http()(context.system)
-  implicit val materializer: ActorMaterializer = ActorMaterializer()(context)
+  private val http = Http()(system)
+  implicit val materializer: Materializer = Materializer.createMaterializer(system)
   implicit val executionContext: ExecutionContext =
-    context.system.dispatchers.lookup("me.arcanis.ffxivbis.default-dispatcher")
+    system.classicSystem.dispatchers.lookup("me.arcanis.ffxivbis.default-dispatcher")
 
   def sendRequest[T](uri: Uri, parser: JsObject => Future[T]): Future[T] =
     http.singleRequest(HttpRequest(uri = uri)).map {

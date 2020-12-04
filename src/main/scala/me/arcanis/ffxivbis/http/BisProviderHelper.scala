@@ -8,19 +8,19 @@
  */
 package me.arcanis.ffxivbis.http
 
-import akka.actor.ActorRef
-import akka.pattern.ask
+import akka.actor.typed.{ActorRef, Scheduler}
+import akka.actor.typed.scaladsl.AskPattern.Askable
 import akka.util.Timeout
+import me.arcanis.ffxivbis.messages.{BiSProviderMessage, DownloadBiS}
 import me.arcanis.ffxivbis.models.{BiS, Job}
-import me.arcanis.ffxivbis.service.bis.BisProvider
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 trait BisProviderHelper {
 
-  def ariyala: ActorRef
+  def provider: ActorRef[BiSProviderMessage]
 
   def downloadBiS(link: String, job: Job.Job)
-                 (implicit executionContext: ExecutionContext, timeout: Timeout): Future[BiS] =
-    (ariyala ? BisProvider.GetBiS(link, job)).mapTo[BiS]
+                 (implicit timeout: Timeout, scheduler: Scheduler): Future[BiS] =
+    provider.ask(DownloadBiS(link, job, _))
 }

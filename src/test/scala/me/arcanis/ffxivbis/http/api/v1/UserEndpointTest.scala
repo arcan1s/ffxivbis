@@ -1,45 +1,47 @@
 package me.arcanis.ffxivbis.http.api.v1
 
-import akka.actor.ActorRef
+import akka.actor.testkit.typed.scaladsl.ActorTestKit
 import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials}
 import akka.http.scaladsl.testkit.{RouteTestTimeout, ScalatestRouteTest}
-import akka.http.scaladsl.server._
 import akka.testkit.TestKit
 import com.typesafe.config.Config
 import me.arcanis.ffxivbis.{Fixtures, Settings}
 import me.arcanis.ffxivbis.http.api.v1.json._
-import me.arcanis.ffxivbis.service.{PartyService, impl}
+import me.arcanis.ffxivbis.service.{Database, PartyService}
 import me.arcanis.ffxivbis.storage.Migration
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class UserEndpointTest extends WordSpec
-  with Matchers with ScalatestRouteTest with JsonSupport {
+class UserEndpointTest extends AnyWordSpecLike with Matchers with ScalatestRouteTest with JsonSupport {
 
-  private val auth: Authorization =
+  private val testKit = ActorTestKit(Settings.withRandomDatabase)
+  override val testConfig: Config = testKit.system.settings.config
+
+  private val auth =
     Authorization(BasicHttpCredentials(Fixtures.userAdmin.username, Fixtures.userPassword))
-  private def endpoint: Uri = Uri(s"/party/$partyId/users")
-  private val timeout: FiniteDuration = 60 seconds
-  implicit private val routeTimeout: RouteTestTimeout = RouteTestTimeout(timeout)
+  private def endpoint = Uri(s"/party/$partyId/users")
+  private val askTimeout = 60 seconds
+  implicit private val routeTimeout: RouteTestTimeout = RouteTestTimeout(askTimeout)
 
-  private var partyId: String = Fixtures.partyId
-  private val storage: ActorRef = system.actorOf(impl.DatabaseImpl.props)
-  private val party: ActorRef = system.actorOf(PartyService.props(storage))
-  private val route: Route = new UserEndpoint(party)(timeout).route
-
-  override def testConfig: Config = Settings.withRandomDatabase
+  private var partyId = Fixtures.partyId
+  private val storage = testKit.spawn(Database())
+  private val party = testKit.spawn(PartyService(storage))
+  private val route = new UserEndpoint(party)(askTimeout, testKit.scheduler).route
 
   override def beforeAll: Unit = {
-    Await.result(Migration(system.settings.config), timeout)
+    Await.result(Migration(testConfig), askTimeout)
   }
 
   override def afterAll: Unit = {
+    super.afterAll()
+    Settings.clearDatabase(testConfig)
     TestKit.shutdownActorSystem(system)
-    Settings.clearDatabase(system.settings.config)
+    testKit.shutdownTestKit()
   }
 
   "api v1 users endpoint" must {

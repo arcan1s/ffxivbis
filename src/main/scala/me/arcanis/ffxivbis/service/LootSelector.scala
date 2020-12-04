@@ -21,6 +21,7 @@ class LootSelector(players: Seq[Player], piece: Piece, orderBy: Seq[String]) {
 }
 
 object LootSelector {
+
   def apply(players: Seq[Player], piece: Piece, orderBy: Seq[String]): LootSelectorResult =
     new LootSelector(players, piece, orderBy).suggest
 

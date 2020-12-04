@@ -17,7 +17,7 @@ import scala.util.Try
 
 trait XivApi extends RequestExecutor {
 
-  private val config = context.system.settings.config
+  private val config = system.classicSystem.settings.config
   private val xivapiUrl = config.getString("me.arcanis.ffxivbis.bis-provider.xivapi-url")
   private val xivapiKey = Try(config.getString("me.arcanis.ffxivbis.bis-provider.xivapi-key")).toOption
 

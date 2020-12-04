@@ -1,8 +1,9 @@
 package me.arcanis.ffxivbis.models
 
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
-class PieceTypeTest extends WordSpecLike with Matchers with BeforeAndAfterAll {
+class PieceTypeTest extends AnyWordSpecLike with Matchers {
 
   "piece type model" must {
 

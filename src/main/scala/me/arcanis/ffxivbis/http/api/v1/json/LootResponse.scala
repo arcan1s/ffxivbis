@@ -9,10 +9,12 @@ case class LootResponse(
   @Schema(description = "looted piece", required = true) piece: PieceResponse,
   @Schema(description = "loot timestamp", required = true) timestamp: Instant,
   @Schema(description = "is loot free for all", required = true) isFreeLoot: Boolean) {
+
   def toLoot: Loot = Loot(-1, piece.toPiece, timestamp, isFreeLoot)
 }
 
 object LootResponse {
+
   def fromLoot(loot: Loot): LootResponse =
     LootResponse(PieceResponse.fromPiece(loot.piece), loot.timestamp, loot.isFreeLoot)
 }

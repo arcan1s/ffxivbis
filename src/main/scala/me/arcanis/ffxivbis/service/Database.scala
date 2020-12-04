@@ -8,21 +8,22 @@
  */
 package me.arcanis.ffxivbis.service
 
-import akka.actor.Actor
+import akka.actor.typed.Behavior
+import akka.actor.typed.scaladsl.Behaviors
+import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
+import me.arcanis.ffxivbis.messages.{DatabaseMessage}
 import me.arcanis.ffxivbis.models.{Party, Player, PlayerId}
+import me.arcanis.ffxivbis.service.impl.DatabaseImpl
 import me.arcanis.ffxivbis.storage.DatabaseProfile
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait Database extends Actor with StrictLogging {
-  implicit def executionContext: ExecutionContext
-  def profile: DatabaseProfile
+trait Database extends StrictLogging {
 
-  override def postStop(): Unit = {
-    profile.db.close()
-    super.postStop()
-  }
+  implicit def executionContext: ExecutionContext
+  def config: Config
+  def profile: DatabaseProfile
 
   def filterParty(party: Party, maybePlayerId: Option[PlayerId]): Seq[Player] =
     maybePlayerId match {
@@ -36,11 +37,11 @@ trait Database extends Actor with StrictLogging {
       players <- profile.getParty(partyId)
       bis <- if (withBiS) profile.getPiecesBiS(partyId) else Future(Seq.empty)
       loot <- if (withLoot) profile.getPieces(partyId) else Future(Seq.empty)
-    } yield Party(partyDescription, context.system.settings.config, players, bis, loot)
+    } yield Party(partyDescription, config, players, bis, loot)
 }
 
 object Database {
-  trait DatabaseRequest {
-    def partyId: String
-  }
+
+  def apply(): Behavior[DatabaseMessage] =
+    Behaviors.setup[DatabaseMessage](context => new DatabaseImpl(context))
 }

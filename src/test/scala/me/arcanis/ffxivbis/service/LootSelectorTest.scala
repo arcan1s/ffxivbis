@@ -1,19 +1,20 @@
 package me.arcanis.ffxivbis.service
 
-import akka.actor.ActorSystem
-import akka.pattern.ask
-import akka.testkit.{ImplicitSender, TestKit}
+import akka.actor.testkit.typed.scaladsl.ActorTestKit
+import akka.actor.typed.scaladsl.AskPattern.Askable
+import me.arcanis.ffxivbis.messages.DownloadBiS
 import me.arcanis.ffxivbis.{Fixtures, Settings}
 import me.arcanis.ffxivbis.models._
 import me.arcanis.ffxivbis.service.bis.BisProvider
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class LootSelectorTest extends TestKit(ActorSystem("lootselector"))
-  with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
+class LootSelectorTest extends AnyWordSpecLike with Matchers with BeforeAndAfterAll {
 
   import me.arcanis.ffxivbis.utils.Converters._
 
@@ -23,16 +24,19 @@ class LootSelectorTest extends TestKit(ActorSystem("lootselector"))
   private val timeout: FiniteDuration = 60 seconds
 
   override def beforeAll(): Unit = {
-    val provider = system.actorOf(BisProvider.props)
+    val testKit = ActorTestKit(Settings.withRandomDatabase)
+    val provider = testKit.spawn(BisProvider())
 
-    val dncSet = Await.result((provider ? BisProvider.GetBiS(Fixtures.link, Job.DNC) )(timeout).mapTo[BiS], timeout)
+    val dncSet = Await.result(provider.ask(DownloadBiS(Fixtures.link, Job.DNC, _) )(timeout, testKit.scheduler), timeout)
     dnc = dnc.withBiS(Some(dncSet))
 
-    val drgSet = Await.result((provider ? BisProvider.GetBiS(Fixtures.link2, Job.DRG) )(timeout).mapTo[BiS], timeout)
+    val drgSet = Await.result(provider.ask(DownloadBiS(Fixtures.link2, Job.DRG, _) )(timeout, testKit.scheduler), timeout)
     drg = drg.withBiS(Some(drgSet))
 
     default = default.withPlayer(dnc).withPlayer(drg)
-    system.stop(provider)
+
+    testKit.stop(provider)
+    testKit.shutdownTestKit()
   }
 
   "loot selector" must {

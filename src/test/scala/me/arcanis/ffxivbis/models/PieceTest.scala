@@ -1,9 +1,10 @@
 package me.arcanis.ffxivbis.models
 
 import me.arcanis.ffxivbis.Fixtures
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
-class PieceTest extends WordSpecLike with Matchers with BeforeAndAfterAll {
+class PieceTest extends AnyWordSpecLike with Matchers {
 
   "piece model" must {
 

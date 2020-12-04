@@ -8,43 +8,32 @@
  */
 package me.arcanis.ffxivbis.service.impl
 
-import akka.pattern.pipe
-import me.arcanis.ffxivbis.models.User
+import akka.actor.typed.scaladsl.Behaviors
+import me.arcanis.ffxivbis.messages.{AddUser, DatabaseMessage, DeleteUser, Exists, GetUser, GetUsers}
 import me.arcanis.ffxivbis.service.Database
 
 trait DatabaseUserHandler { this: Database =>
-  import DatabaseUserHandler._
 
-  def userHandler: Receive = {
-    case AddUser(user, isHashedPassword) =>
-      val client = sender()
+  def userHandler: DatabaseMessage.Handler = {
+    case AddUser(user, isHashedPassword, client) =>
       val toInsert = if (isHashedPassword) user else user.withHashedPassword
-      profile.insertUser(toInsert).pipeTo(client)
+      profile.insertUser(toInsert).foreach(_ => client ! ())
+      Behaviors.same
 
-    case DeleteUser(partyId, username) =>
-      val client = sender()
-      profile.deleteUser(partyId, username).pipeTo(client)
+    case DeleteUser(partyId, username, client) =>
+      profile.deleteUser(partyId, username).foreach(_ => client ! ())
+      Behaviors.same
 
-    case Exists(partyId) =>
-      val client = sender()
-      profile.exists(partyId).pipeTo(client)
+    case Exists(partyId, client) =>
+      profile.exists(partyId).foreach(client ! _)
+      Behaviors.same
 
-    case GetUser(partyId, username) =>
-      val client = sender()
-      profile.getUser(partyId, username).pipeTo(client)
+    case GetUser(partyId, username, client) =>
+      profile.getUser(partyId, username).foreach(client ! _)
+      Behaviors.same
 
-    case GetUsers(partyId) =>
-      val client = sender()
-      profile.getUsers(partyId).pipeTo(client)
+    case GetUsers(partyId, client) =>
+      profile.getUsers(partyId).foreach(client ! _)
+      Behaviors.same
   }
-}
-
-object DatabaseUserHandler {
-  case class AddUser(user: User, isHashedPassword: Boolean) extends Database.DatabaseRequest {
-    override def partyId: String = user.partyId
-  }
-  case class DeleteUser(partyId: String, username: String) extends Database.DatabaseRequest
-  case class Exists(partyId: String) extends Database.DatabaseRequest
-  case class GetUser(partyId: String, username: String) extends Database.DatabaseRequest
-  case class GetUsers(partyId: String) extends Database.DatabaseRequest
 }

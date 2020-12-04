@@ -8,18 +8,21 @@
  */
 package me.arcanis.ffxivbis.http.view
 
-import akka.actor.ActorRef
+import akka.actor.typed.{ActorRef, Scheduler}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.util.Timeout
 import me.arcanis.ffxivbis.http.{Authorization, BiSHelper}
+import me.arcanis.ffxivbis.messages.{BiSProviderMessage, Message}
 import me.arcanis.ffxivbis.models.{Piece, PieceType, Player, PlayerId}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
-class BiSView(override val storage: ActorRef, override val ariyala: ActorRef)(implicit timeout: Timeout)
+class BiSView(override val storage: ActorRef[Message],
+              override val provider: ActorRef[BiSProviderMessage])
+             (implicit timeout: Timeout, scheduler: Scheduler)
   extends BiSHelper with Authorization {
 
   def route: Route = getBiS ~ modifyBiS
@@ -64,7 +67,7 @@ class BiSView(override val storage: ActorRef, override val ariyala: ActorRef)(im
     def getPiece(playerId: PlayerId, piece: String, pieceType: String) =
       Try(Piece(piece, PieceType.withName(pieceType), playerId.job)).toOption
 
-    def bisAction(playerId: PlayerId, piece: String, pieceType: String)(fn: Piece => Future[Int]) =
+    def bisAction(playerId: PlayerId, piece: String, pieceType: String)(fn: Piece => Future[Unit]) =
       getPiece(playerId, piece, pieceType) match {
         case Some(item) => fn(item).map(_ => ())
         case _ => Future.failed(new Error(s"Could not construct piece from `$piece ($pieceType)`"))
@@ -73,9 +76,9 @@ class BiSView(override val storage: ActorRef, override val ariyala: ActorRef)(im
     PlayerId(partyId, player) match {
       case Some(playerId) => (maybePiece, maybePieceType, action, maybeLink) match {
         case (Some(piece), Some(pieceType), "add", _) =>
-          bisAction(playerId, piece, pieceType) { item => addPieceBiS(playerId, item) }
+          bisAction(playerId, piece, pieceType)(addPieceBiS(playerId, _))
         case (Some(piece), Some(pieceType), "remove", _) =>
-          bisAction(playerId, piece, pieceType) { item => removePieceBiS(playerId, item) }
+          bisAction(playerId, piece, pieceType)(removePieceBiS(playerId, _))
         case (_, _, "create", Some(link)) => putBiS(playerId, link).map(_ => ())
         case _ => Future.failed(new Error(s"Could not perform $action"))
       }
