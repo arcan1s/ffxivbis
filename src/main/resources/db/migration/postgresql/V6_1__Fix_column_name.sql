@@ -1,0 +1,1 @@
+alter table parties rename column player_id to party_id;
