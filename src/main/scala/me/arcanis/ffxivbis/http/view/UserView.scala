@@ -68,10 +68,10 @@ class UserView(override val storage: ActorRef[Message])
 
     action match {
       case "add" => (maybePassword, permission) match {
-        case (Some(password), Some(permission)) => addUser(User(partyId, username, password, permission), isHashedPassword = false).map(_ => ())
+        case (Some(password), Some(permission)) => addUser(User(partyId, username, password, permission), isHashedPassword = false)
         case _ => Future.failed(new Error(s"Could not construct permission/password from `$maybePermission`/`$maybePassword`"))
       }
-      case "remove" => removeUser(partyId, username).map(_ => ())
+      case "remove" => removeUser(partyId, username)
       case _ => Future.failed(new Error(s"Could not perform $action"))
     }
   }

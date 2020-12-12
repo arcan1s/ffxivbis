@@ -17,6 +17,7 @@ import scala.concurrent.duration.FiniteDuration
 import scala.language.implicitConversions
 
 object Implicits {
+
   implicit def getBooleanFromOptionString(maybeYes: Option[String]): Boolean = maybeYes.map(_.toLowerCase) match {
     case Some("yes" | "on") => true
     case _ => false

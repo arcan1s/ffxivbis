@@ -69,7 +69,7 @@ class BiSView(override val storage: ActorRef[Message],
 
     def bisAction(playerId: PlayerId, piece: String, pieceType: String)(fn: Piece => Future[Unit]) =
       getPiece(playerId, piece, pieceType) match {
-        case Some(item) => fn(item).map(_ => ())
+        case Some(item) => fn(item)
         case _ => Future.failed(new Error(s"Could not construct piece from `$piece ($pieceType)`"))
       }
 
@@ -79,7 +79,7 @@ class BiSView(override val storage: ActorRef[Message],
           bisAction(playerId, piece, pieceType)(addPieceBiS(playerId, _))
         case (Some(piece), Some(pieceType), "remove", _) =>
           bisAction(playerId, piece, pieceType)(removePieceBiS(playerId, _))
-        case (_, _, "create", Some(link)) => putBiS(playerId, link).map(_ => ())
+        case (_, _, "create", Some(link)) => putBiS(playerId, link)
         case _ => Future.failed(new Error(s"Could not perform $action"))
       }
       case _ => Future.failed(new Error(s"Could not construct player id from `$player`"))

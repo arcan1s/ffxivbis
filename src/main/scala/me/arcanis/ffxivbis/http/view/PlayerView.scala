@@ -68,8 +68,8 @@ class PlayerView(override val storage: ActorRef[Message],
       Player(-1, partyId, playerId.job, playerId.nick, BiS.empty, Seq.empty, maybeLink, maybePriority.getOrElse(0))
 
     (action, maybePlayerId) match {
-      case ("add", Some(playerId)) => addPlayer(player(playerId)).map(_ => ())
-      case ("remove", Some(playerId)) => removePlayer(playerId).map(_ => ())
+      case ("add", Some(playerId)) => addPlayer(player(playerId))
+      case ("remove", Some(playerId)) => removePlayer(playerId)
       case _ => Future.failed(new Error(s"Could not perform $action with $nick ($job)"))
     }
   }

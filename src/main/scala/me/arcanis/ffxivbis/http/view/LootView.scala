@@ -70,8 +70,8 @@ class LootView(override val storage: ActorRef[Message])
 
     PlayerId(partyId, player) match {
       case Some(playerId) => (getPiece(playerId), action) match {
-        case (Some(piece), "add") => addPieceLoot(playerId, piece, maybeFreeLoot).map(_ => ())
-        case (Some(piece), "remove") => removePieceLoot(playerId, piece).map(_ => ())
+        case (Some(piece), "add") => addPieceLoot(playerId, piece, maybeFreeLoot)
+        case (Some(piece), "remove") => removePieceLoot(playerId, piece)
         case _ => Future.failed(new Error(s"Could not construct piece from `$maybePiece ($maybePieceType)`"))
       }
       case _ => Future.failed(new Error(s"Could not construct player id from `$player`"))

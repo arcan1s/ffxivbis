@@ -17,7 +17,7 @@ import spray.json._
 
 trait HttpHandler extends StrictLogging { this: JsonSupport =>
 
-  implicit def exceptionHandler: ExceptionHandler = ExceptionHandler {
+  def exceptionHandler: ExceptionHandler = ExceptionHandler {
     case ex: IllegalArgumentException =>
       complete(StatusCodes.BadRequest, ErrorResponse(ex.getMessage))
 
@@ -26,7 +26,7 @@ trait HttpHandler extends StrictLogging { this: JsonSupport =>
       complete(StatusCodes.InternalServerError, ErrorResponse("unknown server error"))
   }
 
-  implicit def rejectionHandler: RejectionHandler =
+  def rejectionHandler: RejectionHandler =
     RejectionHandler.default
       .mapRejectionResponse {
         case response @ HttpResponse(_, _, entity: HttpEntity.Strict, _) =>

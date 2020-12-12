@@ -8,9 +8,10 @@
     </root>
 
     <logger name="me.arcanis.ffxivbis" level="DEBUG" />
-    <logger name="http" level="DEBUG">
+    <logger name="http" level="DEBUG" additivity="false">
         <appender-ref ref="http" />
     </logger>
     <logger name="slick" level="INFO" />
+    <logger name="org.flywaydb.core.internal" level="INFO" />
 
 </configuration>
