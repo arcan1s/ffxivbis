@@ -39,17 +39,18 @@ class BiSEndpointTest extends AnyWordSpecLike with Matchers with ScalatestRouteT
   private val party = testKit.spawn(PartyService(storage))
   private val route = new BiSEndpoint(party, provider)(askTimeout, testKit.scheduler).route
 
-  override def beforeAll: Unit = {
-    Await.result(Migration(testConfig), askTimeout)
+  override def beforeAll(): Unit = {
+    super.beforeAll()
+    Migration(testConfig)
     Await.result(storage.ask(AddUser(Fixtures.userAdmin, isHashedPassword = true, _))(askTimeout, testKit.scheduler), askTimeout)
     Await.result(storage.ask(AddPlayer(Fixtures.playerEmpty, _))(askTimeout, testKit.scheduler), askTimeout)
   }
 
-  override def afterAll: Unit = {
-    super.afterAll()
+  override def afterAll(): Unit = {
     Settings.clearDatabase(testConfig)
     TestKit.shutdownActorSystem(system)
     testKit.shutdownTestKit()
+    super.afterAll()
   }
 
   private def compareBiSResponse(actual: PlayerResponse, expected: PlayerResponse): Unit = {

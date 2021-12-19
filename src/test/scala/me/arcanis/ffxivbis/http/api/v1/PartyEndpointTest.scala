@@ -37,16 +37,17 @@ class PartyEndpointTest extends AnyWordSpecLike with Matchers with ScalatestRout
   private val party = testKit.spawn(PartyService(storage))
   private val route = new PartyEndpoint(party, provider)(askTimeout, testKit.scheduler).route
 
-  override def beforeAll: Unit = {
-    Await.result(Migration(testConfig), askTimeout)
+  override def beforeAll(): Unit = {
+    super.beforeAll()
+    Migration(testConfig)
     Await.result(storage.ask(AddUser(Fixtures.userAdmin, isHashedPassword = true, _))(askTimeout, testKit.scheduler), askTimeout)
   }
 
-  override def afterAll: Unit = {
-    super.afterAll()
+  override def afterAll(): Unit = {
     Settings.clearDatabase(testConfig)
     TestKit.shutdownActorSystem(system)
     testKit.shutdownTestKit()
+    super.afterAll()
   }
 
   "api v1 party endpoint" must {

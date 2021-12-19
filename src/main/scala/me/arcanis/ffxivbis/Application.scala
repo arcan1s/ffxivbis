@@ -11,6 +11,7 @@ package me.arcanis.ffxivbis
 import akka.actor.typed.{Behavior, PostStop, Signal}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
 import com.typesafe.scalalogging.StrictLogging
 import me.arcanis.ffxivbis.http.RootEndpoint
@@ -19,6 +20,7 @@ import me.arcanis.ffxivbis.service.{Database, PartyService}
 import me.arcanis.ffxivbis.storage.Migration
 
 import scala.concurrent.ExecutionContext
+import scala.util.{Failure, Success}
 
 class Application(context: ActorContext[Nothing])
   extends AbstractBehavior[Nothing](context) with StrictLogging {
@@ -42,14 +44,20 @@ class Application(context: ActorContext[Nothing])
     implicit val executionContext: ExecutionContext = context.system.executionContext
     implicit val materializer: Materializer = Materializer(context)
 
-    Migration(config)
+    Migration(config) match {
+      case Success(_) =>
+        val bisProvider = context.spawn(BisProvider(), "bis-provider")
+        val storage = context.spawn(Database(), "storage")
+        val party = context.spawn(PartyService(storage), "party")
+        val http = new RootEndpoint(context.system, party, bisProvider)
 
-    val bisProvider = context.spawn(BisProvider(), "bis-provider")
-    val storage = context.spawn(Database(), "storage")
-    val party = context.spawn(PartyService(storage), "party")
-    val http = new RootEndpoint(context.system, party, bisProvider)
+        val flow = Route.toFlow(http.route)(context.system)
+        Http(context.system).newServerAt(host, port).bindFlow(flow)
 
-    Http()(context.system).newServerAt(host, port).bindFlow(http.route)
+      case Failure(exception) =>
+        logger.error("exception during migration", exception)
+        context.system.terminate()
+    }
   }
 }
 

@@ -19,14 +19,15 @@ class DatabaseBiSHandlerTest extends ScalaTestWithActorTestKit(Settings.withRand
   private val database = testKit.spawn(Database())
   private val askTimeout: FiniteDuration = 60 seconds
 
-  override def beforeAll: Unit = {
-    Await.result(Migration(testKit.system.settings.config), askTimeout)
+  override def beforeAll(): Unit = {
+    super.beforeAll()
+    Migration(testKit.system.settings.config)
     Await.result(database.ask(AddPlayer(Fixtures.playerEmpty, _))(askTimeout, testKit.scheduler), askTimeout)
   }
 
-  override def afterAll: Unit = {
-    super.afterAll()
+  override def afterAll(): Unit = {
     Settings.clearDatabase(testKit.system.settings.config)
+    super.afterAll()
   }
 
   "database bis handler" must {

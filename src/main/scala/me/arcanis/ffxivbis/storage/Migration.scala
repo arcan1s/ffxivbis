@@ -13,10 +13,11 @@ import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.ClassicConfiguration
 
 import scala.concurrent.Future
+import scala.util.Try
 
 class Migration(config: Config) {
 
-  def performMigration(): Future[Int] = {
+  def performMigration(): Try[Boolean] = {
     val section = DatabaseProfile.getSection(config)
 
     val url = section.getString("db.url")
@@ -33,11 +34,11 @@ class Migration(config: Config) {
     flywayConfiguration.setDataSource(url, username, password)
     val flyway = new Flyway(flywayConfiguration)
 
-    Future.successful(flyway.migrate())
+    Try(flyway.migrate().success)
   }
 }
 
 object Migration {
 
-  def apply(config: Config): Future[Int] = new Migration(config).performMigration()
+  def apply(config: Config): Try[Boolean] = new Migration(config).performMigration()
 }

@@ -101,7 +101,7 @@ object XivApi {
               .getOrElse(throw new Exception(s"${shopMap(shopId).fields(s"ItemCost$index")}, $index"))
               .getFields("IsUnique", "StackSize") match {
               case Seq(JsNumber(isUnique), JsNumber(stackSize)) =>
-                if (isUnique == 1 || stackSize.toLong == 2000) PieceType.Tome // either upgraded gear or tomes found
+                if (isUnique == 1 || stackSize.toLong != 999) PieceType.Tome // either upgraded gear or tomes found
                 else PieceType.Savage
               case other => throw deserializationError(s"Could not parse $other")
             }

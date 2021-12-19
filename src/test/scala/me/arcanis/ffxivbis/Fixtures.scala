@@ -9,7 +9,6 @@ object Fixtures {
       Head(pieceType = PieceType.Savage, Job.DNC),
       Body(pieceType = PieceType.Savage, Job.DNC),
       Hands(pieceType = PieceType.Tome, Job.DNC),
-      Waist(pieceType = PieceType.Tome, Job.DNC),
       Legs(pieceType = PieceType.Tome, Job.DNC),
       Feet(pieceType = PieceType.Savage, Job.DNC),
       Ears(pieceType = PieceType.Savage, Job.DNC),
@@ -25,7 +24,6 @@ object Fixtures {
       Head(pieceType = PieceType.Tome, Job.DNC),
       Body(pieceType = PieceType.Savage, Job.DNC),
       Hands(pieceType = PieceType.Tome, Job.DNC),
-      Waist(pieceType = PieceType.Tome, Job.DNC),
       Legs(pieceType = PieceType.Savage, Job.DNC),
       Feet(pieceType = PieceType.Tome, Job.DNC),
       Ears(pieceType = PieceType.Savage, Job.DNC),
@@ -45,7 +43,6 @@ object Fixtures {
   lazy val lootBody: Piece = Body(pieceType = PieceType.Savage, Job.AnyJob)
   lazy val lootBodyCrafted: Piece = Body(pieceType = PieceType.Crafted, Job.AnyJob)
   lazy val lootHands: Piece = Hands(pieceType = PieceType.Tome, Job.AnyJob)
-  lazy val lootWaist: Piece = Waist(pieceType = PieceType.Tome, Job.AnyJob)
   lazy val lootLegs: Piece = Legs(pieceType = PieceType.Savage, Job.AnyJob)
   lazy val lootEars: Piece = Ears(pieceType = PieceType.Savage, Job.AnyJob)
   lazy val lootRing: Piece = Ring(pieceType = PieceType.Tome, Job.AnyJob)

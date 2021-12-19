@@ -62,6 +62,10 @@ object Job {
     val leftSide: LeftSide = BodyMnks
     val rightSide: RightSide = AccessoriesStr
   }
+  trait Drgs extends Job {
+    val leftSide: LeftSide = BodyDrgs
+    val rightSide: RightSide = AccessoriesStr
+  }
   trait Tanks extends Job {
     val leftSide: LeftSide = BodyTanks
     val rightSide: RightSide = AccessoriesVit
@@ -79,12 +83,11 @@ object Job {
   case object WHM extends Healers
   case object SCH extends Healers
   case object AST extends Healers
+  case object SGE extends Healers
 
   case object MNK extends Mnks
-  case object DRG extends Job {
-    val leftSide: LeftSide = BodyDrgs
-    val rightSide: RightSide = AccessoriesStr
-  }
+  case object DRG extends Drgs
+  case object RPR extends Drgs
   case object NIN extends Job {
     val leftSide: LeftSide = BodyNins
     val rightSide: RightSide = AccessoriesDex
@@ -100,7 +103,7 @@ object Job {
   case object RDM extends Casters
 
   lazy val available: Seq[Job] =
-    Seq(PLD, WAR, DRK, GNB, WHM, SCH, AST, MNK, DRG, NIN, SAM, BRD, MCH, DNC, BLM, SMN, RDM)
+    Seq(PLD, WAR, DRK, GNB, WHM, SCH, AST, SGE, MNK, DRG, RPR, NIN, SAM, BRD, MCH, DNC, BLM, SMN, RDM)
   lazy val availableWithAnyJob: Seq[Job] = available.prepended(AnyJob)
 
   def withName(job: String): Job.Job =

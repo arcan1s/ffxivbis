@@ -77,7 +77,7 @@ object BisProvider {
     case "chest" => Some("body")
     case "ringLeft" | "fingerL" => Some("left ring")
     case "ringRight" | "fingerR" => Some("right ring")
-    case "weapon" | "head" | "body" | "hands" | "waist" | "legs" | "feet" | "ears" | "neck" | "wrist" | "wrists" => Some(key)
+    case "weapon" | "head" | "body" | "hands" | "legs" | "feet" | "ears" | "neck" | "wrist" | "wrists" => Some(key)
     case _ => None
   }
 }

@@ -16,12 +16,13 @@ sealed trait Piece extends Equals {
 
   def withJob(other: Job.Job): Piece
 
-  def upgrade: Option[PieceUpgrade] = this match {
-    case _ if pieceType != PieceType.Tome => None
-    case _: Waist => Some(AccessoryUpgrade)
-    case _: PieceAccessory => Some(AccessoryUpgrade)
-    case _: PieceBody => Some(BodyUpgrade)
-    case _: PieceWeapon => Some(WeaponUpgrade)
+  def upgrade: Option[PieceUpgrade] = {
+    val isTome = pieceType == PieceType.Tome
+    Some(this).collect {
+      case _: PieceAccessory if isTome => AccessoryUpgrade
+      case _: PieceBody if isTome => BodyUpgrade
+      case _: PieceWeapon if isTome => WeaponUpgrade
+    }
   }
 
   // used for ring comparison
@@ -52,10 +53,6 @@ case class Body(override val pieceType: PieceType.PieceType, override val job: J
 }
 case class Hands(override val pieceType: PieceType.PieceType, override val job: Job.Job) extends PieceBody {
   val piece: String = "hands"
-  def withJob(other: Job.Job): Piece = copy(job = other)
-}
-case class Waist(override val pieceType: PieceType.PieceType, override val job: Job.Job) extends PieceBody {
-  val piece: String = "waist"
   def withJob(other: Job.Job): Piece = copy(job = other)
 }
 case class Legs(override val pieceType: PieceType.PieceType, override val job: Job.Job) extends PieceBody {
@@ -111,7 +108,6 @@ object Piece {
       case "head" => Head(pieceType, job)
       case "body" => Body(pieceType, job)
       case "hands" => Hands(pieceType, job)
-      case "waist" => Waist(pieceType, job)
       case "legs" => Legs(pieceType, job)
       case "feet" => Feet(pieceType, job)
       case "ears" => Ears(pieceType, job)
@@ -125,7 +121,7 @@ object Piece {
     }
 
   lazy val available: Seq[String] = Seq("weapon",
-    "head", "body", "hands", "waist", "legs", "feet",
+    "head", "body", "hands", "legs", "feet",
     "ears", "neck", "wrist", "left ring", "right ring",
     "accessory upgrade", "body upgrade", "weapon upgrade")
 }

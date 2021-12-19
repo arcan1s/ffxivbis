@@ -12,7 +12,6 @@ class PieceTest extends AnyWordSpecLike with Matchers {
       Fixtures.lootWeapon.upgrade shouldEqual Some(WeaponUpgrade)
       Fixtures.lootBody.upgrade shouldEqual None
       Fixtures.lootHands.upgrade shouldEqual Some(BodyUpgrade)
-      Fixtures.lootWaist.upgrade shouldEqual Some(AccessoryUpgrade)
       Fixtures.lootLegs.upgrade shouldEqual None
       Fixtures.lootEars.upgrade shouldEqual None
       Fixtures.lootLeftRing.upgrade shouldEqual Some(AccessoryUpgrade)

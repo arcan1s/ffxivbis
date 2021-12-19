@@ -24,6 +24,7 @@ class LootSelectorTest extends AnyWordSpecLike with Matchers with BeforeAndAfter
   private val timeout: FiniteDuration = 60 seconds
 
   override def beforeAll(): Unit = {
+    super.beforeAll()
     val testKit = ActorTestKit(Settings.withRandomDatabase)
     val provider = testKit.spawn(BisProvider())
 
