@@ -16,24 +16,24 @@ import akka.stream.Materializer
 import com.typesafe.scalalogging.StrictLogging
 import me.arcanis.ffxivbis.http.RootEndpoint
 import me.arcanis.ffxivbis.service.bis.BisProvider
-import me.arcanis.ffxivbis.service.{Database, PartyService}
+import me.arcanis.ffxivbis.service.database.Database
+import me.arcanis.ffxivbis.service.PartyService
 import me.arcanis.ffxivbis.storage.Migration
 
 import scala.concurrent.ExecutionContext
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success}
 
-class Application(context: ActorContext[Nothing])
-  extends AbstractBehavior[Nothing](context) with StrictLogging {
+class Application(context: ActorContext[Nothing]) extends AbstractBehavior[Nothing](context) with StrictLogging {
 
   logger.info("root supervisor started")
   startApplication()
 
   override def onMessage(msg: Nothing): Behavior[Nothing] = Behaviors.unhandled
 
-  override def onSignal: PartialFunction[Signal, Behavior[Nothing]] = {
-    case PostStop =>
-      logger.info("root supervisor stopped")
-      Behaviors.same
+  override def onSignal: PartialFunction[Signal, Behavior[Nothing]] = { case PostStop =>
+    logger.info("root supervisor stopped")
+    Behaviors.same
   }
 
   private def startApplication(): Unit = {
@@ -45,7 +45,7 @@ class Application(context: ActorContext[Nothing])
     implicit val materializer: Materializer = Materializer(context)
 
     Migration(config) match {
-      case Success(_) =>
+      case Success(result) if result.success =>
         val bisProvider = context.spawn(BisProvider(), "bis-provider")
         val storage = context.spawn(Database(), "storage")
         val party = context.spawn(PartyService(storage), "party")
@@ -53,6 +53,11 @@ class Application(context: ActorContext[Nothing])
 
         val flow = Route.toFlow(http.route)(context.system)
         Http(context.system).newServerAt(host, port).bindFlow(flow)
+
+      case Success(result) =>
+        logger.error(s"migration completed with error, executed ${result.migrationsExecuted}")
+        result.migrations.asScala.foreach(o => logger.info(s"=> ${o.description} (${o.executionTime})"))
+        context.system.terminate()
 
       case Failure(exception) =>
         logger.error("exception during migration", exception)

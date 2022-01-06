@@ -76,8 +76,11 @@ case class Wrist(override val pieceType: PieceType.PieceType, override val job: 
   val piece: String = "wrist"
   def withJob(other: Job.Job): Piece = copy(job = other)
 }
-case class Ring(override val pieceType: PieceType.PieceType, override val job: Job.Job, override val piece: String = "ring")
-  extends PieceAccessory {
+case class Ring(
+  override val pieceType: PieceType.PieceType,
+  override val job: Job.Job,
+  override val piece: String = "ring"
+) extends PieceAccessory {
   def withJob(other: Job.Job): Piece = copy(job = other)
 
   override def equals(obj: Any): Boolean = obj match {
@@ -120,8 +123,20 @@ object Piece {
       case other => throw new Error(s"Unknown item type $other")
     }
 
-  lazy val available: Seq[String] = Seq("weapon",
-    "head", "body", "hands", "legs", "feet",
-    "ears", "neck", "wrist", "left ring", "right ring",
-    "accessory upgrade", "body upgrade", "weapon upgrade")
+  lazy val available: Seq[String] = Seq(
+    "weapon",
+    "head",
+    "body",
+    "hands",
+    "legs",
+    "feet",
+    "ears",
+    "neck",
+    "wrist",
+    "left ring",
+    "right ring",
+    "accessory upgrade",
+    "body upgrade",
+    "weapon upgrade"
+  )
 }

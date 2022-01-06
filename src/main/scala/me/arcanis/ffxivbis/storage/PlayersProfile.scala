@@ -15,16 +15,21 @@ import scala.concurrent.Future
 trait PlayersProfile { this: DatabaseProfile =>
   import dbConfig.profile.api._
 
-  case class PlayerRep(partyId: String, playerId: Option[Long], created: Long,
-                       nick: String, job: String, link: Option[String], priority: Int) {
+  case class PlayerRep(
+    partyId: String,
+    playerId: Option[Long],
+    created: Long,
+    nick: String,
+    job: String,
+    link: Option[String],
+    priority: Int
+  ) {
     def toPlayer: Player =
-      Player(playerId.getOrElse(-1), partyId, Job.withName(job), nick,
-        BiS.empty, Seq.empty, link, priority)
+      Player(playerId.getOrElse(-1), partyId, Job.withName(job), nick, BiS.empty, Seq.empty, link, priority)
   }
   object PlayerRep {
     def fromPlayer(player: Player, id: Option[Long]): PlayerRep =
-      PlayerRep(player.partyId, id, DatabaseProfile.now, player.nick,
-        player.job.toString, player.link, player.priority)
+      PlayerRep(player.partyId, id, DatabaseProfile.now, player.nick, player.job.toString, player.link, player.priority)
   }
 
   class Players(tag: Tag) extends Table[PlayerRep](tag, "players") {
@@ -42,10 +47,11 @@ trait PlayersProfile { this: DatabaseProfile =>
 
   def deletePlayer(playerId: PlayerId): Future[Int] = db.run(player(playerId).delete)
   def getParty(partyId: String): Future[Map[Long, Player]] =
-    db.run(players(partyId).result).map(_.foldLeft(Map.empty[Long, Player]) {
-      case (acc, p @ PlayerRep(_, Some(id), _, _, _, _, _)) => acc + (id -> p.toPlayer)
-      case (acc, _) => acc
-    })
+    db.run(players(partyId).result)
+      .map(_.foldLeft(Map.empty[Long, Player]) {
+        case (acc, p @ PlayerRep(_, Some(id), _, _, _, _, _)) => acc + (id -> p.toPlayer)
+        case (acc, _) => acc
+      })
   def getPlayer(playerId: PlayerId): Future[Option[Long]] =
     db.run(player(playerId).map(_.playerId).result.headOption)
   def getPlayerFull(playerId: PlayerId): Future[Option[Player]] =

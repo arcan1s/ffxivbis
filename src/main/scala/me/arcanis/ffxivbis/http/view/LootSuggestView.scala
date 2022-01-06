@@ -20,9 +20,9 @@ import me.arcanis.ffxivbis.models.{Job, Piece, PieceType, PlayerIdWithCounters}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class LootSuggestView(override val storage: ActorRef[Message])
-                     (implicit timeout: Timeout, scheduler: Scheduler)
-  extends LootHelper with Authorization {
+class LootSuggestView(override val storage: ActorRef[Message])(implicit timeout: Timeout, scheduler: Scheduler)
+  extends LootHelper
+  with Authorization {
 
   def route: Route = getIndex ~ suggestLoot
 
@@ -65,8 +65,10 @@ class LootSuggestView(override val storage: ActorRef[Message])
       }
     }
 
-  private def suggestLootCall(partyId: String, maybePiece: Option[Piece])
-                             (implicit executionContext: ExecutionContext, timeout: Timeout): Future[Seq[PlayerIdWithCounters]] =
+  private def suggestLootCall(partyId: String, maybePiece: Option[Piece])(implicit
+    executionContext: ExecutionContext,
+    timeout: Timeout
+  ): Future[Seq[PlayerIdWithCounters]] =
     maybePiece match {
       case Some(piece) => suggestPiece(partyId, piece)
       case _ => Future.failed(new Error(s"Could not construct piece from `$maybePiece`"))
@@ -77,36 +79,40 @@ object LootSuggestView {
   import scalatags.Text.all._
   import scalatags.Text.tags2.{title => titleTag}
 
-  def template(partyId: String, party: Seq[PlayerIdWithCounters], piece: Option[Piece],
-               isFreeLoot: Boolean, error: Option[String]): String =
+  def template(
+    partyId: String,
+    party: Seq[PlayerIdWithCounters],
+    piece: Option[Piece],
+    isFreeLoot: Boolean,
+    error: Option[String]
+  ): String =
     "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">" +
-      html(lang:="en",
+      html(
+        lang := "en",
         head(
           titleTag("Suggest loot"),
-          link(rel:="stylesheet", `type`:="text/css", href:="/static/styles.css")
+          link(rel := "stylesheet", `type` := "text/css", href := "/static/styles.css")
         ),
-
         body(
           h2("Suggest loot"),
-
           for (part <- piece) yield p(s"Piece ${part.piece} (${part.pieceType})"),
-
           ErrorView.template(error),
           SearchLineView.template,
-
-          form(action:=s"/party/$partyId/suggest", method:="post")(
-            select(name:="piece", id:="piece", title:="piece")
-                  (for (piece <- Piece.available) yield option(piece)),
-            select(name:="job", id:="job", title:="job")
-                  (for (job <- Job.availableWithAnyJob) yield option(job.toString)),
-            select(name:="piece_type", id:="piece_type", title:="piece type")
-                  (for (pieceType <- PieceType.available) yield option(pieceType.toString)),
-            input(name:="free_loot", id:="free_loot", title:="is free loot", `type`:="checkbox"),
-            label(`for`:="free_loot")("is free loot"),
-            input(name:="suggest", id:="suggest", `type`:="submit", value:="suggest")
+          form(action := s"/party/$partyId/suggest", method := "post")(
+            select(name := "piece", id := "piece", title := "piece")(
+              for (piece <- Piece.available) yield option(piece)
+            ),
+            select(name := "job", id := "job", title := "job")(
+              for (job <- Job.availableWithAnyJob) yield option(job.toString)
+            ),
+            select(name := "piece_type", id := "piece_type", title := "piece type")(
+              for (pieceType <- PieceType.available) yield option(pieceType.toString)
+            ),
+            input(name := "free_loot", id := "free_loot", title := "is free loot", `type` := "checkbox"),
+            label(`for` := "free_loot")("is free loot"),
+            input(name := "suggest", id := "suggest", `type` := "submit", value := "suggest")
           ),
-
-          table(id:="result")(
+          table(id := "result")(
             tr(
               th("player"),
               th("is required"),
@@ -115,28 +121,43 @@ object LootSuggestView {
               th("total pieces looted"),
               th("")
             ),
-            for (player <- party) yield tr(
-              td(`class`:="include_search")(player.playerId.toString),
-              td(player.isRequiredToString),
-              td(player.lootCount),
-              td(player.lootCountBiS),
-              td(player.lootCountTotal),
-              td(
-                form(action:=s"/party/$partyId/loot", method:="post")(
-                  input(name:="player", id:="player", `type`:="hidden", value:=player.playerId.toString),
-                  input(name:="piece", id:="piece", `type`:="hidden", value:=piece.map(_.piece).getOrElse("")),
-                  input(name:="piece_type", id:="piece_type", `type`:="hidden", value:=piece.map(_.pieceType.toString).getOrElse("")),
-                  input(name:="free_loot", id:="free_loot", `type`:="hidden", value:=(if (isFreeLoot) "yes" else "no")),
-                  input(name:="action", id:="action", `type`:="hidden", value:="add"),
-                  input(name:="add", id:="add", `type`:="submit", value:="add")
+            for (player <- party)
+              yield tr(
+                td(`class` := "include_search")(player.playerId.toString),
+                td(player.isRequiredToString),
+                td(player.lootCount),
+                td(player.lootCountBiS),
+                td(player.lootCountTotal),
+                td(
+                  form(action := s"/party/$partyId/loot", method := "post")(
+                    input(name := "player", id := "player", `type` := "hidden", value := player.playerId.toString),
+                    input(
+                      name := "piece",
+                      id := "piece",
+                      `type` := "hidden",
+                      value := piece.map(_.piece).getOrElse("")
+                    ),
+                    input(
+                      name := "piece_type",
+                      id := "piece_type",
+                      `type` := "hidden",
+                      value := piece.map(_.pieceType.toString).getOrElse("")
+                    ),
+                    input(
+                      name := "free_loot",
+                      id := "free_loot",
+                      `type` := "hidden",
+                      value := (if (isFreeLoot) "yes" else "no")
+                    ),
+                    input(name := "action", id := "action", `type` := "hidden", value := "add"),
+                    input(name := "add", id := "add", `type` := "submit", value := "add")
+                  )
                 )
               )
-            )
           ),
-
           ExportToCSVView.template,
           BasePartyView.root(partyId),
-          script(src:="/static/table_search.js", `type`:="text/javascript")
+          script(src := "/static/table_search.js", `type` := "text/javascript")
         )
       )
 }

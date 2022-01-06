@@ -26,14 +26,24 @@ class TypesEndpoint(config: Config) extends JsonSupport {
   @GET
   @Path("types/jobs")
   @Produces(value = Array("application/json"))
-  @Operation(summary = "jobs list", description = "Returns the available jobs",
+  @Operation(
+    summary = "jobs list",
+    description = "Returns the available jobs",
     responses = Array(
-      new ApiResponse(responseCode = "200", description = "List of available jobs",
-        content = Array(new Content(
-          array = new ArraySchema(schema = new Schema(implementation = classOf[String]))
-        ))),
-      new ApiResponse(responseCode = "500", description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
+      new ApiResponse(
+        responseCode = "200",
+        description = "List of available jobs",
+        content = Array(
+          new Content(
+            array = new ArraySchema(schema = new Schema(implementation = classOf[String]))
+          )
+        )
+      ),
+      new ApiResponse(
+        responseCode = "500",
+        description = "Internal server error",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
     ),
     tags = Array("types"),
   )
@@ -47,14 +57,24 @@ class TypesEndpoint(config: Config) extends JsonSupport {
   @GET
   @Path("types/permissions")
   @Produces(value = Array("application/json"))
-  @Operation(summary = "permissions list", description = "Returns the available permissions",
+  @Operation(
+    summary = "permissions list",
+    description = "Returns the available permissions",
     responses = Array(
-      new ApiResponse(responseCode = "200", description = "List of available permissions",
-        content = Array(new Content(
-          array = new ArraySchema(schema = new Schema(implementation = classOf[String]))
-        ))),
-      new ApiResponse(responseCode = "500", description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
+      new ApiResponse(
+        responseCode = "200",
+        description = "List of available permissions",
+        content = Array(
+          new Content(
+            array = new ArraySchema(schema = new Schema(implementation = classOf[String]))
+          )
+        )
+      ),
+      new ApiResponse(
+        responseCode = "500",
+        description = "Internal server error",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
     ),
     tags = Array("types"),
   )
@@ -68,14 +88,24 @@ class TypesEndpoint(config: Config) extends JsonSupport {
   @GET
   @Path("types/pieces")
   @Produces(value = Array("application/json"))
-  @Operation(summary = "pieces list", description = "Returns the available pieces",
+  @Operation(
+    summary = "pieces list",
+    description = "Returns the available pieces",
     responses = Array(
-      new ApiResponse(responseCode = "200", description = "List of available pieces",
-        content = Array(new Content(
-          array = new ArraySchema(schema = new Schema(implementation = classOf[String]))
-        ))),
-      new ApiResponse(responseCode = "500", description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
+      new ApiResponse(
+        responseCode = "200",
+        description = "List of available pieces",
+        content = Array(
+          new Content(
+            array = new ArraySchema(schema = new Schema(implementation = classOf[String]))
+          )
+        )
+      ),
+      new ApiResponse(
+        responseCode = "500",
+        description = "Internal server error",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
     ),
     tags = Array("types"),
   )
@@ -89,14 +119,24 @@ class TypesEndpoint(config: Config) extends JsonSupport {
   @GET
   @Path("types/pieces/types")
   @Produces(value = Array("application/json"))
-  @Operation(summary = "piece types list", description = "Returns the available piece types",
+  @Operation(
+    summary = "piece types list",
+    description = "Returns the available piece types",
     responses = Array(
-      new ApiResponse(responseCode = "200", description = "List of available piece types",
-        content = Array(new Content(
-          array = new ArraySchema(schema = new Schema(implementation = classOf[String]))
-        ))),
-      new ApiResponse(responseCode = "500", description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
+      new ApiResponse(
+        responseCode = "200",
+        description = "List of available piece types",
+        content = Array(
+          new Content(
+            array = new ArraySchema(schema = new Schema(implementation = classOf[String]))
+          )
+        )
+      ),
+      new ApiResponse(
+        responseCode = "500",
+        description = "Internal server error",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
     ),
     tags = Array("types"),
   )
@@ -110,14 +150,24 @@ class TypesEndpoint(config: Config) extends JsonSupport {
   @GET
   @Path("types/priority")
   @Produces(value = Array("application/json"))
-  @Operation(summary = "priority list", description = "Returns the current priority list",
+  @Operation(
+    summary = "priority list",
+    description = "Returns the current priority list",
     responses = Array(
-      new ApiResponse(responseCode = "200", description = "Priority order",
-        content = Array(new Content(
-          array = new ArraySchema(schema = new Schema(implementation = classOf[String]))
-        ))),
-      new ApiResponse(responseCode = "500", description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
+      new ApiResponse(
+        responseCode = "200",
+        description = "Priority order",
+        content = Array(
+          new Content(
+            array = new ArraySchema(schema = new Schema(implementation = classOf[String]))
+          )
+        )
+      ),
+      new ApiResponse(
+        responseCode = "500",
+        description = "Internal server error",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
     ),
     tags = Array("types"),
   )

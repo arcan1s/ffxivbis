@@ -18,19 +18,33 @@ import scala.concurrent.Future
 trait LootProfile { this: DatabaseProfile =>
   import dbConfig.profile.api._
 
-  case class LootRep(lootId: Option[Long], playerId: Long, created: Long,
-                     piece: String, pieceType: String, job: String,
-                     isFreeLoot: Int) {
+  case class LootRep(
+    lootId: Option[Long],
+    playerId: Long,
+    created: Long,
+    piece: String,
+    pieceType: String,
+    job: String,
+    isFreeLoot: Int
+  ) {
     def toLoot: Loot = Loot(
       playerId,
       Piece(piece, PieceType.withName(pieceType), Job.withName(job)),
-      Instant.ofEpochMilli(created), isFreeLoot == 1)
+      Instant.ofEpochMilli(created),
+      isFreeLoot == 1
+    )
   }
   object LootRep {
     def fromLoot(playerId: Long, loot: Loot): LootRep =
-      LootRep(None, playerId, loot.timestamp.toEpochMilli, loot.piece.piece,
-        loot.piece.pieceType.toString, loot.piece.job.toString,
-        if (loot.isFreeLoot) 1 else 0)
+      LootRep(
+        None,
+        playerId,
+        loot.timestamp.toEpochMilli,
+        loot.piece.piece,
+        loot.piece.pieceType.toString,
+        loot.piece.job.toString,
+        if (loot.isFreeLoot) 1 else 0
+      )
   }
 
   class LootPieces(tag: Tag) extends Table[LootRep](tag, "loot") {
@@ -48,7 +62,7 @@ trait LootProfile { this: DatabaseProfile =>
     def fkPlayerId: ForeignKeyQuery[Players, PlayerRep] =
       foreignKey("player_id", playerId, playersTable)(_.playerId, onDelete = ForeignKeyAction.Cascade)
     def lootOwnerIdx: Index =
-      index("loot_owner_idx", (playerId), unique = false)
+      index("loot_owner_idx", playerId, unique = false)
   }
 
   def deletePieceById(loot: Loot)(playerId: Long): Future[Int] =

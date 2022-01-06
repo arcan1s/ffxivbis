@@ -28,33 +28,58 @@ import me.arcanis.ffxivbis.models.PlayerId
 import scala.util.{Failure, Success}
 
 @Path("api/v1")
-class PlayerEndpoint(override val storage: ActorRef[Message],
-                     override val provider: ActorRef[BiSProviderMessage])
-                    (implicit timeout: Timeout, scheduler: Scheduler)
-  extends PlayerHelper with Authorization with JsonSupport with HttpHandler {
+class PlayerEndpoint(override val storage: ActorRef[Message], override val provider: ActorRef[BiSProviderMessage])(
+  implicit
+  timeout: Timeout,
+  scheduler: Scheduler
+) extends PlayerHelper
+  with Authorization
+  with JsonSupport
+  with HttpHandler {
 
   def route: Route = getParty ~ modifyParty
 
   @GET
   @Path("party/{partyId}")
   @Produces(value = Array("application/json"))
-  @Operation(summary = "get party", description = "Return the players who belong to the party",
+  @Operation(
+    summary = "get party",
+    description = "Return the players who belong to the party",
     parameters = Array(
       new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
-      new Parameter(name = "nick", in = ParameterIn.QUERY, description = "player nick name to filter", example = "Siuan Sanche"),
+      new Parameter(
+        name = "nick",
+        in = ParameterIn.QUERY,
+        description = "player nick name to filter",
+        example = "Siuan Sanche"
+      ),
       new Parameter(name = "job", in = ParameterIn.QUERY, description = "player job to filter", example = "DNC"),
     ),
     responses = Array(
-      new ApiResponse(responseCode = "200", description = "Players list",
-        content = Array(new Content(
-          array = new ArraySchema(schema = new Schema(implementation = classOf[PlayerResponse])),
-        ))),
-      new ApiResponse(responseCode = "401", description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "403", description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "500", description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
+      new ApiResponse(
+        responseCode = "200",
+        description = "Players list",
+        content = Array(
+          new Content(
+            array = new ArraySchema(schema = new Schema(implementation = classOf[PlayerResponse])),
+          )
+        )
+      ),
+      new ApiResponse(
+        responseCode = "401",
+        description = "Supplied authorization is invalid",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "403",
+        description = "Access is forbidden",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "500",
+        description = "Internal server error",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("get"))),
     tags = Array("party"),
@@ -79,22 +104,39 @@ class PlayerEndpoint(override val storage: ActorRef[Message],
   @POST
   @Path("party/{partyId}")
   @Consumes(value = Array("application/json"))
-  @Operation(summary = "modify party", description = "Add or remove a player from party list",
+  @Operation(
+    summary = "modify party",
+    description = "Add or remove a player from party list",
     parameters = Array(
       new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
     ),
-    requestBody = new RequestBody(description = "player description", required = true,
-      content = Array(new Content(schema = new Schema(implementation = classOf[PlayerActionResponse])))),
+    requestBody = new RequestBody(
+      description = "player description",
+      required = true,
+      content = Array(new Content(schema = new Schema(implementation = classOf[PlayerActionResponse])))
+    ),
     responses = Array(
       new ApiResponse(responseCode = "202", description = "Party has been modified"),
-      new ApiResponse(responseCode = "400", description = "Invalid parameters were supplied",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "401", description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "403", description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "500", description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
+      new ApiResponse(
+        responseCode = "400",
+        description = "Invalid parameters were supplied",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "401",
+        description = "Supplied authorization is invalid",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "403",
+        description = "Access is forbidden",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "500",
+        description = "Internal server error",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("post"))),
     tags = Array("party"),

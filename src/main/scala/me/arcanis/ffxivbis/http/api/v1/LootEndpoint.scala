@@ -28,32 +28,55 @@ import me.arcanis.ffxivbis.models.PlayerId
 import scala.util.{Failure, Success}
 
 @Path("api/v1")
-class LootEndpoint(override val storage: ActorRef[Message])
-                  (implicit timeout: Timeout, scheduler: Scheduler)
-  extends LootHelper with Authorization with JsonSupport with HttpHandler {
+class LootEndpoint(override val storage: ActorRef[Message])(implicit timeout: Timeout, scheduler: Scheduler)
+  extends LootHelper
+  with Authorization
+  with JsonSupport
+  with HttpHandler {
 
   def route: Route = getLoot ~ modifyLoot
 
   @GET
   @Path("party/{partyId}/loot")
   @Produces(value = Array("application/json"))
-  @Operation(summary = "get loot list", description = "Return the looted items",
+  @Operation(
+    summary = "get loot list",
+    description = "Return the looted items",
     parameters = Array(
       new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
-      new Parameter(name = "nick", in = ParameterIn.QUERY, description = "player nick name to filter", example = "Siuan Sanche"),
+      new Parameter(
+        name = "nick",
+        in = ParameterIn.QUERY,
+        description = "player nick name to filter",
+        example = "Siuan Sanche"
+      ),
       new Parameter(name = "job", in = ParameterIn.QUERY, description = "player job to filter", example = "DNC"),
     ),
     responses = Array(
-      new ApiResponse(responseCode = "200", description = "Loot list",
-        content = Array(new Content(
-          array = new ArraySchema(schema = new Schema(implementation = classOf[PlayerResponse]))
-        ))),
-      new ApiResponse(responseCode = "401", description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "403", description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "500", description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
+      new ApiResponse(
+        responseCode = "200",
+        description = "Loot list",
+        content = Array(
+          new Content(
+            array = new ArraySchema(schema = new Schema(implementation = classOf[PlayerResponse]))
+          )
+        )
+      ),
+      new ApiResponse(
+        responseCode = "401",
+        description = "Supplied authorization is invalid",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "403",
+        description = "Access is forbidden",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "500",
+        description = "Internal server error",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("get"))),
     tags = Array("loot"),
@@ -78,22 +101,39 @@ class LootEndpoint(override val storage: ActorRef[Message])
   @POST
   @Consumes(value = Array("application/json"))
   @Path("party/{partyId}/loot")
-  @Operation(summary = "modify loot list", description = "Add or remove an item from the loot list",
+  @Operation(
+    summary = "modify loot list",
+    description = "Add or remove an item from the loot list",
     parameters = Array(
       new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
     ),
-    requestBody = new RequestBody(description = "action and piece description", required = true,
-      content = Array(new Content(schema = new Schema(implementation = classOf[PieceActionResponse])))),
+    requestBody = new RequestBody(
+      description = "action and piece description",
+      required = true,
+      content = Array(new Content(schema = new Schema(implementation = classOf[PieceActionResponse])))
+    ),
     responses = Array(
       new ApiResponse(responseCode = "202", description = "Loot list has been modified"),
-      new ApiResponse(responseCode = "400", description = "Invalid parameters were supplied",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "401", description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "403", description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "500", description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
+      new ApiResponse(
+        responseCode = "400",
+        description = "Invalid parameters were supplied",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "401",
+        description = "Supplied authorization is invalid",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "403",
+        description = "Access is forbidden",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "500",
+        description = "Internal server error",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("post"))),
     tags = Array("loot"),
@@ -119,25 +159,47 @@ class LootEndpoint(override val storage: ActorRef[Message])
   @Path("party/{partyId}/loot")
   @Consumes(value = Array("application/json"))
   @Produces(value = Array("application/json"))
-  @Operation(summary = "suggest loot", description = "Suggest loot piece to party",
+  @Operation(
+    summary = "suggest loot",
+    description = "Suggest loot piece to party",
     parameters = Array(
       new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
     ),
-    requestBody = new RequestBody(description = "piece description", required = true,
-      content = Array(new Content(schema = new Schema(implementation = classOf[PieceResponse])))),
+    requestBody = new RequestBody(
+      description = "piece description",
+      required = true,
+      content = Array(new Content(schema = new Schema(implementation = classOf[PieceResponse])))
+    ),
     responses = Array(
-      new ApiResponse(responseCode = "200", description = "Players with counters ordered by priority to get this item",
-        content = Array(new Content(
-          array = new ArraySchema(schema = new Schema(implementation = classOf[PlayerIdWithCountersResponse])),
-        ))),
-      new ApiResponse(responseCode = "400", description = "Invalid parameters were supplied",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "401", description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "403", description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "500", description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
+      new ApiResponse(
+        responseCode = "200",
+        description = "Players with counters ordered by priority to get this item",
+        content = Array(
+          new Content(
+            array = new ArraySchema(schema = new Schema(implementation = classOf[PlayerIdWithCountersResponse])),
+          )
+        )
+      ),
+      new ApiResponse(
+        responseCode = "400",
+        description = "Invalid parameters were supplied",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "401",
+        description = "Supplied authorization is invalid",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "403",
+        description = "Access is forbidden",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "500",
+        description = "Internal server error",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("get"))),
     tags = Array("loot"),

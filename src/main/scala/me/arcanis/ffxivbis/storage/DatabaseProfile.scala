@@ -18,7 +18,11 @@ import slick.jdbc.JdbcProfile
 import scala.concurrent.{ExecutionContext, Future}
 
 class DatabaseProfile(context: ExecutionContext, config: Config)
-  extends BiSProfile with LootProfile with PartyProfile with PlayersProfile with UsersProfile {
+  extends BiSProfile
+  with LootProfile
+  with PartyProfile
+  with PlayersProfile
+  with UsersProfile {
 
   implicit val executionContext: ExecutionContext = context
 

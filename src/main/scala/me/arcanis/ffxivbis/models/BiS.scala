@@ -16,18 +16,21 @@ case class BiS(pieces: Seq[Piece]) {
   }
 
   def upgrades: Map[PieceUpgrade, Int] =
-    pieces.groupBy(_.upgrade).foldLeft(Map.empty[PieceUpgrade, Int]) {
-      case (acc, (Some(k), v)) => acc + (k -> v.size)
-      case (acc, _) => acc
-    } withDefaultValue 0
+    pieces
+      .groupBy(_.upgrade)
+      .foldLeft(Map.empty[PieceUpgrade, Int]) {
+        case (acc, (Some(k), v)) => acc + (k -> v.size)
+        case (acc, _) => acc
+      }
+      .withDefaultValue(0)
 
   def withPiece(piece: Piece): BiS = copy(pieces :+ piece)
   def withoutPiece(piece: Piece): BiS = copy(pieces.filterNot(_.strictEqual(piece)))
 
   override def equals(obj: Any): Boolean = {
     def comparePieces(left: Seq[Piece], right: Seq[Piece]): Boolean =
-      left.groupBy(identity).view.mapValues(_.size).forall {
-        case (key, count) => right.count(_.strictEqual(key)) == count
+      left.groupBy(identity).view.mapValues(_.size).forall { case (key, count) =>
+        right.count(_.strictEqual(key)) == count
       }
 
     obj match {

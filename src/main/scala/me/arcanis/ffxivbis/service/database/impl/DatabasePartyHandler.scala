@@ -6,16 +6,16 @@
  *
  * License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
  */
-package me.arcanis.ffxivbis.service.impl
+package me.arcanis.ffxivbis.service.database.impl
 
 import akka.actor.typed.scaladsl.Behaviors
 import me.arcanis.ffxivbis.messages.{AddPlayer, DatabaseMessage, GetParty, GetPartyDescription, GetPlayer, RemovePlayer, UpdateParty}
 import me.arcanis.ffxivbis.models.{BiS, Player}
-import me.arcanis.ffxivbis.service.Database
+import me.arcanis.ffxivbis.service.database.Database
 
 import scala.concurrent.Future
 
-trait DatabasePartyHandler { this: Database  =>
+trait DatabasePartyHandler { this: Database =>
 
   def partyHandler: DatabaseMessage.Handler = {
     case AddPlayer(player, client) =>
@@ -31,16 +31,26 @@ trait DatabasePartyHandler { this: Database  =>
       Behaviors.same
 
     case GetPlayer(playerId, client) =>
-      val player = profile.getPlayerFull(playerId).flatMap { maybePlayerData =>
-        Future.traverse(maybePlayerData.toSeq) { playerData =>
-          for {
-            bis <- profile.getPiecesBiS(playerId)
-            loot <- profile.getPieces(playerId)
-          } yield Player(playerData.id, playerId.partyId, playerId.job,
-            playerId.nick, BiS(bis.map(_.piece)), loot,
-            playerData.link, playerData.priority)
+      val player = profile
+        .getPlayerFull(playerId)
+        .flatMap { maybePlayerData =>
+          Future.traverse(maybePlayerData.toSeq) { playerData =>
+            for {
+              bis <- profile.getPiecesBiS(playerId)
+              loot <- profile.getPieces(playerId)
+            } yield Player(
+              playerData.id,
+              playerId.partyId,
+              playerId.job,
+              playerId.nick,
+              BiS(bis.map(_.piece)),
+              loot,
+              playerData.link,
+              playerData.priority
+            )
+          }
         }
-      }.map(_.headOption)
+        .map(_.headOption)
       player.foreach(client ! _)
       Behaviors.same
 

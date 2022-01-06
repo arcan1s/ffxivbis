@@ -15,8 +15,7 @@ import scala.concurrent.Future
 trait PartyProfile { this: DatabaseProfile =>
   import dbConfig.profile.api._
 
-  case class PartyRep(partyId: Option[Long], partyName: String,
-                      partyAlias: Option[String]) {
+  case class PartyRep(partyId: Option[Long], partyName: String, partyAlias: Option[String]) {
     def toDescription: PartyDescription = PartyDescription(partyName, partyAlias)
   }
   object PartyRep {
@@ -34,7 +33,9 @@ trait PartyProfile { this: DatabaseProfile =>
   }
 
   def getPartyDescription(partyId: String): Future[PartyDescription] =
-    db.run(partyDescription(partyId).result.headOption.map(_.map(_.toDescription).getOrElse(PartyDescription.empty(partyId))))
+    db.run(
+      partyDescription(partyId).result.headOption.map(_.map(_.toDescription).getOrElse(PartyDescription.empty(partyId)))
+    )
   def getUniquePartyId(partyId: String): Future[Option[Long]] =
     db.run(partyDescription(partyId).map(_.partyId).result.headOption)
   def insertPartyDescription(partyDescription: PartyDescription): Future[Int] =
@@ -42,7 +43,6 @@ trait PartyProfile { this: DatabaseProfile =>
       case Some(id) => db.run(partiesTable.update(PartyRep.fromDescription(partyDescription, Some(id))))
       case _ => db.run(partiesTable.insertOrUpdate(PartyRep.fromDescription(partyDescription, None)))
     }
-
 
   private def partyDescription(partyId: String) =
     partiesTable.filter(_.partyName === partyId)

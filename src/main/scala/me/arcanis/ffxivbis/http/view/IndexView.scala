@@ -20,10 +20,11 @@ import me.arcanis.ffxivbis.models.{PartyDescription, Permission, User}
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class IndexView(override val storage: ActorRef[Message],
-                override val provider: ActorRef[BiSProviderMessage])
-               (implicit timeout: Timeout, scheduler: Scheduler)
-  extends PlayerHelper with UserHelper {
+class IndexView(override val storage: ActorRef[Message], override val provider: ActorRef[BiSProviderMessage])(implicit
+  timeout: Timeout,
+  scheduler: Scheduler
+) extends PlayerHelper
+  with UserHelper {
 
   def route: Route = createParty ~ getIndex
 
@@ -31,19 +32,20 @@ class IndexView(override val storage: ActorRef[Message],
     path("party") {
       extractExecutionContext { implicit executionContext =>
         post {
-          formFields("username".as[String], "password".as[String], "alias".as[String].?) { (username, password, maybeAlias) =>
-            onComplete {
-              newPartyId.flatMap { partyId =>
-                val user = User(partyId, username, password, Permission.admin)
-                addUser(user, isHashedPassword = false).flatMap { _ =>
-                  if (maybeAlias.getOrElse("").isEmpty) Future.successful(partyId)
-                  else updateDescription(PartyDescription(partyId, maybeAlias)).map(_ => partyId)
+          formFields("username".as[String], "password".as[String], "alias".as[String].?) {
+            (username, password, maybeAlias) =>
+              onComplete {
+                newPartyId.flatMap { partyId =>
+                  val user = User(partyId, username, password, Permission.admin)
+                  addUser(user, isHashedPassword = false).flatMap { _ =>
+                    if (maybeAlias.getOrElse("").isEmpty) Future.successful(partyId)
+                    else updateDescription(PartyDescription(partyId, maybeAlias)).map(_ => partyId)
+                  }
                 }
+              } {
+                case Success(partyId) => redirect(s"/party/$partyId", StatusCodes.Found)
+                case Failure(exception) => throw exception
               }
-            } {
-              case Success(partyId) => redirect(s"/party/$partyId", StatusCodes.Found)
-              case Failure(exception) => throw exception
-            }
           }
         }
       }
@@ -69,26 +71,34 @@ object IndexView {
       html(
         head(
           titleTag("FFXIV loot helper"),
-          link(rel:="stylesheet", `type`:="text/css", href:="/static/styles.css")
+          link(rel := "stylesheet", `type` := "text/css", href := "/static/styles.css")
         ),
-
         body(
-          form(action:=s"party", method:="post")(
+          form(action := s"party", method := "post")(
             label("create a new party"),
-            input(name:="alias", id:="alias", placeholder:="party alias", title:="alias", `type`:="text"),
-            input(name:="username", id:="username", placeholder:="username", title:="username", `type`:="text"),
-            input(name:="password", id:="password", placeholder:="password", title:="password", `type`:="password"),
-            input(name:="add", id:="add", `type`:="submit", value:="add")
+            input(name := "alias", id := "alias", placeholder := "party alias", title := "alias", `type` := "text"),
+            input(
+              name := "username",
+              id := "username",
+              placeholder := "username",
+              title := "username",
+              `type` := "text"
+            ),
+            input(
+              name := "password",
+              id := "password",
+              placeholder := "password",
+              title := "password",
+              `type` := "password"
+            ),
+            input(name := "add", id := "add", `type` := "submit", value := "add")
           ),
-
           br,
-
-          form(action:="/", method:="get")(
+          form(action := "/", method := "get")(
             label("already have party?"),
-            input(name:="partyId", id:="partyId", placeholder:="party id", title:="party id", `type`:="text"),
-            input(name:="go", id:="go", `type`:="submit", value:="go")
+            input(name := "partyId", id := "partyId", placeholder := "party id", title := "party id", `type` := "text"),
+            input(name := "go", id := "go", `type` := "submit", value := "go")
           )
         )
       )
 }
-

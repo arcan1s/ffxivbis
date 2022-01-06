@@ -20,7 +20,6 @@ trait BisProviderHelper {
 
   def provider: ActorRef[BiSProviderMessage]
 
-  def downloadBiS(link: String, job: Job.Job)
-                 (implicit timeout: Timeout, scheduler: Scheduler): Future[BiS] =
+  def downloadBiS(link: String, job: Job.Job)(implicit timeout: Timeout, scheduler: Scheduler): Future[BiS] =
     provider.ask(DownloadBiS(link, job, _))
 }

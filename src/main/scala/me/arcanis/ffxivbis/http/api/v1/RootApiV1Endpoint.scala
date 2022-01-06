@@ -16,10 +16,11 @@ import com.typesafe.config.Config
 import me.arcanis.ffxivbis.http.api.v1.json.JsonSupport
 import me.arcanis.ffxivbis.messages.{BiSProviderMessage, Message}
 
-class RootApiV1Endpoint(storage: ActorRef[Message],
-                        provider: ActorRef[BiSProviderMessage],
-                        config: Config)(implicit timeout: Timeout, scheduler: Scheduler)
-  extends JsonSupport with HttpHandler {
+class RootApiV1Endpoint(storage: ActorRef[Message], provider: ActorRef[BiSProviderMessage], config: Config)(implicit
+  timeout: Timeout,
+  scheduler: Scheduler
+) extends JsonSupport
+  with HttpHandler {
 
   private val biSEndpoint = new BiSEndpoint(storage, provider)
   private val lootEndpoint = new LootEndpoint(storage)

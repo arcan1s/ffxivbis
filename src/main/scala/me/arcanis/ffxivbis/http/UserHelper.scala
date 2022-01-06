@@ -20,22 +20,18 @@ trait UserHelper {
 
   def storage: ActorRef[Message]
 
-  def addUser(user: User, isHashedPassword: Boolean)
-             (implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
+  def addUser(user: User, isHashedPassword: Boolean)(implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
     storage.ask(AddUser(user, isHashedPassword, _))
 
   def newPartyId(implicit timeout: Timeout, scheduler: Scheduler): Future[String] =
     storage.ask(GetNewPartyId)
 
-  def user(partyId: String, username: String)
-          (implicit timeout: Timeout, scheduler: Scheduler): Future[Option[User]] =
+  def user(partyId: String, username: String)(implicit timeout: Timeout, scheduler: Scheduler): Future[Option[User]] =
     storage.ask(GetUser(partyId, username, _))
 
-  def users(partyId: String)
-           (implicit timeout: Timeout, scheduler: Scheduler): Future[Seq[User]] =
+  def users(partyId: String)(implicit timeout: Timeout, scheduler: Scheduler): Future[Seq[User]] =
     storage.ask(GetUsers(partyId, _))
 
-  def removeUser(partyId: String, username: String)
-                (implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
+  def removeUser(partyId: String, username: String)(implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
     storage.ask(DeleteUser(partyId, username, _))
 }

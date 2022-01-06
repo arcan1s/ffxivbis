@@ -15,7 +15,12 @@ case class UserResponse(
   @Schema(description = "unique party ID", required = true, example = "abcdefgh") partyId: String,
   @Schema(description = "username to login to party", required = true, example = "siuan") username: String,
   @Schema(description = "password to login to party", required = true, example = "pa55w0rd") password: String,
-  @Schema(description = "user permission", defaultValue = "get", allowableValues = Array("get", "post", "admin")) permission: Option[Permission.Value] = None) {
+  @Schema(
+    description = "user permission",
+    defaultValue = "get",
+    allowableValues = Array("get", "post", "admin")
+  ) permission: Option[Permission.Value] = None
+) {
 
   def toUser: User =
     User(partyId, username, password, permission.getOrElse(Permission.get))

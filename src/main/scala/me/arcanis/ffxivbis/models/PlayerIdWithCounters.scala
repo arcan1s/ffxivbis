@@ -8,16 +8,17 @@
  */
 package me.arcanis.ffxivbis.models
 
-case class PlayerIdWithCounters(partyId: String,
-                                job: Job.Job,
-                                nick: String,
-                                isRequired: Boolean,
-                                priority: Int,
-                                bisCountTotal: Int,
-                                lootCount: Int,
-                                lootCountBiS: Int,
-                                lootCountTotal: Int)
-  extends PlayerIdBase {
+case class PlayerIdWithCounters(
+  partyId: String,
+  job: Job.Job,
+  nick: String,
+  isRequired: Boolean,
+  priority: Int,
+  bisCountTotal: Int,
+  lootCount: Int,
+  lootCountBiS: Int,
+  lootCountTotal: Int
+) extends PlayerIdBase {
   import PlayerIdWithCounters._
 
   def gt(that: PlayerIdWithCounters, orderBy: Seq[String]): Boolean =
@@ -31,7 +32,8 @@ case class PlayerIdWithCounters(partyId: String,
     "bisCountTotal" -> bisCountTotal, // the more pieces in bis the more priority
     "lootCount" -> -lootCount, // the less loot got the more priority
     "lootCountBiS" -> -lootCountBiS, // the less bis pieces looted the more priority
-    "lootCountTotal" -> -lootCountTotal) withDefaultValue 0 // the less pieces looted the more priority
+    "lootCountTotal" -> -lootCountTotal
+  ).withDefaultValue(0) // the less pieces looted the more priority
 
   private def withCounters(orderBy: Seq[String]): PlayerCountersComparator =
     PlayerCountersComparator(orderBy.map(counters): _*)

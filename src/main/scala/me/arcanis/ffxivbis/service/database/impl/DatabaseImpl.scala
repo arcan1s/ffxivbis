@@ -6,23 +6,26 @@
  *
  * License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
  */
-package me.arcanis.ffxivbis.service.impl
+package me.arcanis.ffxivbis.service.database.impl
 
 import akka.actor.typed.{Behavior, DispatcherSelector}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext}
 import com.typesafe.config.Config
 import me.arcanis.ffxivbis.messages.DatabaseMessage
-import me.arcanis.ffxivbis.service.Database
+import me.arcanis.ffxivbis.service.database.Database
 import me.arcanis.ffxivbis.storage.DatabaseProfile
 
 import scala.concurrent.ExecutionContext
 
 class DatabaseImpl(context: ActorContext[DatabaseMessage])
-  extends AbstractBehavior[DatabaseMessage](context) with Database
-  with DatabaseBiSHandler with DatabaseLootHandler
-  with DatabasePartyHandler with DatabaseUserHandler {
+  extends AbstractBehavior[DatabaseMessage](context)
+  with Database
+  with DatabaseBiSHandler
+  with DatabaseLootHandler
+  with DatabasePartyHandler
+  with DatabaseUserHandler {
 
-  override implicit val executionContext: ExecutionContext = {
+  implicit override val executionContext: ExecutionContext = {
     val selector = DispatcherSelector.fromConfig("me.arcanis.ffxivbis.default-dispatcher")
     context.system.dispatchers.lookup(selector)
   }
@@ -32,5 +35,5 @@ class DatabaseImpl(context: ActorContext[DatabaseMessage])
   override def onMessage(msg: DatabaseMessage): Behavior[DatabaseMessage] = handle(msg)
 
   private def handle: DatabaseMessage.Handler =
-    bisHandler orElse lootHandler orElse partyHandler orElse userHandler
+    bisHandler.orElse(lootHandler).orElse(partyHandler).orElse(userHandler)
 }

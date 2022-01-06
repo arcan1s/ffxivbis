@@ -6,15 +6,15 @@
  *
  * License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
  */
-package me.arcanis.ffxivbis.service
+package me.arcanis.ffxivbis.service.database
 
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
-import me.arcanis.ffxivbis.messages.{DatabaseMessage}
+import me.arcanis.ffxivbis.messages.DatabaseMessage
 import me.arcanis.ffxivbis.models.{Party, Player, PlayerId}
-import me.arcanis.ffxivbis.service.impl.DatabaseImpl
+import me.arcanis.ffxivbis.service.database.impl.DatabaseImpl
 import me.arcanis.ffxivbis.storage.DatabaseProfile
 
 import scala.concurrent.{ExecutionContext, Future}

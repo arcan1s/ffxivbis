@@ -16,13 +16,17 @@ import akka.http.scaladsl.model._
 import com.typesafe.scalalogging.StrictLogging
 import me.arcanis.ffxivbis.messages.{BiSProviderMessage, DownloadBiS}
 import me.arcanis.ffxivbis.models.{BiS, Job, Piece, PieceType}
+import me.arcanis.ffxivbis.service.bis.parser.Parser
+import me.arcanis.ffxivbis.service.bis.parser.impl.{Ariyala, Etro}
 import spray.json._
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 class BisProvider(context: ActorContext[BiSProviderMessage])
-  extends AbstractBehavior[BiSProviderMessage](context) with XivApi with StrictLogging {
+  extends AbstractBehavior[BiSProviderMessage](context)
+  with XivApi
+  with StrictLogging {
 
   override def system: ClassicActorSystemProvider = context.system
 
@@ -37,20 +41,22 @@ class BisProvider(context: ActorContext[BiSProviderMessage])
         Behaviors.same
     }
 
-  override def onSignal: PartialFunction[Signal, Behavior[BiSProviderMessage]] = {
-    case PostStop =>
-      shutdown()
-      Behaviors.same
+  override def onSignal: PartialFunction[Signal, Behavior[BiSProviderMessage]] = { case PostStop =>
+    shutdown()
+    Behaviors.same
   }
 
-  private def get(link: String, job: Job.Job): Future[Seq[Piece]] = {
-    val url = Uri(link)
-    val id = Paths.get(link).normalize.getFileName.toString
+  private def get(link: String, job: Job.Job): Future[Seq[Piece]] =
+    try {
+      val url = Uri(link)
+      val id = Paths.get(link).normalize.getFileName.toString
 
-    val parser = if (url.authority.host.address().contains("etro")) Etro else Ariyala
-    val uri = parser.uri(url, id)
-    sendRequest(uri, BisProvider.parseBisJsonToPieces(job, parser, getPieceType))
-  }
+      val parser = if (url.authority.host.address().contains("etro")) Etro else Ariyala
+      val uri = parser.uri(url, id)
+      sendRequest(uri, BisProvider.parseBisJsonToPieces(job, parser, getPieceType))
+    } catch {
+      case exception: Exception => Future.failed(exception)
+    }
 }
 
 object BisProvider {
@@ -58,16 +64,19 @@ object BisProvider {
   def apply(): Behavior[BiSProviderMessage] =
     Behaviors.setup[BiSProviderMessage](context => new BisProvider(context))
 
-  private def parseBisJsonToPieces(job: Job.Job,
-                                   idParser: IdParser,
-                                   pieceTypes: Seq[Long] => Future[Map[Long, PieceType.PieceType]])
-                                   (js: JsObject)
-                                   (implicit executionContext: ExecutionContext): Future[Seq[Piece]] =
+  private def parseBisJsonToPieces(
+    job: Job.Job,
+    idParser: Parser,
+    pieceTypes: Seq[Long] => Future[Map[Long, PieceType.PieceType]]
+  )(js: JsObject)(implicit executionContext: ExecutionContext): Future[Seq[Piece]] =
     idParser.parse(job, js).flatMap { pieces =>
       pieceTypes(pieces.values.toSeq).map { types =>
-        pieces.view.mapValues(types).map {
-          case (piece, pieceType) => Piece(piece, pieceType, job)
-        }.toSeq
+        pieces.view
+          .mapValues(types)
+          .map { case (piece, pieceType) =>
+            Piece(piece, pieceType, job)
+          }
+          .toSeq
       }
     }
 

@@ -6,14 +6,13 @@
  *
  * License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
  */
-package me.arcanis.ffxivbis.service.impl
+package me.arcanis.ffxivbis.service.database.impl
 
 import java.time.Instant
-
 import akka.actor.typed.scaladsl.Behaviors
 import me.arcanis.ffxivbis.messages.{AddPieceTo, DatabaseMessage, GetLoot, RemovePieceFrom, SuggestLoot}
 import me.arcanis.ffxivbis.models.Loot
-import me.arcanis.ffxivbis.service.Database
+import me.arcanis.ffxivbis.service.database.Database
 
 trait DatabaseLootHandler { this: Database =>
 

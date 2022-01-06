@@ -25,8 +25,7 @@ trait Authorization {
 
   def storage: ActorRef[Message]
 
-  def authenticateBasicBCrypt[T](realm: String,
-                                 authenticate: (String, String) => Future[Option[T]]): Directive1[T] = {
+  def authenticateBasicBCrypt[T](realm: String, authenticate: (String, String) => Future[Option[T]]): Directive1[T] = {
     def challenge = HttpChallenges.basic(realm)
 
     extractCredentials.flatMap {
@@ -39,22 +38,34 @@ trait Authorization {
     }
   }
 
-  def authenticator(scope: Permission.Value, partyId: String)(username: String, password: String)
-                   (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Option[String]] =
+  def authenticator(scope: Permission.Value, partyId: String)(username: String, password: String)(implicit
+    executionContext: ExecutionContext,
+    timeout: Timeout,
+    scheduler: Scheduler
+  ): Future[Option[String]] =
     storage.ask(GetUser(partyId, username, _)).map {
       case Some(user) if user.verify(password) && user.verityScope(scope) => Some(username)
       case _ => None
     }
 
-  def authAdmin(partyId: String)(username: String, password: String)
-               (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Option[String]] =
+  def authAdmin(partyId: String)(username: String, password: String)(implicit
+    executionContext: ExecutionContext,
+    timeout: Timeout,
+    scheduler: Scheduler
+  ): Future[Option[String]] =
     authenticator(Permission.admin, partyId)(username, password)
 
-  def authGet(partyId: String)(username: String, password: String)
-             (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Option[String]] =
+  def authGet(partyId: String)(username: String, password: String)(implicit
+    executionContext: ExecutionContext,
+    timeout: Timeout,
+    scheduler: Scheduler
+  ): Future[Option[String]] =
     authenticator(Permission.get, partyId)(username, password)
 
-  def authPost(partyId: String)(username: String, password: String)
-              (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Option[String]] =
+  def authPost(partyId: String)(username: String, password: String)(implicit
+    executionContext: ExecutionContext,
+    timeout: Timeout,
+    scheduler: Scheduler
+  ): Future[Option[String]] =
     authenticator(Permission.post, partyId)(username, password)
 }

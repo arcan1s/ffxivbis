@@ -1,14 +1,13 @@
-package me.arcanis.ffxivbis.service
+package me.arcanis.ffxivbis.service.database
 
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import me.arcanis.ffxivbis.messages.{AddUser, DeleteUser, GetUser, GetUsers}
 import me.arcanis.ffxivbis.models.User
-import me.arcanis.ffxivbis.{Fixtures, Settings}
 import me.arcanis.ffxivbis.storage.Migration
 import me.arcanis.ffxivbis.utils.Compare
+import me.arcanis.ffxivbis.{Fixtures, Settings}
 import org.scalatest.wordspec.AnyWordSpecLike
 
-import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 

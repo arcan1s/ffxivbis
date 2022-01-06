@@ -18,16 +18,17 @@ import scala.concurrent.Future
 trait BiSProfile { this: DatabaseProfile =>
   import dbConfig.profile.api._
 
-  case class BiSRep(playerId: Long, created: Long, piece: String,
-                    pieceType: String, job: String) {
+  case class BiSRep(playerId: Long, created: Long, piece: String, pieceType: String, job: String) {
     def toLoot: Loot = Loot(
-      playerId, Piece(piece, PieceType.withName(pieceType), Job.withName(job)),
-      Instant.ofEpochMilli(created), isFreeLoot = false)
+      playerId,
+      Piece(piece, PieceType.withName(pieceType), Job.withName(job)),
+      Instant.ofEpochMilli(created),
+      isFreeLoot = false
+    )
   }
   object BiSRep {
     def fromPiece(playerId: Long, piece: Piece): BiSRep =
-      BiSRep(playerId, DatabaseProfile.now, piece.piece,
-        piece.pieceType.toString, piece.job.toString)
+      BiSRep(playerId, DatabaseProfile.now, piece.piece, piece.pieceType.toString, piece.job.toString)
   }
 
   class BiSPieces(tag: Tag) extends Table[BiSRep](tag, "bis") {

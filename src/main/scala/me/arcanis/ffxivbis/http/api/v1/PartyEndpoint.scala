@@ -27,29 +27,47 @@ import me.arcanis.ffxivbis.messages.{BiSProviderMessage, Message}
 import scala.util.{Failure, Success}
 
 @Path("api/v1")
-class PartyEndpoint(override val storage: ActorRef[Message],
-                    override val provider: ActorRef[BiSProviderMessage])
-                   (implicit timeout: Timeout, scheduler: Scheduler)
-  extends PlayerHelper with Authorization with JsonSupport with HttpHandler {
+class PartyEndpoint(override val storage: ActorRef[Message], override val provider: ActorRef[BiSProviderMessage])(
+  implicit
+  timeout: Timeout,
+  scheduler: Scheduler
+) extends PlayerHelper
+  with Authorization
+  with JsonSupport
+  with HttpHandler {
 
   def route: Route = getPartyDescription ~ modifyPartyDescription
 
   @GET
   @Path("party/{partyId}/description")
   @Produces(value = Array("application/json"))
-  @Operation(summary = "get party description", description = "Return the party description",
+  @Operation(
+    summary = "get party description",
+    description = "Return the party description",
     parameters = Array(
       new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
     ),
     responses = Array(
-      new ApiResponse(responseCode = "200", description = "Party description",
-        content = Array(new Content(schema = new Schema(implementation = classOf[PartyDescriptionResponse])))),
-      new ApiResponse(responseCode = "401", description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "403", description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "500", description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
+      new ApiResponse(
+        responseCode = "200",
+        description = "Party description",
+        content = Array(new Content(schema = new Schema(implementation = classOf[PartyDescriptionResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "401",
+        description = "Supplied authorization is invalid",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "403",
+        description = "Access is forbidden",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "500",
+        description = "Internal server error",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("get"))),
     tags = Array("party"),
@@ -71,22 +89,39 @@ class PartyEndpoint(override val storage: ActorRef[Message],
   @POST
   @Consumes(value = Array("application/json"))
   @Path("party/{partyId}/description")
-  @Operation(summary = "modify party description", description = "Edit party description",
+  @Operation(
+    summary = "modify party description",
+    description = "Edit party description",
     parameters = Array(
       new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
     ),
-    requestBody = new RequestBody(description = "new party description", required = true,
-      content = Array(new Content(schema = new Schema(implementation = classOf[PartyDescriptionResponse])))),
+    requestBody = new RequestBody(
+      description = "new party description",
+      required = true,
+      content = Array(new Content(schema = new Schema(implementation = classOf[PartyDescriptionResponse])))
+    ),
     responses = Array(
       new ApiResponse(responseCode = "202", description = "Party description has been modified"),
-      new ApiResponse(responseCode = "400", description = "Invalid parameters were supplied",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "401", description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "403", description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "500", description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
+      new ApiResponse(
+        responseCode = "400",
+        description = "Invalid parameters were supplied",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "401",
+        description = "Supplied authorization is invalid",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "403",
+        description = "Access is forbidden",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "500",
+        description = "Internal server error",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("post"))),
     tags = Array("party"),

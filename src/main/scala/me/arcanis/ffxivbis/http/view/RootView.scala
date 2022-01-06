@@ -15,9 +15,10 @@ import akka.http.scaladsl.server.Route
 import akka.util.Timeout
 import me.arcanis.ffxivbis.messages.{BiSProviderMessage, Message}
 
-class RootView(storage: ActorRef[Message],
-               provider: ActorRef[BiSProviderMessage])
-              (implicit timeout: Timeout, scheduler: Scheduler) {
+class RootView(storage: ActorRef[Message], provider: ActorRef[BiSProviderMessage])(implicit
+  timeout: Timeout,
+  scheduler: Scheduler
+) {
 
   private val basePartyView = new BasePartyView(storage, provider)
   private val indexView = new IndexView(storage, provider)
@@ -30,7 +31,7 @@ class RootView(storage: ActorRef[Message],
 
   def route: Route =
     basePartyView.route ~ indexView.route ~
-    biSView.route ~ lootView.route ~ lootSuggestView.route ~ playerView.route ~ userView.route
+      biSView.route ~ lootView.route ~ lootSuggestView.route ~ playerView.route ~ userView.route
 }
 
 object RootView {

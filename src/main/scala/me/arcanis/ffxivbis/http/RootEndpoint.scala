@@ -19,9 +19,7 @@ import me.arcanis.ffxivbis.http.api.v1.RootApiV1Endpoint
 import me.arcanis.ffxivbis.http.view.RootView
 import me.arcanis.ffxivbis.messages.{BiSProviderMessage, Message}
 
-class RootEndpoint(system: ActorSystem[Nothing],
-                   storage: ActorRef[Message],
-                   provider: ActorRef[BiSProviderMessage])
+class RootEndpoint(system: ActorSystem[Nothing], storage: ActorRef[Message], provider: ActorRef[BiSProviderMessage])
   extends StrictLogging {
   import me.arcanis.ffxivbis.utils.Implicits._
 
@@ -41,7 +39,10 @@ class RootEndpoint(system: ActorSystem[Nothing],
       val start = Instant.now.toEpochMilli
       mapResponse { response =>
         val time = (Instant.now.toEpochMilli - start) / 1000.0
-        httpLogger.debug(s"""- - [${Instant.now}] "${context.request.method.name()} ${context.request.uri.path}" ${response.status.intValue()} ${response.entity.getContentLengthOption.getAsLong} $time""")
+        httpLogger.debug(
+          s"""- - [${Instant.now}] "${context.request.method.name()} ${context.request.uri.path}" ${response.status
+            .intValue()} ${response.entity.getContentLengthOption.getAsLong} $time"""
+        )
         response
       }
     }

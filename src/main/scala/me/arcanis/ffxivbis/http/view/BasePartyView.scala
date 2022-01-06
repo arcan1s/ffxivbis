@@ -18,10 +18,12 @@ import me.arcanis.ffxivbis.messages.{BiSProviderMessage, Message}
 
 import scala.util.{Failure, Success}
 
-class BasePartyView(override val storage: ActorRef[Message],
-                    override val provider: ActorRef[BiSProviderMessage])
-                   (implicit timeout: Timeout, scheduler: Scheduler)
-  extends PlayerHelper with Authorization {
+class BasePartyView(override val storage: ActorRef[Message], override val provider: ActorRef[BiSProviderMessage])(
+  implicit
+  timeout: Timeout,
+  scheduler: Scheduler
+) extends PlayerHelper
+  with Authorization {
 
   def route: Route = getIndex
 
@@ -47,25 +49,25 @@ object BasePartyView {
   import scalatags.Text.tags2.{title => titleTag}
 
   def root(partyId: String): Text.TypedTag[String] =
-    a(href:=s"/party/$partyId", title:="root")("root")
+    a(href := s"/party/$partyId", title := "root")("root")
 
   def template(partyId: String, alias: String): String =
     "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">" +
-      html(lang:="en",
+      html(
+        lang := "en",
         head(
           titleTag(s"Party $alias"),
-          link(rel:="stylesheet", `type`:="text/css", href:="/static/styles.css")
+          link(rel := "stylesheet", `type` := "text/css", href := "/static/styles.css")
         ),
-
         body(
           h2(s"Party $alias"),
           br,
-          h2(a(href:=s"/party/$partyId/players", title:="party")("party")),
-          h2(a(href:=s"/party/$partyId/bis", title:="bis management")("best in slot")),
-          h2(a(href:=s"/party/$partyId/loot", title:="loot management")("loot")),
-          h2(a(href:=s"/party/$partyId/suggest", title:="suggest loot")("suggest")),
+          h2(a(href := s"/party/$partyId/players", title := "party")("party")),
+          h2(a(href := s"/party/$partyId/bis", title := "bis management")("best in slot")),
+          h2(a(href := s"/party/$partyId/loot", title := "loot management")("loot")),
+          h2(a(href := s"/party/$partyId/suggest", title := "suggest loot")("suggest")),
           hr,
-          h2(a(href:=s"/party/$partyId/users", title:="user management")("users"))
+          h2(a(href := s"/party/$partyId/users", title := "user management")("users"))
         )
       )
 }

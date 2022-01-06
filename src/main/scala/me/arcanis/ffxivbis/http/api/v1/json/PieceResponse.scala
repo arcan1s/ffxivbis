@@ -14,7 +14,8 @@ import me.arcanis.ffxivbis.models.{Job, Piece, PieceType}
 case class PieceResponse(
   @Schema(description = "piece type", required = true) pieceType: String,
   @Schema(description = "job name to which piece belong or AnyJob", required = true, example = "DNC") job: String,
-  @Schema(description = "piece name", required = true, example = "body") piece: String) {
+  @Schema(description = "piece name", required = true, example = "body") piece: String
+) {
 
   def toPiece: Piece = Piece(piece, PieceType.withName(pieceType), Job.withName(job))
 }

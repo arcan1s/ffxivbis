@@ -1,9 +1,0 @@
-language: scala
-scala:
-  - 2.13.1
-
-sbt_args: -no-colors
-
-script:
-  - sbt compile
-  - sbt test

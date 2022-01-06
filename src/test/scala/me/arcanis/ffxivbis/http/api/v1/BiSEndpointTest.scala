@@ -12,7 +12,8 @@ import me.arcanis.ffxivbis.http.api.v1.json._
 import me.arcanis.ffxivbis.messages.{AddPlayer, AddUser}
 import me.arcanis.ffxivbis.models.{BiS, Job}
 import me.arcanis.ffxivbis.service.bis.BisProvider
-import me.arcanis.ffxivbis.service.{Database, PartyService}
+import me.arcanis.ffxivbis.service.database.Database
+import me.arcanis.ffxivbis.service.PartyService
 import me.arcanis.ffxivbis.storage.Migration
 import me.arcanis.ffxivbis.utils.Compare
 import org.scalatest.matchers.should.Matchers

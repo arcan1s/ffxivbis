@@ -20,7 +20,8 @@ import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 
 class PartyService(context: ActorContext[Message], storage: ActorRef[DatabaseMessage])
-  extends AbstractBehavior[Message](context) with StrictLogging {
+  extends AbstractBehavior[Message](context)
+  with StrictLogging {
   import me.arcanis.ffxivbis.utils.Implicits._
 
   private val cacheTimeout: FiniteDuration =

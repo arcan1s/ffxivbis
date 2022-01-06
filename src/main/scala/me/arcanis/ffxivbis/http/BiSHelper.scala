@@ -21,32 +21,38 @@ trait BiSHelper extends BisProviderHelper {
 
   def storage: ActorRef[Message]
 
-  def addPieceBiS(playerId: PlayerId, piece: Piece)
-                 (implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
+  def addPieceBiS(playerId: PlayerId, piece: Piece)(implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
     storage.ask(AddPieceToBis(playerId, piece.withJob(playerId.job), _))
 
-  def bis(partyId: String, playerId: Option[PlayerId])
-         (implicit timeout: Timeout, scheduler: Scheduler): Future[Seq[Player]] =
+  def bis(partyId: String, playerId: Option[PlayerId])(implicit
+    timeout: Timeout,
+    scheduler: Scheduler
+  ): Future[Seq[Player]] =
     storage.ask(GetBiS(partyId, playerId, _))
 
-  def doModifyBiS(action: ApiAction.Value, playerId: PlayerId, piece: Piece)
-                 (implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
+  def doModifyBiS(action: ApiAction.Value, playerId: PlayerId, piece: Piece)(implicit
+    timeout: Timeout,
+    scheduler: Scheduler
+  ): Future[Unit] =
     action match {
       case ApiAction.add => addPieceBiS(playerId, piece)
       case ApiAction.remove => removePieceBiS(playerId, piece)
     }
 
-  def putBiS(playerId: PlayerId, link: String)
-            (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Unit] = {
+  def putBiS(playerId: PlayerId, link: String)(implicit
+    executionContext: ExecutionContext,
+    timeout: Timeout,
+    scheduler: Scheduler
+  ): Future[Unit] =
     storage.ask(RemovePiecesFromBiS(playerId, _)).flatMap { _ =>
-      downloadBiS(link, playerId.job).flatMap { bis =>
-        Future.traverse(bis.pieces)(addPieceBiS(playerId, _))
-      }.map(_ => ())
+      downloadBiS(link, playerId.job)
+        .flatMap { bis =>
+          Future.traverse(bis.pieces)(addPieceBiS(playerId, _))
+        }
+        .map(_ => ())
     }
-  }
 
-  def removePieceBiS(playerId: PlayerId, piece: Piece)
-                    (implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
+  def removePieceBiS(playerId: PlayerId, piece: Piece)(implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
     storage.ask(RemovePieceFromBiS(playerId, piece, _))
 
 }

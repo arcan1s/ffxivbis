@@ -21,31 +21,42 @@ trait PlayerHelper extends BisProviderHelper {
 
   def storage: ActorRef[Message]
 
-  def addPlayer(player: Player)
-               (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Unit] =
-    storage.ask(ref => AddPlayer(player, ref)).map { res =>
-      player.link.map(_.trim).filter(_.nonEmpty) match {
-        case Some(link) =>
-          downloadBiS(link, player.job).map { bis =>
-            bis.pieces.map(piece => storage.ask(AddPieceToBis(player.playerId, piece, _)))
-          }.map(_ => res)
-        case None => Future.successful(res)
+  def addPlayer(
+    player: Player
+  )(implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Unit] =
+    storage
+      .ask(ref => AddPlayer(player, ref))
+      .map { res =>
+        player.link.map(_.trim).filter(_.nonEmpty) match {
+          case Some(link) =>
+            downloadBiS(link, player.job)
+              .map { bis =>
+                bis.pieces.map(piece => storage.ask(AddPieceToBis(player.playerId, piece, _)))
+              }
+              .map(_ => res)
+          case None => Future.successful(res)
+        }
       }
-    }.flatten
+      .flatten
 
-  def doModifyPlayer(action: ApiAction.Value, player: Player)
-                    (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Unit] =
+  def doModifyPlayer(action: ApiAction.Value, player: Player)(implicit
+    executionContext: ExecutionContext,
+    timeout: Timeout,
+    scheduler: Scheduler
+  ): Future[Unit] =
     action match {
       case ApiAction.add => addPlayer(player)
       case ApiAction.remove => removePlayer(player.playerId)
     }
 
-  def getPartyDescription(partyId: String)
-                         (implicit timeout: Timeout, scheduler: Scheduler): Future[PartyDescription] =
+  def getPartyDescription(partyId: String)(implicit timeout: Timeout, scheduler: Scheduler): Future[PartyDescription] =
     storage.ask(GetPartyDescription(partyId, _))
 
-  def getPlayers(partyId: String, maybePlayerId: Option[PlayerId])
-                (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Seq[Player]] =
+  def getPlayers(partyId: String, maybePlayerId: Option[PlayerId])(implicit
+    executionContext: ExecutionContext,
+    timeout: Timeout,
+    scheduler: Scheduler
+  ): Future[Seq[Player]] =
     maybePlayerId match {
       case Some(playerId) =>
         storage.ask(GetPlayer(playerId, _)).map(_.toSeq)
@@ -53,11 +64,11 @@ trait PlayerHelper extends BisProviderHelper {
         storage.ask(GetParty(partyId, _)).map(_.players.values.toSeq)
     }
 
-  def removePlayer(playerId: PlayerId)
-                  (implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
+  def removePlayer(playerId: PlayerId)(implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
     storage.ask(RemovePlayer(playerId, _))
 
-  def updateDescription(partyDescription: PartyDescription)
-                       (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Unit] =
+  def updateDescription(
+    partyDescription: PartyDescription
+  )(implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Unit] =
     storage.ask(UpdateParty(partyDescription, _))
 }

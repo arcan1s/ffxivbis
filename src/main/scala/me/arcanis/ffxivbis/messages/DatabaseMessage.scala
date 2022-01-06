@@ -30,7 +30,8 @@ case class RemovePiecesFromBiS(playerId: PlayerId, replyTo: ActorRef[Unit]) exte
 }
 
 // loot handler
-case class AddPieceTo(playerId: PlayerId, piece: Piece, isFreeLoot: Boolean, replyTo: ActorRef[Unit]) extends DatabaseMessage {
+case class AddPieceTo(playerId: PlayerId, piece: Piece, isFreeLoot: Boolean, replyTo: ActorRef[Unit])
+  extends DatabaseMessage {
   override def partyId: String = playerId.partyId
 }
 
@@ -40,7 +41,8 @@ case class RemovePieceFrom(playerId: PlayerId, piece: Piece, replyTo: ActorRef[U
   override def partyId: String = playerId.partyId
 }
 
-case class SuggestLoot(partyId: String, piece: Piece, replyTo: ActorRef[LootSelector.LootSelectorResult]) extends DatabaseMessage
+case class SuggestLoot(partyId: String, piece: Piece, replyTo: ActorRef[LootSelector.LootSelectorResult])
+  extends DatabaseMessage
 
 // party handler
 case class AddPlayer(player: Player, replyTo: ActorRef[Unit]) extends DatabaseMessage {

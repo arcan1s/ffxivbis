@@ -1,6 +1,6 @@
 # FFXIV BiS
 
-[![Build Status](https://travis-ci.org/arcan1s/ffxivbis.svg?branch=master)](https://travis-ci.org/arcan1s/ffxivbis) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/arcan1s/ffxivbis)
+[![Build status](https://github.com/arcan1s/ffxivbis/actions/workflows/run-tests.yml/badge.svg)](https://github.com/arcan1s/ffxivbis/actions/workflows/run-tests.yml) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/arcan1s/ffxivbis)
 
 Service which allows to manage savage loot distribution easy.
 

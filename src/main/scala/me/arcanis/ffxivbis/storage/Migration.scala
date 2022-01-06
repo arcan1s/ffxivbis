@@ -11,13 +11,13 @@ package me.arcanis.ffxivbis.storage
 import com.typesafe.config.Config
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.ClassicConfiguration
+import org.flywaydb.core.api.output.MigrateResult
 
-import scala.concurrent.Future
 import scala.util.Try
 
 class Migration(config: Config) {
 
-  def performMigration(): Try[Boolean] = {
+  def performMigration(): Try[MigrateResult] = {
     val section = DatabaseProfile.getSection(config)
 
     val url = section.getString("db.url")
@@ -34,11 +34,11 @@ class Migration(config: Config) {
     flywayConfiguration.setDataSource(url, username, password)
     val flyway = new Flyway(flywayConfiguration)
 
-    Try(flyway.migrate().success)
+    Try(flyway.migrate())
   }
 }
 
 object Migration {
 
-  def apply(config: Config): Try[Boolean] = new Migration(config).performMigration()
+  def apply(config: Config): Try[MigrateResult] = new Migration(config).performMigration()
 }

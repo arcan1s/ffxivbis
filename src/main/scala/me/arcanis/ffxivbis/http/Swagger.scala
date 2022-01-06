@@ -18,9 +18,12 @@ import scala.io.Source
 class Swagger(config: Config) extends SwaggerHttpService {
 
   override val apiClasses: Set[Class[_]] = Set(
-    classOf[api.v1.BiSEndpoint], classOf[api.v1.LootEndpoint],
-    classOf[api.v1.PartyEndpoint], classOf[api.v1.PlayerEndpoint],
-    classOf[api.v1.TypesEndpoint], classOf[api.v1.UserEndpoint]
+    classOf[api.v1.BiSEndpoint],
+    classOf[api.v1.LootEndpoint],
+    classOf[api.v1.PartyEndpoint],
+    classOf[api.v1.PlayerEndpoint],
+    classOf[api.v1.TypesEndpoint],
+    classOf[api.v1.UserEndpoint]
   )
 
   override val info: Info = Info(

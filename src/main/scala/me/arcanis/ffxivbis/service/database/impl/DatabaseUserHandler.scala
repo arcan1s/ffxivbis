@@ -6,11 +6,11 @@
  *
  * License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
  */
-package me.arcanis.ffxivbis.service.impl
+package me.arcanis.ffxivbis.service.database.impl
 
 import akka.actor.typed.scaladsl.Behaviors
 import me.arcanis.ffxivbis.messages.{AddUser, DatabaseMessage, DeleteUser, Exists, GetUser, GetUsers}
-import me.arcanis.ffxivbis.service.Database
+import me.arcanis.ffxivbis.service.database.Database
 
 trait DatabaseUserHandler { this: Database =>
 

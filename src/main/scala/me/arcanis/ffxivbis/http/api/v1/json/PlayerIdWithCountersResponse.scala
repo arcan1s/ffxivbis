@@ -20,7 +20,8 @@ case class PlayerIdWithCountersResponse(
   @Schema(description = "count of savage pieces in best in slot", required = true) bisCountTotal: Int,
   @Schema(description = "count of looted pieces", required = true) lootCount: Int,
   @Schema(description = "count of looted pieces which are parts of best in slot", required = true) lootCountBiS: Int,
-  @Schema(description = "total count of looted pieces", required = true) lootCountTotal: Int)
+  @Schema(description = "total count of looted pieces", required = true) lootCountTotal: Int
+)
 
 object PlayerIdWithCountersResponse {
 
@@ -34,5 +35,6 @@ object PlayerIdWithCountersResponse {
       playerIdWithCounters.bisCountTotal,
       playerIdWithCounters.lootCount,
       playerIdWithCounters.lootCountBiS,
-      playerIdWithCounters.lootCountTotal)
+      playerIdWithCounters.lootCountTotal
+    )
 }

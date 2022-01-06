@@ -6,13 +6,13 @@
  *
  * License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
  */
-package me.arcanis.ffxivbis.service.impl
+package me.arcanis.ffxivbis.service.database.impl
 
 import akka.actor.typed.scaladsl.Behaviors
 import me.arcanis.ffxivbis.messages.{AddPieceToBis, DatabaseMessage, GetBiS, RemovePieceFromBiS, RemovePiecesFromBiS}
-import me.arcanis.ffxivbis.service.Database
+import me.arcanis.ffxivbis.service.database.Database
 
-trait DatabaseBiSHandler { this: Database  =>
+trait DatabaseBiSHandler { this: Database =>
 
   def bisHandler: DatabaseMessage.Handler = {
     case AddPieceToBis(playerId, piece, client) =>
@@ -23,7 +23,7 @@ trait DatabaseBiSHandler { this: Database  =>
       getParty(partyId, withBiS = true, withLoot = false)
         .map(filterParty(_, maybePlayerId))
         .foreach(client ! _)
-       Behaviors.same
+      Behaviors.same
 
     case RemovePieceFromBiS(playerId, piece, client) =>
       profile.deletePieceBiS(playerId, piece).foreach(_ => client ! ())
@@ -34,4 +34,3 @@ trait DatabaseBiSHandler { this: Database  =>
       Behaviors.same
   }
 }
-

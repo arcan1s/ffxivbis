@@ -28,26 +28,41 @@ import me.arcanis.ffxivbis.models.Permission
 import scala.util.{Failure, Success}
 
 @Path("api/v1")
-class UserEndpoint(override val storage: ActorRef[Message])
-                  (implicit timeout: Timeout, scheduler: Scheduler)
-  extends UserHelper with Authorization with JsonSupport {
+class UserEndpoint(override val storage: ActorRef[Message])(implicit timeout: Timeout, scheduler: Scheduler)
+  extends UserHelper
+  with Authorization
+  with JsonSupport {
 
   def route: Route = createParty ~ createUser ~ deleteUser ~ getUsers
 
   @PUT
   @Path("party")
   @Consumes(value = Array("application/json"))
-  @Operation(summary = "create new party", description = "Create new party with specified ID",
-    requestBody = new RequestBody(description = "party administrator description", required = true,
-      content = Array(new Content(schema = new Schema(implementation = classOf[UserResponse])))),
+  @Operation(
+    summary = "create new party",
+    description = "Create new party with specified ID",
+    requestBody = new RequestBody(
+      description = "party administrator description",
+      required = true,
+      content = Array(new Content(schema = new Schema(implementation = classOf[UserResponse])))
+    ),
     responses = Array(
       new ApiResponse(responseCode = "200", description = "Party has been created"),
-      new ApiResponse(responseCode = "400", description = "Invalid parameters were supplied",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "406", description = "Party with the specified ID already exists",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "500", description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
+      new ApiResponse(
+        responseCode = "400",
+        description = "Invalid parameters were supplied",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "406",
+        description = "Party with the specified ID already exists",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "500",
+        description = "Internal server error",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
     ),
     tags = Array("party"),
   )
@@ -73,22 +88,39 @@ class UserEndpoint(override val storage: ActorRef[Message])
   @POST
   @Path("party/{partyId}/users")
   @Consumes(value = Array("application/json"))
-  @Operation(summary = "create new user", description = "Add an user to the specified party",
+  @Operation(
+    summary = "create new user",
+    description = "Add an user to the specified party",
     parameters = Array(
       new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
     ),
-    requestBody = new RequestBody(description = "user description", required = true,
-      content = Array(new Content(schema = new Schema(implementation = classOf[UserResponse])))),
+    requestBody = new RequestBody(
+      description = "user description",
+      required = true,
+      content = Array(new Content(schema = new Schema(implementation = classOf[UserResponse])))
+    ),
     responses = Array(
       new ApiResponse(responseCode = "201", description = "User has been created"),
-      new ApiResponse(responseCode = "400", description = "Invalid parameters were supplied",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "401", description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "403", description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "500", description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
+      new ApiResponse(
+        responseCode = "400",
+        description = "Invalid parameters were supplied",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "401",
+        description = "Supplied authorization is invalid",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "403",
+        description = "Access is forbidden",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "500",
+        description = "Internal server error",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("admin"))),
     tags = Array("users"),
@@ -112,19 +144,30 @@ class UserEndpoint(override val storage: ActorRef[Message])
 
   @DELETE
   @Path("party/{partyId}/users/{username}")
-  @Operation(summary = "remove user", description = "Remove an user from the specified party",
+  @Operation(
+    summary = "remove user",
+    description = "Remove an user from the specified party",
     parameters = Array(
       new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
       new Parameter(name = "username", in = ParameterIn.PATH, description = "username to remove", example = "siuan"),
     ),
     responses = Array(
       new ApiResponse(responseCode = "202", description = "User has been removed"),
-      new ApiResponse(responseCode = "401", description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "403", description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "500", description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
+      new ApiResponse(
+        responseCode = "401",
+        description = "Supplied authorization is invalid",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "403",
+        description = "Access is forbidden",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "500",
+        description = "Internal server error",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("admin"))),
     tags = Array("users"),
@@ -146,21 +189,37 @@ class UserEndpoint(override val storage: ActorRef[Message])
   @GET
   @Path("party/{partyId}/users")
   @Produces(value = Array("application/json"))
-  @Operation(summary = "get users", description = "Return the list of users belong to party",
+  @Operation(
+    summary = "get users",
+    description = "Return the list of users belong to party",
     parameters = Array(
       new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
     ),
     responses = Array(
-      new ApiResponse(responseCode = "200", description = "Users list",
-        content = Array(new Content(
-          array = new ArraySchema(schema = new Schema(implementation = classOf[UserResponse])),
-        ))),
-      new ApiResponse(responseCode = "401", description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "403", description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
-      new ApiResponse(responseCode = "500", description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))),
+      new ApiResponse(
+        responseCode = "200",
+        description = "Users list",
+        content = Array(
+          new Content(
+            array = new ArraySchema(schema = new Schema(implementation = classOf[UserResponse])),
+          )
+        )
+      ),
+      new ApiResponse(
+        responseCode = "401",
+        description = "Supplied authorization is invalid",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "403",
+        description = "Access is forbidden",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
+      new ApiResponse(
+        responseCode = "500",
+        description = "Internal server error",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+      ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("admin"))),
     tags = Array("users"),

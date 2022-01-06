@@ -16,8 +16,7 @@ import scala.concurrent.Future
 trait UsersProfile { this: DatabaseProfile =>
   import dbConfig.profile.api._
 
-  case class UserRep(partyId: String, userId: Option[Long], username: String,
-                     password: String, permission: String) {
+  case class UserRep(partyId: String, userId: Option[Long], username: String, password: String, permission: String) {
     def toUser: User = User(partyId, username, password, Permission.withName(permission))
   }
   object UserRep {
