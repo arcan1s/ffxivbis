@@ -89,6 +89,8 @@ object LootSuggestView {
         body(
           h2("Suggest loot"),
 
+          for (part <- piece) yield p(s"Piece ${part.piece} (${part.pieceType})"),
+
           ErrorView.template(error),
           SearchLineView.template,
 

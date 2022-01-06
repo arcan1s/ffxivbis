@@ -74,7 +74,7 @@ class BiSView(override val storage: ActorRef[Message],
       }
 
     PlayerId(partyId, player) match {
-      case Some(playerId) => (maybePiece, maybePieceType, action, maybeLink) match {
+      case Some(playerId) => (maybePiece, maybePieceType, action, maybeLink.map(_.trim).filter(_.nonEmpty)) match {
         case (Some(piece), Some(pieceType), "add", _) =>
           bisAction(playerId, piece, pieceType)(addPieceBiS(playerId, _))
         case (Some(piece), Some(pieceType), "remove", _) =>

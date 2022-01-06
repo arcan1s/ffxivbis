@@ -70,7 +70,7 @@ object XivApi {
       js.fields("Results") match {
         case array: JsArray =>
           array.elements.map(_.asJsObject.getFields("ID", "GameContentLinks") match {
-            case Seq(JsNumber(id), shop) => id.toLong -> extractTraderId(shop.asJsObject)
+            case Seq(JsNumber(id), shop: JsObject) => id.toLong -> extractTraderId(shop.asJsObject)
             case other => throw deserializationError(s"Could not parse $other")
           }).toMap
         case other => throw deserializationError(s"Could not parse $other")
@@ -83,18 +83,19 @@ object XivApi {
     Future {
       val shopMap = js.fields("Results") match {
         case array: JsArray =>
-          array.elements.map { shop =>
-            shop.asJsObject.fields("ID") match {
-              case JsNumber(id) => id.toLong -> shop.asJsObject
-              case other => throw deserializationError(s"Could not parse $other")
-            }
+          array.elements.collect {
+            case shop: JsObject =>
+              shop.asJsObject.fields("ID") match {
+                case JsNumber(id) => id.toLong -> shop.asJsObject
+                case other => throw deserializationError(s"Could not parse $other")
+              }
           }.toMap
         case other => throw deserializationError(s"Could not parse $other")
       }
 
       shops.map { case (itemId, (index, shopId)) =>
         val pieceType =
-          if (index == "crafted" && shopId == -1) PieceType.Crafted
+          if (index == "crafted" && shopId == -1L) PieceType.Crafted
           else {
             Try(shopMap(shopId).fields(s"ItemCost$index").asJsObject)
               .toOption

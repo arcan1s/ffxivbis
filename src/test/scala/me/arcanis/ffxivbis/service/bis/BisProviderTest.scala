@@ -23,6 +23,12 @@ class BisProviderTest extends ScalaTestWithActorTestKit(Settings.withRandomDatab
       probe.expectMessage(askTimeout, Fixtures.bis)
     }
 
+    "get best in slot set (ariyala 2)" in {
+      val probe = testKit.createTestProbe[BiS]()
+      provider ! DownloadBiS(Fixtures.link5, Job.SGE, probe.ref)
+      probe.expectMessage(askTimeout, Fixtures.bis3)
+    }
+
     "get best in slot set (etro)" in {
       val probe = testKit.createTestProbe[BiS]()
       provider ! DownloadBiS(Fixtures.link3, Job.DNC, probe.ref)

@@ -24,7 +24,7 @@ trait PlayerHelper extends BisProviderHelper {
   def addPlayer(player: Player)
                (implicit executionContext: ExecutionContext, timeout: Timeout, scheduler: Scheduler): Future[Unit] =
     storage.ask(ref => AddPlayer(player, ref)).map { res =>
-      player.link match {
+      player.link.map(_.trim).filter(_.nonEmpty) match {
         case Some(link) =>
           downloadBiS(link, player.job).map { bis =>
             bis.pieces.map(piece => storage.ask(AddPieceToBis(player.playerId, piece, _)))

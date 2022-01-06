@@ -14,10 +14,10 @@ import spray.json.{JsNumber, JsObject, JsString, deserializationError}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-object Ariyala {
+object Ariyala extends IdParser {
 
-  def idParser(job: Job.Job, js: JsObject)
-              (implicit executionContext: ExecutionContext): Future[Map[String, Long]] =
+  override def parse(job: Job.Job, js: JsObject)
+                    (implicit executionContext: ExecutionContext): Future[Map[String, Long]] =
     Future {
       val apiJob = js.fields.get("content") match {
         case Some(JsString(value)) => value
@@ -37,7 +37,7 @@ object Ariyala {
       }
     }
 
-  def uri(root: Uri, id: String): Uri =
+  override def uri(root: Uri, id: String): Uri =
     root
       .withPath(Uri.Path / "store.app")
       .withQuery(Uri.Query(Map("identifier" -> id)))
