@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.{Operation, Parameter}
-import javax.ws.rs._
+import jakarta.ws.rs._
 import me.arcanis.ffxivbis.http.api.v1.json._
 import me.arcanis.ffxivbis.http.{Authorization, LootHelper}
 import me.arcanis.ffxivbis.messages.Message
@@ -27,7 +27,7 @@ import me.arcanis.ffxivbis.models.PlayerId
 
 import scala.util.{Failure, Success}
 
-@Path("api/v1")
+@Path("/api/v1")
 class LootEndpoint(override val storage: ActorRef[Message])(implicit timeout: Timeout, scheduler: Scheduler)
   extends LootHelper
   with Authorization

@@ -14,11 +14,11 @@ import com.typesafe.config.Config
 import io.swagger.v3.oas.annotations.media.{ArraySchema, Content, Schema}
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
-import javax.ws.rs._
+import jakarta.ws.rs._
 import me.arcanis.ffxivbis.http.api.v1.json._
 import me.arcanis.ffxivbis.models.{Job, Party, Permission, Piece, PieceType}
 
-@Path("api/v1")
+@Path("/api/v1")
 class TypesEndpoint(config: Config) extends JsonSupport {
 
   def route: Route = getJobs ~ getPermissions ~ getPieces ~ getPieceTypes ~ getPriority

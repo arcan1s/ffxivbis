@@ -2,7 +2,7 @@
 
 [![Build status](https://github.com/arcan1s/ffxivbis/actions/workflows/run-tests.yml/badge.svg)](https://github.com/arcan1s/ffxivbis/actions/workflows/run-tests.yml) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/arcan1s/ffxivbis)
 
-Service which allows to manage savage loot distribution easy.
+Service which allows managing savage loot distribution easy.
 
 ## Installation and usage
 
@@ -12,7 +12,7 @@ In general compilation process looks like:
 sbt dist
 ```
 
-Or alternatively you can download latest distribution zip from the releases page. Service can be run by using command:
+Or alternatively you can download the latest distribution zip from the releases page. Service can be run by using command:
 
 ```bash
 bin/ffxivbis

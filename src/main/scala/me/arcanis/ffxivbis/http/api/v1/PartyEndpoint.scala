@@ -19,14 +19,14 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.{Operation, Parameter}
-import javax.ws.rs._
+import jakarta.ws.rs._
 import me.arcanis.ffxivbis.http.api.v1.json._
 import me.arcanis.ffxivbis.http.{Authorization, PlayerHelper}
 import me.arcanis.ffxivbis.messages.{BiSProviderMessage, Message}
 
 import scala.util.{Failure, Success}
 
-@Path("api/v1")
+@Path("/api/v1")
 class PartyEndpoint(override val storage: ActorRef[Message], override val provider: ActorRef[BiSProviderMessage])(
   implicit
   timeout: Timeout,
