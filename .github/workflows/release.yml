@@ -1,0 +1,40 @@
+name: release
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+jobs:
+  make-release:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: extract version
+        id: version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+      - name: create changelog
+        id: changelog
+        uses: jaywcjlove/changelog-generator@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          filter: 'Release \d+\.\d+\.\d+'
+      - name: setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: temurin
+          java-version: 8
+      - name: create dist
+        run: sbt -v dist
+      - name: release
+        uses: softprops/action-gh-release@v1
+        with:
+          body: |
+            ${{ steps.changelog.outputs.compareurl }}
+            ${{ steps.changelog.outputs.changelog }}
+          files: target/universal/ffxivbis-*.zip
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

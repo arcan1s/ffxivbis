@@ -13,10 +13,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Setup JDK
+      - name: setup JDK
         uses: actions/setup-java@v2
         with:
           distribution: temurin
           java-version: 8
-      - name: Build and Test
+      - name: run tests
         run: sbt -v +test
