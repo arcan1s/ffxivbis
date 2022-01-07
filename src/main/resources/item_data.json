@@ -1,0 +1,1639 @@
+{
+    "cached-items": [
+        {
+            "id": 35020,
+            "name": "Classical Longsword",
+            "source": "Crafted"
+        },
+        {
+            "id": 35021,
+            "name": "Classical Tonfa",
+            "source": "Crafted"
+        },
+        {
+            "id": 35022,
+            "name": "Classical Battleaxe",
+            "source": "Crafted"
+        },
+        {
+            "id": 35023,
+            "name": "Classical Spear",
+            "source": "Crafted"
+        },
+        {
+            "id": 35024,
+            "name": "Classical Cavalry Bow",
+            "source": "Crafted"
+        },
+        {
+            "id": 35025,
+            "name": "Classical Daggers",
+            "source": "Crafted"
+        },
+        {
+            "id": 35026,
+            "name": "Classical Greatsword",
+            "source": "Crafted"
+        },
+        {
+            "id": 35027,
+            "name": "Classical Handgonne",
+            "source": "Crafted"
+        },
+        {
+            "id": 35028,
+            "name": "Classical Cane",
+            "source": "Crafted"
+        },
+        {
+            "id": 35029,
+            "name": "Classical Longpole",
+            "source": "Crafted"
+        },
+        {
+            "id": 35030,
+            "name": "Classical Index",
+            "source": "Crafted"
+        },
+        {
+            "id": 35031,
+            "name": "Classical Codex",
+            "source": "Crafted"
+        },
+        {
+            "id": 35032,
+            "name": "Classical Torquetum",
+            "source": "Crafted"
+        },
+        {
+            "id": 35033,
+            "name": "Classical Samurai Blade",
+            "source": "Crafted"
+        },
+        {
+            "id": 35034,
+            "name": "Classical Smallsword",
+            "source": "Crafted"
+        },
+        {
+            "id": 35035,
+            "name": "Classical Gunblade",
+            "source": "Crafted"
+        },
+        {
+            "id": 35036,
+            "name": "Classical Chakrams",
+            "source": "Crafted"
+        },
+        {
+            "id": 35037,
+            "name": "Classical Milpreves",
+            "source": "Crafted"
+        },
+        {
+            "id": 35038,
+            "name": "Classical War Scythe",
+            "source": "Crafted"
+        },
+        {
+            "id": 35039,
+            "name": "Classical Shield",
+            "source": "Crafted"
+        },
+        {
+            "id": 35040,
+            "name": "Classical Hoplomachus's Headgear",
+            "source": "Crafted"
+        },
+        {
+            "id": 35041,
+            "name": "Classical Hoplomachus's Lorica",
+            "source": "Crafted"
+        },
+        {
+            "id": 35042,
+            "name": "Classical Hoplomachus's Manicae",
+            "source": "Crafted"
+        },
+        {
+            "id": 35043,
+            "name": "Classical Hoplomachus's Loincloth",
+            "source": "Crafted"
+        },
+        {
+            "id": 35044,
+            "name": "Classical Hoplomachus's Greaves",
+            "source": "Crafted"
+        },
+        {
+            "id": 35045,
+            "name": "Classical Eques's Headgear",
+            "source": "Crafted"
+        },
+        {
+            "id": 35046,
+            "name": "Classical Eques's Chiton",
+            "source": "Crafted"
+        },
+        {
+            "id": 35047,
+            "name": "Classical Eques's Manicae",
+            "source": "Crafted"
+        },
+        {
+            "id": 35048,
+            "name": "Classical Eques's Loincloth",
+            "source": "Crafted"
+        },
+        {
+            "id": 35049,
+            "name": "Classical Eques's Caligae",
+            "source": "Crafted"
+        },
+        {
+            "id": 35050,
+            "name": "Classical Secutor's Mask",
+            "source": "Crafted"
+        },
+        {
+            "id": 35051,
+            "name": "Classical Secutor's Lorica",
+            "source": "Crafted"
+        },
+        {
+            "id": 35052,
+            "name": "Classical Secutor's Manicae",
+            "source": "Crafted"
+        },
+        {
+            "id": 35053,
+            "name": "Classical Secutor's Loincloth",
+            "source": "Crafted"
+        },
+        {
+            "id": 35054,
+            "name": "Classical Secutor's Caligae",
+            "source": "Crafted"
+        },
+        {
+            "id": 35055,
+            "name": "Classical Sagittarius's Headband",
+            "source": "Crafted"
+        },
+        {
+            "id": 35056,
+            "name": "Classical Sagittarius's Chiton",
+            "source": "Crafted"
+        },
+        {
+            "id": 35057,
+            "name": "Classical Sagittarius's Wrist Torque",
+            "source": "Crafted"
+        },
+        {
+            "id": 35058,
+            "name": "Classical Sagittarius's Loincloth",
+            "source": "Crafted"
+        },
+        {
+            "id": 35059,
+            "name": "Classical Sagittarius's Caligae",
+            "source": "Crafted"
+        },
+        {
+            "id": 35060,
+            "name": "Classical Dimachaerius's Mask",
+            "source": "Crafted"
+        },
+        {
+            "id": 35061,
+            "name": "Classical Dimachaerius's Lorica",
+            "source": "Crafted"
+        },
+        {
+            "id": 35062,
+            "name": "Classical Dimachaerius's Manicae",
+            "source": "Crafted"
+        },
+        {
+            "id": 35063,
+            "name": "Classical Dimachaerius's Loincloth",
+            "source": "Crafted"
+        },
+        {
+            "id": 35064,
+            "name": "Classical Dimachaerius's Caligae",
+            "source": "Crafted"
+        },
+        {
+            "id": 35065,
+            "name": "Classical Medicus's Laurel Wreath",
+            "source": "Crafted"
+        },
+        {
+            "id": 35066,
+            "name": "Classical Medicus's Chiton",
+            "source": "Crafted"
+        },
+        {
+            "id": 35067,
+            "name": "Classical Medicus's Wrist Torque",
+            "source": "Crafted"
+        },
+        {
+            "id": 35068,
+            "name": "Classical Medicus's Loincloth",
+            "source": "Crafted"
+        },
+        {
+            "id": 35069,
+            "name": "Classical Medicus's Caligae",
+            "source": "Crafted"
+        },
+        {
+            "id": 35070,
+            "name": "Classical Signifer's Horns",
+            "source": "Crafted"
+        },
+        {
+            "id": 35071,
+            "name": "Classical Signifer's Chiton",
+            "source": "Crafted"
+        },
+        {
+            "id": 35072,
+            "name": "Classical Signifer's Fingerless Gloves",
+            "source": "Crafted"
+        },
+        {
+            "id": 35073,
+            "name": "Classical Signifer's Culottes",
+            "source": "Crafted"
+        },
+        {
+            "id": 35074,
+            "name": "Classical Signifer's Caligae",
+            "source": "Crafted"
+        },
+        {
+            "id": 35075,
+            "name": "Classical Earrings of Fending",
+            "source": "Crafted"
+        },
+        {
+            "id": 35076,
+            "name": "Classical Earrings of Slaying",
+            "source": "Crafted"
+        },
+        {
+            "id": 35077,
+            "name": "Classical Earrings of Aiming",
+            "source": "Crafted"
+        },
+        {
+            "id": 35078,
+            "name": "Classical Earrings of Healing",
+            "source": "Crafted"
+        },
+        {
+            "id": 35079,
+            "name": "Classical Earrings of Casting",
+            "source": "Crafted"
+        },
+        {
+            "id": 35080,
+            "name": "Classical Choker of Fending",
+            "source": "Crafted"
+        },
+        {
+            "id": 35081,
+            "name": "Classical Choker of Slaying",
+            "source": "Crafted"
+        },
+        {
+            "id": 35082,
+            "name": "Classical Choker of Aiming",
+            "source": "Crafted"
+        },
+        {
+            "id": 35083,
+            "name": "Classical Choker of Healing",
+            "source": "Crafted"
+        },
+        {
+            "id": 35084,
+            "name": "Classical Choker of Casting",
+            "source": "Crafted"
+        },
+        {
+            "id": 35085,
+            "name": "Classical Wristband of Fending",
+            "source": "Crafted"
+        },
+        {
+            "id": 35086,
+            "name": "Classical Wristband of Slaying",
+            "source": "Crafted"
+        },
+        {
+            "id": 35087,
+            "name": "Classical Wristband of Aiming",
+            "source": "Crafted"
+        },
+        {
+            "id": 35088,
+            "name": "Classical Wristband of Healing",
+            "source": "Crafted"
+        },
+        {
+            "id": 35089,
+            "name": "Classical Wristband of Casting",
+            "source": "Crafted"
+        },
+        {
+            "id": 35090,
+            "name": "Classical Ring of Fending",
+            "source": "Crafted"
+        },
+        {
+            "id": 35091,
+            "name": "Classical Ring of Slaying",
+            "source": "Crafted"
+        },
+        {
+            "id": 35092,
+            "name": "Classical Ring of Aiming",
+            "source": "Crafted"
+        },
+        {
+            "id": 35093,
+            "name": "Classical Ring of Healing",
+            "source": "Crafted"
+        },
+        {
+            "id": 35094,
+            "name": "Classical Ring of Casting",
+            "source": "Crafted"
+        },
+        {
+            "id": 35793,
+            "name": "Trophy of Eternal Darkness",
+            "source": "Crafted"
+        },
+        {
+            "id": 35794,
+            "name": "Trophy of Divine Light",
+            "source": "Crafted"
+        },
+        {
+            "id": 36067,
+            "name": "Archon Burger",
+            "source": "Crafted"
+        },
+        {
+            "id": 36068,
+            "name": "Beef Stroganoff",
+            "source": "Crafted"
+        },
+        {
+            "id": 36069,
+            "name": "Pumpkin Ratatouille",
+            "source": "Crafted"
+        },
+        {
+            "id": 36070,
+            "name": "Pumpkin Potage",
+            "source": "Crafted"
+        },
+        {
+            "id": 36071,
+            "name": "Peach Juice",
+            "source": "Crafted"
+        },
+        {
+            "id": 36072,
+            "name": "Peach Tart",
+            "source": "Crafted"
+        },
+        {
+            "id": 36073,
+            "name": "Sykon Cookie",
+            "source": "Crafted"
+        },
+        {
+            "id": 36074,
+            "name": "Thavnairian Chai",
+            "source": "Crafted"
+        },
+        {
+            "id": 36075,
+            "name": "Scallop Salad",
+            "source": "Crafted"
+        },
+        {
+            "id": 36076,
+            "name": "Scallop Curry",
+            "source": "Crafted"
+        },
+        {
+            "id": 36109,
+            "name": "Grade 6 Tincture of Strength",
+            "source": "Crafted"
+        },
+        {
+            "id": 36110,
+            "name": "Grade 6 Tincture of Dexterity",
+            "source": "Crafted"
+        },
+        {
+            "id": 36111,
+            "name": "Grade 6 Tincture of Vitality",
+            "source": "Crafted"
+        },
+        {
+            "id": 36112,
+            "name": "Grade 6 Tincture of Intelligence",
+            "source": "Crafted"
+        },
+        {
+            "id": 36113,
+            "name": "Grade 6 Tincture of Mind",
+            "source": "Crafted"
+        },
+        {
+            "id": 36173,
+            "name": "Lunar Adamantite Ingot",
+            "source": "Crafted"
+        },
+        {
+            "id": 36187,
+            "name": "Rhodium Ingot",
+            "source": "Crafted"
+        },
+        {
+            "id": 36201,
+            "name": "Mempisang Lumber",
+            "source": "Crafted"
+        },
+        {
+            "id": 36213,
+            "name": "Golden Silk",
+            "source": "Crafted"
+        },
+        {
+            "id": 36232,
+            "name": "Grade 6 Strength Alkahest",
+            "source": "Crafted"
+        },
+        {
+            "id": 36233,
+            "name": "Grade 6 Dexterity Alkahest",
+            "source": "Crafted"
+        },
+        {
+            "id": 36234,
+            "name": "Grade 6 Vitality Alkahest",
+            "source": "Crafted"
+        },
+        {
+            "id": 36235,
+            "name": "Grade 6 Intelligence Alkahest",
+            "source": "Crafted"
+        },
+        {
+            "id": 36236,
+            "name": "Grade 6 Mind Alkahest",
+            "source": "Crafted"
+        },
+        {
+            "id": 36252,
+            "name": "Amynodon Leather",
+            "source": "Crafted"
+        },
+        {
+            "id": 35095,
+            "name": "Radiant's Bastard Sword",
+            "source": "Tome"
+        },
+        {
+            "id": 35096,
+            "name": "Radiant's Baghnakhs",
+            "source": "Tome"
+        },
+        {
+            "id": 35097,
+            "name": "Radiant's Battleaxe",
+            "source": "Tome"
+        },
+        {
+            "id": 35098,
+            "name": "Radiant's Partisan",
+            "source": "Tome"
+        },
+        {
+            "id": 35099,
+            "name": "Radiant's Composite Bow",
+            "source": "Tome"
+        },
+        {
+            "id": 35100,
+            "name": "Radiant's Sword Breakers",
+            "source": "Tome"
+        },
+        {
+            "id": 35101,
+            "name": "Radiant's Greatsword",
+            "source": "Tome"
+        },
+        {
+            "id": 35102,
+            "name": "Radiant's Pistol",
+            "source": "Tome"
+        },
+        {
+            "id": 35103,
+            "name": "Radiant's Cane",
+            "source": "Tome"
+        },
+        {
+            "id": 35104,
+            "name": "Radiant's Scepter",
+            "source": "Tome"
+        },
+        {
+            "id": 35105,
+            "name": "Radiant's Grimoire",
+            "source": "Tome"
+        },
+        {
+            "id": 35106,
+            "name": "Radiant's Codex",
+            "source": "Tome"
+        },
+        {
+            "id": 35107,
+            "name": "Radiant's Torquetum",
+            "source": "Tome"
+        },
+        {
+            "id": 35108,
+            "name": "Radiant's Blade",
+            "source": "Tome"
+        },
+        {
+            "id": 35109,
+            "name": "Radiant's Rapier",
+            "source": "Tome"
+        },
+        {
+            "id": 35110,
+            "name": "Radiant's Bayonet",
+            "source": "Tome"
+        },
+        {
+            "id": 35111,
+            "name": "Radiant's Chakrams",
+            "source": "Tome"
+        },
+        {
+            "id": 35112,
+            "name": "Radiant's Milpreves",
+            "source": "Tome"
+        },
+        {
+            "id": 35113,
+            "name": "Radiant's War Scythe",
+            "source": "Tome"
+        },
+        {
+            "id": 35114,
+            "name": "Radiant's Shield",
+            "source": "Tome"
+        },
+        {
+            "id": 35115,
+            "name": "Radiant's Helm of Fending",
+            "source": "Tome"
+        },
+        {
+            "id": 35116,
+            "name": "Radiant's Scale Mail of Fending",
+            "source": "Tome"
+        },
+        {
+            "id": 35117,
+            "name": "Radiant's Gauntlets of Fending",
+            "source": "Tome"
+        },
+        {
+            "id": 35118,
+            "name": "Radiant's Cuisses of Fending",
+            "source": "Tome"
+        },
+        {
+            "id": 35119,
+            "name": "Radiant's Sabatons of Fending",
+            "source": "Tome"
+        },
+        {
+            "id": 35120,
+            "name": "Radiant's Helm of Maiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35121,
+            "name": "Radiant's Scale Mail of Maiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35122,
+            "name": "Radiant's Gauntlets of Maiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35123,
+            "name": "Radiant's Cuisses of Maiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35124,
+            "name": "Radiant's Sabatons of Maiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35125,
+            "name": "Radiant's Mask of Striking",
+            "source": "Tome"
+        },
+        {
+            "id": 35126,
+            "name": "Radiant's Mail of Striking",
+            "source": "Tome"
+        },
+        {
+            "id": 35127,
+            "name": "Radiant's Wristgloves of Striking",
+            "source": "Tome"
+        },
+        {
+            "id": 35128,
+            "name": "Radiant's Hose of Striking",
+            "source": "Tome"
+        },
+        {
+            "id": 35129,
+            "name": "Radiant's Sabatons of Striking",
+            "source": "Tome"
+        },
+        {
+            "id": 35130,
+            "name": "Radiant's Mask of Aiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35131,
+            "name": "Radiant's Mail of Aiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35132,
+            "name": "Radiant's Wristgloves of Aiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35133,
+            "name": "Radiant's Hose of Aiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35134,
+            "name": "Radiant's Sabatons of Aiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35135,
+            "name": "Radiant's Visor of Scouting",
+            "source": "Tome"
+        },
+        {
+            "id": 35136,
+            "name": "Radiant's Mail of Scouting",
+            "source": "Tome"
+        },
+        {
+            "id": 35137,
+            "name": "Radiant's Gloves of Scouting",
+            "source": "Tome"
+        },
+        {
+            "id": 35138,
+            "name": "Radiant's Hose of Scouting",
+            "source": "Tome"
+        },
+        {
+            "id": 35139,
+            "name": "Radiant's Greaves of Scouting",
+            "source": "Tome"
+        },
+        {
+            "id": 35140,
+            "name": "Radiant's Visor of Healing",
+            "source": "Tome"
+        },
+        {
+            "id": 35141,
+            "name": "Radiant's Mail of Healing",
+            "source": "Tome"
+        },
+        {
+            "id": 35142,
+            "name": "Radiant's Gloves of Healing",
+            "source": "Tome"
+        },
+        {
+            "id": 35143,
+            "name": "Radiant's Hose of Healing",
+            "source": "Tome"
+        },
+        {
+            "id": 35144,
+            "name": "Radiant's Greaves of Healing",
+            "source": "Tome"
+        },
+        {
+            "id": 35145,
+            "name": "Radiant's Visor of Casting",
+            "source": "Tome"
+        },
+        {
+            "id": 35146,
+            "name": "Radiant's Mail of Casting",
+            "source": "Tome"
+        },
+        {
+            "id": 35147,
+            "name": "Radiant's Gloves of Casting",
+            "source": "Tome"
+        },
+        {
+            "id": 35148,
+            "name": "Radiant's Hose of Casting",
+            "source": "Tome"
+        },
+        {
+            "id": 35149,
+            "name": "Radiant's Greaves of Casting",
+            "source": "Tome"
+        },
+        {
+            "id": 35150,
+            "name": "Radiant's Earrings of Fending",
+            "source": "Tome"
+        },
+        {
+            "id": 35151,
+            "name": "Radiant's Earrings of Slaying",
+            "source": "Tome"
+        },
+        {
+            "id": 35152,
+            "name": "Radiant's Earrings of Aiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35153,
+            "name": "Radiant's Earrings of Healing",
+            "source": "Tome"
+        },
+        {
+            "id": 35154,
+            "name": "Radiant's Earrings of Casting",
+            "source": "Tome"
+        },
+        {
+            "id": 35155,
+            "name": "Radiant's Choker of Fending",
+            "source": "Tome"
+        },
+        {
+            "id": 35156,
+            "name": "Radiant's Choker of Slaying",
+            "source": "Tome"
+        },
+        {
+            "id": 35157,
+            "name": "Radiant's Choker of Aiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35158,
+            "name": "Radiant's Choker of Healing",
+            "source": "Tome"
+        },
+        {
+            "id": 35159,
+            "name": "Radiant's Choker of Casting",
+            "source": "Tome"
+        },
+        {
+            "id": 35160,
+            "name": "Radiant's Bracelet of Fending",
+            "source": "Tome"
+        },
+        {
+            "id": 35161,
+            "name": "Radiant's Bracelet of Slaying",
+            "source": "Tome"
+        },
+        {
+            "id": 35162,
+            "name": "Radiant's Bracelet of Aiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35163,
+            "name": "Radiant's Bracelet of Healing",
+            "source": "Tome"
+        },
+        {
+            "id": 35164,
+            "name": "Radiant's Bracelet of Casting",
+            "source": "Tome"
+        },
+        {
+            "id": 35165,
+            "name": "Radiant's Ring of Fending",
+            "source": "Tome"
+        },
+        {
+            "id": 35166,
+            "name": "Radiant's Ring of Slaying",
+            "source": "Tome"
+        },
+        {
+            "id": 35167,
+            "name": "Radiant's Ring of Aiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35168,
+            "name": "Radiant's Ring of Healing",
+            "source": "Tome"
+        },
+        {
+            "id": 35169,
+            "name": "Radiant's Ring of Casting",
+            "source": "Tome"
+        },
+        {
+            "id": 35170,
+            "name": "Augmented Radiant's Bastard Sword",
+            "source": "Tome"
+        },
+        {
+            "id": 35171,
+            "name": "Augmented Radiant's Baghnakhs",
+            "source": "Tome"
+        },
+        {
+            "id": 35172,
+            "name": "Augmented Radiant's Battleaxe",
+            "source": "Tome"
+        },
+        {
+            "id": 35173,
+            "name": "Augmented Radiant's Partisan",
+            "source": "Tome"
+        },
+        {
+            "id": 35174,
+            "name": "Augmented Radiant's Composite Bow",
+            "source": "Tome"
+        },
+        {
+            "id": 35175,
+            "name": "Augmented Radiant's Sword Breakers",
+            "source": "Tome"
+        },
+        {
+            "id": 35176,
+            "name": "Augmented Radiant's Greatsword",
+            "source": "Tome"
+        },
+        {
+            "id": 35177,
+            "name": "Augmented Radiant's Pistol",
+            "source": "Tome"
+        },
+        {
+            "id": 35178,
+            "name": "Augmented Radiant's Cane",
+            "source": "Tome"
+        },
+        {
+            "id": 35179,
+            "name": "Augmented Radiant's Scepter",
+            "source": "Tome"
+        },
+        {
+            "id": 35180,
+            "name": "Augmented Radiant's Grimoire",
+            "source": "Tome"
+        },
+        {
+            "id": 35181,
+            "name": "Augmented Radiant's Codex",
+            "source": "Tome"
+        },
+        {
+            "id": 35182,
+            "name": "Augmented Radiant's Torquetum",
+            "source": "Tome"
+        },
+        {
+            "id": 35183,
+            "name": "Augmented Radiant's Blade",
+            "source": "Tome"
+        },
+        {
+            "id": 35184,
+            "name": "Augmented Radiant's Rapier",
+            "source": "Tome"
+        },
+        {
+            "id": 35185,
+            "name": "Augmented Radiant's Bayonet",
+            "source": "Tome"
+        },
+        {
+            "id": 35186,
+            "name": "Augmented Radiant's Chakrams",
+            "source": "Tome"
+        },
+        {
+            "id": 35187,
+            "name": "Augmented Radiant's Milpreves",
+            "source": "Tome"
+        },
+        {
+            "id": 35188,
+            "name": "Augmented Radiant's War Scythe",
+            "source": "Tome"
+        },
+        {
+            "id": 35189,
+            "name": "Augmented Radiant's Shield",
+            "source": "Tome"
+        },
+        {
+            "id": 35190,
+            "name": "Augmented Radiant's Helm of Fending",
+            "source": "Tome"
+        },
+        {
+            "id": 35191,
+            "name": "Augmented Radiant's Scale Mail of Fending",
+            "source": "Tome"
+        },
+        {
+            "id": 35192,
+            "name": "Augmented Radiant's Gauntlets of Fending",
+            "source": "Tome"
+        },
+        {
+            "id": 35193,
+            "name": "Augmented Radiant's Cuisses of Fending",
+            "source": "Tome"
+        },
+        {
+            "id": 35194,
+            "name": "Augmented Radiant's Sabatons of Fending",
+            "source": "Tome"
+        },
+        {
+            "id": 35195,
+            "name": "Augmented Radiant's Helm of Maiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35196,
+            "name": "Augmented Radiant's Scale Mail of Maiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35197,
+            "name": "Augmented Radiant's Gauntlets of Maiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35198,
+            "name": "Augmented Radiant's Cuisses of Maiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35199,
+            "name": "Augmented Radiant's Sabatons of Maiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35200,
+            "name": "Augmented Radiant's Mask of Striking",
+            "source": "Tome"
+        },
+        {
+            "id": 35201,
+            "name": "Augmented Radiant's Mail of Striking",
+            "source": "Tome"
+        },
+        {
+            "id": 35202,
+            "name": "Augmented Radiant's Wristgloves of Striking",
+            "source": "Tome"
+        },
+        {
+            "id": 35203,
+            "name": "Augmented Radiant's Hose of Striking",
+            "source": "Tome"
+        },
+        {
+            "id": 35204,
+            "name": "Augmented Radiant's Sabatons of Striking",
+            "source": "Tome"
+        },
+        {
+            "id": 35205,
+            "name": "Augmented Radiant's Mask of Aiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35206,
+            "name": "Augmented Radiant's Mail of Aiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35207,
+            "name": "Augmented Radiant's Wristgloves of Aiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35208,
+            "name": "Augmented Radiant's Hose of Aiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35209,
+            "name": "Augmented Radiant's Sabatons of Aiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35210,
+            "name": "Augmented Radiant's Visor of Scouting",
+            "source": "Tome"
+        },
+        {
+            "id": 35211,
+            "name": "Augmented Radiant's Mail of Scouting",
+            "source": "Tome"
+        },
+        {
+            "id": 35212,
+            "name": "Augmented Radiant's Gloves of Scouting",
+            "source": "Tome"
+        },
+        {
+            "id": 35213,
+            "name": "Augmented Radiant's Hose of Scouting",
+            "source": "Tome"
+        },
+        {
+            "id": 35214,
+            "name": "Augmented Radiant's Greaves of Scouting",
+            "source": "Tome"
+        },
+        {
+            "id": 35215,
+            "name": "Augmented Radiant's Visor of Healing",
+            "source": "Tome"
+        },
+        {
+            "id": 35216,
+            "name": "Augmented Radiant's Mail of Healing",
+            "source": "Tome"
+        },
+        {
+            "id": 35217,
+            "name": "Augmented Radiant's Gloves of Healing",
+            "source": "Tome"
+        },
+        {
+            "id": 35218,
+            "name": "Augmented Radiant's Hose of Healing",
+            "source": "Tome"
+        },
+        {
+            "id": 35219,
+            "name": "Augmented Radiant's Greaves of Healing",
+            "source": "Tome"
+        },
+        {
+            "id": 35220,
+            "name": "Augmented Radiant's Visor of Casting",
+            "source": "Tome"
+        },
+        {
+            "id": 35221,
+            "name": "Augmented Radiant's Mail of Casting",
+            "source": "Tome"
+        },
+        {
+            "id": 35222,
+            "name": "Augmented Radiant's Gloves of Casting",
+            "source": "Tome"
+        },
+        {
+            "id": 35223,
+            "name": "Augmented Radiant's Hose of Casting",
+            "source": "Tome"
+        },
+        {
+            "id": 35224,
+            "name": "Augmented Radiant's Greaves of Casting",
+            "source": "Tome"
+        },
+        {
+            "id": 35225,
+            "name": "Augmented Radiant's Earrings of Fending",
+            "source": "Tome"
+        },
+        {
+            "id": 35226,
+            "name": "Augmented Radiant's Earrings of Slaying",
+            "source": "Tome"
+        },
+        {
+            "id": 35227,
+            "name": "Augmented Radiant's Earrings of Aiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35228,
+            "name": "Augmented Radiant's Earrings of Healing",
+            "source": "Tome"
+        },
+        {
+            "id": 35229,
+            "name": "Augmented Radiant's Earrings of Casting",
+            "source": "Tome"
+        },
+        {
+            "id": 35230,
+            "name": "Augmented Radiant's Choker of Fending",
+            "source": "Tome"
+        },
+        {
+            "id": 35231,
+            "name": "Augmented Radiant's Choker of Slaying",
+            "source": "Tome"
+        },
+        {
+            "id": 35232,
+            "name": "Augmented Radiant's Choker of Aiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35233,
+            "name": "Augmented Radiant's Choker of Healing",
+            "source": "Tome"
+        },
+        {
+            "id": 35234,
+            "name": "Augmented Radiant's Choker of Casting",
+            "source": "Tome"
+        },
+        {
+            "id": 35235,
+            "name": "Augmented Radiant's Bracelet of Fending",
+            "source": "Tome"
+        },
+        {
+            "id": 35236,
+            "name": "Augmented Radiant's Bracelet of Slaying",
+            "source": "Tome"
+        },
+        {
+            "id": 35237,
+            "name": "Augmented Radiant's Bracelet of Aiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35238,
+            "name": "Augmented Radiant's Bracelet of Healing",
+            "source": "Tome"
+        },
+        {
+            "id": 35239,
+            "name": "Augmented Radiant's Bracelet of Casting",
+            "source": "Tome"
+        },
+        {
+            "id": 35240,
+            "name": "Augmented Radiant's Ring of Fending",
+            "source": "Tome"
+        },
+        {
+            "id": 35241,
+            "name": "Augmented Radiant's Ring of Slaying",
+            "source": "Tome"
+        },
+        {
+            "id": 35242,
+            "name": "Augmented Radiant's Ring of Aiming",
+            "source": "Tome"
+        },
+        {
+            "id": 35243,
+            "name": "Augmented Radiant's Ring of Healing",
+            "source": "Tome"
+        },
+        {
+            "id": 35244,
+            "name": "Augmented Radiant's Ring of Casting",
+            "source": "Tome"
+        },
+        {
+            "id": 35265,
+            "name": "Asphodelos Circlet of Fending",
+            "source": "Savage"
+        },
+        {
+            "id": 35266,
+            "name": "Asphodelos Chiton of Fending",
+            "source": "Savage"
+        },
+        {
+            "id": 35267,
+            "name": "Asphodelos Vambraces of Fending",
+            "source": "Savage"
+        },
+        {
+            "id": 35268,
+            "name": "Asphodelos Skirt of Fending",
+            "source": "Savage"
+        },
+        {
+            "id": 35269,
+            "name": "Asphodelos Boots of Fending",
+            "source": "Savage"
+        },
+        {
+            "id": 35270,
+            "name": "Asphodelos Faceguard of Maiming",
+            "source": "Savage"
+        },
+        {
+            "id": 35271,
+            "name": "Asphodelos Himation of Maiming",
+            "source": "Savage"
+        },
+        {
+            "id": 35272,
+            "name": "Asphodelos Halfgloves of Maiming",
+            "source": "Savage"
+        },
+        {
+            "id": 35273,
+            "name": "Asphodelos Breeches of Maiming",
+            "source": "Savage"
+        },
+        {
+            "id": 35274,
+            "name": "Asphodelos Shoes of Maiming",
+            "source": "Savage"
+        },
+        {
+            "id": 35275,
+            "name": "Asphodelos Faceguard of Striking",
+            "source": "Savage"
+        },
+        {
+            "id": 35276,
+            "name": "Asphodelos Himation of Striking",
+            "source": "Savage"
+        },
+        {
+            "id": 35277,
+            "name": "Asphodelos Halfgloves of Striking",
+            "source": "Savage"
+        },
+        {
+            "id": 35278,
+            "name": "Asphodelos Breeches of Striking",
+            "source": "Savage"
+        },
+        {
+            "id": 35279,
+            "name": "Asphodelos Shoes of Striking",
+            "source": "Savage"
+        },
+        {
+            "id": 35280,
+            "name": "Asphodelos Headgear of Aiming",
+            "source": "Savage"
+        },
+        {
+            "id": 35281,
+            "name": "Asphodelos Himation of Aiming",
+            "source": "Savage"
+        },
+        {
+            "id": 35282,
+            "name": "Asphodelos Gloves of Aiming",
+            "source": "Savage"
+        },
+        {
+            "id": 35283,
+            "name": "Asphodelos Hose of Aiming",
+            "source": "Savage"
+        },
+        {
+            "id": 35284,
+            "name": "Asphodelos Boots of Aiming",
+            "source": "Savage"
+        },
+        {
+            "id": 35285,
+            "name": "Asphodelos Headgear of Scouting",
+            "source": "Savage"
+        },
+        {
+            "id": 35286,
+            "name": "Asphodelos Himation of Scouting",
+            "source": "Savage"
+        },
+        {
+            "id": 35287,
+            "name": "Asphodelos Gloves of Scouting",
+            "source": "Savage"
+        },
+        {
+            "id": 35288,
+            "name": "Asphodelos Hose of Scouting",
+            "source": "Savage"
+        },
+        {
+            "id": 35289,
+            "name": "Asphodelos Boots of Scouting",
+            "source": "Savage"
+        },
+        {
+            "id": 35290,
+            "name": "Asphodelos Headgear of Healing",
+            "source": "Savage"
+        },
+        {
+            "id": 35291,
+            "name": "Asphodelos Chiton of Healing",
+            "source": "Savage"
+        },
+        {
+            "id": 35292,
+            "name": "Asphodelos Wristbands of Healing",
+            "source": "Savage"
+        },
+        {
+            "id": 35293,
+            "name": "Asphodelos Trousers of Healing",
+            "source": "Savage"
+        },
+        {
+            "id": 35294,
+            "name": "Asphodelos Gaiters of Healing",
+            "source": "Savage"
+        },
+        {
+            "id": 35295,
+            "name": "Asphodelos Headgear of Casting",
+            "source": "Savage"
+        },
+        {
+            "id": 35296,
+            "name": "Asphodelos Chiton of Casting",
+            "source": "Savage"
+        },
+        {
+            "id": 35297,
+            "name": "Asphodelos Wristbands of Casting",
+            "source": "Savage"
+        },
+        {
+            "id": 35298,
+            "name": "Asphodelos Trousers of Casting",
+            "source": "Savage"
+        },
+        {
+            "id": 35299,
+            "name": "Asphodelos Gaiters of Casting",
+            "source": "Savage"
+        },
+        {
+            "id": 35300,
+            "name": "Asphodelos Earrings of Fending",
+            "source": "Savage"
+        },
+        {
+            "id": 35301,
+            "name": "Asphodelos Earrings of Slaying",
+            "source": "Savage"
+        },
+        {
+            "id": 35302,
+            "name": "Asphodelos Earrings of Aiming",
+            "source": "Savage"
+        },
+        {
+            "id": 35303,
+            "name": "Asphodelos Earrings of Healing",
+            "source": "Savage"
+        },
+        {
+            "id": 35304,
+            "name": "Asphodelos Earrings of Casting",
+            "source": "Savage"
+        },
+        {
+            "id": 35305,
+            "name": "Asphodelos Necklace of Fending",
+            "source": "Savage"
+        },
+        {
+            "id": 35306,
+            "name": "Asphodelos Necklace of Slaying",
+            "source": "Savage"
+        },
+        {
+            "id": 35307,
+            "name": "Asphodelos Necklace of Aiming",
+            "source": "Savage"
+        },
+        {
+            "id": 35308,
+            "name": "Asphodelos Necklace of Healing",
+            "source": "Savage"
+        },
+        {
+            "id": 35309,
+            "name": "Asphodelos Necklace of Casting",
+            "source": "Savage"
+        },
+        {
+            "id": 35310,
+            "name": "Asphodelos Amulet of Fending",
+            "source": "Savage"
+        },
+        {
+            "id": 35311,
+            "name": "Asphodelos Amulet of Slaying",
+            "source": "Savage"
+        },
+        {
+            "id": 35312,
+            "name": "Asphodelos Amulet of Aiming",
+            "source": "Savage"
+        },
+        {
+            "id": 35313,
+            "name": "Asphodelos Amulet of Healing",
+            "source": "Savage"
+        },
+        {
+            "id": 35314,
+            "name": "Asphodelos Amulet of Casting",
+            "source": "Savage"
+        },
+        {
+            "id": 35315,
+            "name": "Asphodelos Ring of Fending",
+            "source": "Savage"
+        },
+        {
+            "id": 35316,
+            "name": "Asphodelos Ring of Slaying",
+            "source": "Savage"
+        },
+        {
+            "id": 35317,
+            "name": "Asphodelos Ring of Aiming",
+            "source": "Savage"
+        },
+        {
+            "id": 35318,
+            "name": "Asphodelos Ring of Healing",
+            "source": "Savage"
+        },
+        {
+            "id": 35319,
+            "name": "Asphodelos Ring of Casting",
+            "source": "Savage"
+        },
+        {
+            "id": 35245,
+            "name": "Asphodelos Longsword",
+            "source": "Savage"
+        },
+        {
+            "id": 35246,
+            "name": "Asphodelos Knuckles",
+            "source": "Savage"
+        },
+        {
+            "id": 35247,
+            "name": "Asphodelos War Hammer",
+            "source": "Savage"
+        },
+        {
+            "id": 35248,
+            "name": "Asphodelos Trident",
+            "source": "Savage"
+        },
+        {
+            "id": 35249,
+            "name": "Asphodelos Harp Bow",
+            "source": "Savage"
+        },
+        {
+            "id": 35250,
+            "name": "Asphodelos Daggers",
+            "source": "Savage"
+        },
+        {
+            "id": 35251,
+            "name": "Asphodelos Claymore",
+            "source": "Savage"
+        },
+        {
+            "id": 35252,
+            "name": "Asphodelos Arquebus",
+            "source": "Savage"
+        },
+        {
+            "id": 35253,
+            "name": "Asphodelos Cane",
+            "source": "Savage"
+        },
+        {
+            "id": 35254,
+            "name": "Asphodelos Staff",
+            "source": "Savage"
+        },
+        {
+            "id": 35255,
+            "name": "Asphodelos Grimoire",
+            "source": "Savage"
+        },
+        {
+            "id": 35256,
+            "name": "Asphodelos Codex",
+            "source": "Savage"
+        },
+        {
+            "id": 35257,
+            "name": "Asphodelos Orrery",
+            "source": "Savage"
+        },
+        {
+            "id": 35258,
+            "name": "Asphodelos Samurai Blade",
+            "source": "Savage"
+        },
+        {
+            "id": 35259,
+            "name": "Asphodelos Foil",
+            "source": "Savage"
+        },
+        {
+            "id": 35260,
+            "name": "Asphodelos Bayonet",
+            "source": "Savage"
+        },
+        {
+            "id": 35261,
+            "name": "Asphodelos Tathlums",
+            "source": "Savage"
+        },
+        {
+            "id": 35262,
+            "name": "Asphodelos Pendulums",
+            "source": "Savage"
+        },
+        {
+            "id": 35263,
+            "name": "Asphodelos War Scythe",
+            "source": "Savage"
+        },
+        {
+            "id": 35264,
+            "name": "Asphodelos Shield",
+            "source": "Savage"
+        }
+    ]
+}

@@ -13,6 +13,7 @@ import me.arcanis.ffxivbis.models.PieceType
 import spray.json._
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.jdk.CollectionConverters._
 import scala.util.Try
 
 trait XivApi extends RequestExecutor {
@@ -21,7 +22,26 @@ trait XivApi extends RequestExecutor {
   private val xivapiUrl = config.getString("me.arcanis.ffxivbis.bis-provider.xivapi-url")
   private val xivapiKey = Try(config.getString("me.arcanis.ffxivbis.bis-provider.xivapi-key")).toOption
 
+  private val preloadedItems: Map[Long, PieceType.PieceType] =
+    config
+      .getConfigList("me.arcanis.ffxivbis.bis-provider.cached-items")
+      .asScala
+      .map { item =>
+        item.getLong("id") -> PieceType.withName(item.getString("source"))
+      }
+      .toMap
+
   def getPieceType(itemIds: Seq[Long]): Future[Map[Long, PieceType.PieceType]] = {
+    val (local, remote) = itemIds.foldLeft((Map.empty[Long, PieceType.PieceType], Seq.empty[Long])) {
+      case ((l, r), id) =>
+        if (preloadedItems.contains(id)) (l.updated(id, preloadedItems(id)), r)
+        else (l, r :+ id)
+    }
+    if (remote.isEmpty) Future.successful(local)
+    else remotePieceType(remote).map(_ ++ local)
+  }
+
+  private def remotePieceType(itemIds: Seq[Long]): Future[Map[Long, PieceType.PieceType]] = {
     val uriForItems = Uri(xivapiUrl)
       .withPath(Uri.Path / "item")
       .withQuery(
@@ -108,7 +128,7 @@ object XivApi {
         val pieceType =
           if (index == "crafted" && shopId == -1L) PieceType.Crafted
           else
-            Try(shopMap(shopId).fields(s"ItemCost$index").asJsObject).toOption
+            Try(shopMap(shopId).fields(s"ItemCost$index").asJsObject)
               .getOrElse(throw new Exception(s"${shopMap(shopId).fields(s"ItemCost$index")}, $index"))
               .getFields("IsUnique", "StackSize") match {
               case Seq(JsNumber(isUnique), JsNumber(stackSize)) =>

@@ -49,28 +49,26 @@ class RootEndpoint(system: ActorSystem[Nothing], storage: ActorRef[Message], pro
 
   def route: Route =
     withHttpLog {
-      apiRoute ~ htmlRoute ~ swagger.routes ~ swaggerUIRoute
+      ignoreTrailingSlash {
+        apiRoute ~ htmlRoute ~ swagger.routes ~ swaggerUIRoute
+      }
     }
 
   private def apiRoute: Route =
-    ignoreTrailingSlash {
-      pathPrefix("api") {
-        pathPrefix(Segment) {
-          case "v1" => rootApiV1Endpoint.route
-          case _ => reject
-        }
+    pathPrefix("api") {
+      pathPrefix(Segment) {
+        case "v1" => rootApiV1Endpoint.route
+        case _ => reject
       }
     }
 
   private def htmlRoute: Route =
-    ignoreTrailingSlash {
-      pathPrefix("static") {
-        getFromResourceDirectory("static")
-      } ~ rootView.route
-    }
+    pathPrefix("static") {
+      getFromResourceDirectory("static")
+    } ~ rootView.route
 
   private def swaggerUIRoute: Route =
     path("swagger") {
-      getFromResource("swagger/index.html")
-    } ~ getFromResourceDirectory("swagger")
+      getFromResource("html/swagger.html")
+    }
 }
