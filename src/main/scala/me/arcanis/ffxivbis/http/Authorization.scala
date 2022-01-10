@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -8,22 +8,18 @@
  */
 package me.arcanis.ffxivbis.http
 
-import akka.actor.typed.scaladsl.AskPattern.Askable
-import akka.actor.typed.{ActorRef, Scheduler}
 import akka.http.scaladsl.model.headers._
 import akka.http.scaladsl.server.AuthenticationFailedRejection._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
-import akka.util.Timeout
-import me.arcanis.ffxivbis.messages.{GetUser, Message}
-import me.arcanis.ffxivbis.models.Permission
+import me.arcanis.ffxivbis.models.{Permission, User}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 // idea comes from https://synkre.com/bcrypt-for-akka-http-password-encryption/
 trait Authorization {
 
-  def storage: ActorRef[Message]
+  def auth: AuthorizationProvider
 
   def authenticateBasicBCrypt[T](realm: String, authenticate: (String, String) => Future[Option[T]]): Directive1[T] = {
     def challenge = HttpChallenges.basic(realm)
@@ -38,34 +34,26 @@ trait Authorization {
     }
   }
 
-  def authenticator(scope: Permission.Value, partyId: String)(username: String, password: String)(implicit
-    executionContext: ExecutionContext,
-    timeout: Timeout,
-    scheduler: Scheduler
-  ): Future[Option[String]] =
-    storage.ask(GetUser(partyId, username, _)).map {
-      case Some(user) if user.verify(password) && user.verityScope(scope) => Some(username)
-      case _ => None
-    }
-
   def authAdmin(partyId: String)(username: String, password: String)(implicit
-    executionContext: ExecutionContext,
-    timeout: Timeout,
-    scheduler: Scheduler
-  ): Future[Option[String]] =
+    executionContext: ExecutionContext
+  ): Future[Option[User]] =
     authenticator(Permission.admin, partyId)(username, password)
 
   def authGet(partyId: String)(username: String, password: String)(implicit
-    executionContext: ExecutionContext,
-    timeout: Timeout,
-    scheduler: Scheduler
-  ): Future[Option[String]] =
+    executionContext: ExecutionContext
+  ): Future[Option[User]] =
     authenticator(Permission.get, partyId)(username, password)
 
   def authPost(partyId: String)(username: String, password: String)(implicit
-    executionContext: ExecutionContext,
-    timeout: Timeout,
-    scheduler: Scheduler
-  ): Future[Option[String]] =
+    executionContext: ExecutionContext
+  ): Future[Option[User]] =
     authenticator(Permission.post, partyId)(username, password)
+
+  private def authenticator(scope: Permission.Value, partyId: String)(username: String, password: String)(implicit
+    executionContext: ExecutionContext
+  ): Future[Option[User]] =
+    auth.get(partyId, username).map {
+      case Some(user) if user.verify(password) && user.verityScope(scope) => Some(user)
+      case _ => None
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -11,22 +11,22 @@ package me.arcanis.ffxivbis.http.api.v1.json
 import io.swagger.v3.oas.annotations.media.Schema
 import me.arcanis.ffxivbis.models.PlayerIdWithCounters
 
-case class PlayerIdWithCountersResponse(
+case class PlayerIdWithCountersModel(
   @Schema(description = "unique party ID", required = true, example = "abcdefgh") partyId: String,
   @Schema(description = "job name", required = true, example = "DNC") job: String,
   @Schema(description = "player nick name", required = true, example = "Siuan Sanche") nick: String,
   @Schema(description = "is piece required by player or not", required = true) isRequired: Boolean,
   @Schema(description = "player loot priority", required = true) priority: Int,
   @Schema(description = "count of savage pieces in best in slot", required = true) bisCountTotal: Int,
-  @Schema(description = "count of looted pieces", required = true) lootCount: Int,
+  @Schema(description = "count of looted pieces of this type", required = true) lootCount: Int,
   @Schema(description = "count of looted pieces which are parts of best in slot", required = true) lootCountBiS: Int,
   @Schema(description = "total count of looted pieces", required = true) lootCountTotal: Int
 )
 
-object PlayerIdWithCountersResponse {
+object PlayerIdWithCountersModel {
 
-  def fromPlayerId(playerIdWithCounters: PlayerIdWithCounters): PlayerIdWithCountersResponse =
-    PlayerIdWithCountersResponse(
+  def fromPlayerId(playerIdWithCounters: PlayerIdWithCounters): PlayerIdWithCountersModel =
+    PlayerIdWithCountersModel(
       playerIdWithCounters.partyId,
       playerIdWithCounters.job.toString,
       playerIdWithCounters.nick,

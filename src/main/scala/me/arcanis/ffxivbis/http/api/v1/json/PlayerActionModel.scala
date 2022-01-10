@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -10,7 +10,7 @@ package me.arcanis.ffxivbis.http.api.v1.json
 
 import io.swagger.v3.oas.annotations.media.Schema
 
-case class PlayerActionResponse(
+case class PlayerActionModel(
   @Schema(
     description = "action to perform",
     required = true,
@@ -18,5 +18,5 @@ case class PlayerActionResponse(
     allowableValues = Array("add", "remove"),
     example = "add"
   ) action: ApiAction.Value,
-  @Schema(description = "player description", required = true) playerId: PlayerResponse
+  @Schema(description = "player description", required = true) playerId: PlayerModel
 )

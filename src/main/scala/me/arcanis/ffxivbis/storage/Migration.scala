@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -21,8 +21,8 @@ class Migration(config: Config) {
     val section = DatabaseProfile.getSection(config)
 
     val url = section.getString("db.url")
-    val username = section.getString("db.user")
-    val password = section.getString("db.password")
+    val username = Try(section.getString("db.user")).toOption.filter(_.nonEmpty).orNull
+    val password = Try(section.getString("db.password")).toOption.filter(_.nonEmpty).orNull
 
     val provider = url match {
       case s"jdbc:$p:$_" => p

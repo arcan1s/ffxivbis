@@ -1,8 +1,8 @@
 package me.arcanis.ffxivbis
 
-import java.io.File
-
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
+
+import java.io.File
 
 object Settings {
   def config(values: Map[String, AnyRef]): Config = {

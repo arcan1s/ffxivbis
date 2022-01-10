@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -10,14 +10,14 @@ package me.arcanis.ffxivbis.http.api.v1.json
 
 import io.swagger.v3.oas.annotations.media.Schema
 
-case class PieceActionResponse(
+case class PieceActionModel(
   @Schema(
     description = "action to perform",
     required = true,
     `type` = "string",
     allowableValues = Array("add", "remove")
   ) action: ApiAction.Value,
-  @Schema(description = "piece description", required = true) piece: PieceResponse,
-  @Schema(description = "player description", required = true) playerId: PlayerIdResponse,
-  @Schema(description = "is piece free to roll or not") isFreeLoot: Option[Boolean]
+  @Schema(description = "piece description", required = true) piece: PieceModel,
+  @Schema(description = "player description", required = true) playerId: PlayerIdModel,
+  @Schema(description = "is piece free to roll or not", `type` = "boolean") isFreeLoot: Option[Boolean]
 )

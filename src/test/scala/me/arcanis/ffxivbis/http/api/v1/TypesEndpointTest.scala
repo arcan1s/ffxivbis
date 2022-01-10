@@ -5,7 +5,7 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import com.typesafe.config.Config
 import me.arcanis.ffxivbis.Settings
 import me.arcanis.ffxivbis.http.api.v1.json._
-import me.arcanis.ffxivbis.models.{Job, Party, Permission, Piece, PieceType}
+import me.arcanis.ffxivbis.models._
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
@@ -22,6 +22,13 @@ class TypesEndpointTest extends AnyWordSpecLike
 
     "return all available jobs" in {
       Get("/types/jobs") ~> route ~> check {
+        status shouldEqual StatusCodes.OK
+        responseAs[Seq[String]] shouldEqual Job.available.map(_.toString)
+      }
+    }
+
+    "return all available jobs WITH ANY JOB ALIAS" in {
+      Get("/types/jobs/all") ~> route ~> check {
         status shouldEqual StatusCodes.OK
         responseAs[Seq[String]] shouldEqual Job.availableWithAnyJob.map(_.toString)
       }

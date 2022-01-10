@@ -1,6 +1,9 @@
 package me.arcanis.ffxivbis
 
+import me.arcanis.ffxivbis.http.AuthorizationProvider
 import me.arcanis.ffxivbis.models._
+
+import scala.concurrent.Future
 
 object Fixtures {
   lazy val bis: BiS = BiS(
@@ -79,4 +82,6 @@ object Fixtures {
   lazy val userAdmin: User = User(partyId, "admin", userPassword, Permission.admin).withHashedPassword
   lazy val userGet: User = User(partyId, "get", userPassword, Permission.get).withHashedPassword
   lazy val users: Seq[User] = Seq(userAdmin, userGet)
+
+  lazy val authProvider: AuthorizationProvider = (_: String, _: String) => Future.successful(Some(userAdmin))
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -8,11 +8,10 @@
  */
 package me.arcanis.ffxivbis.storage
 
-import java.time.Instant
-
 import me.arcanis.ffxivbis.models.{Job, Loot, Piece, PieceType}
 import slick.lifted.{ForeignKeyQuery, Index}
 
+import java.time.Instant
 import scala.concurrent.Future
 
 trait LootProfile { this: DatabaseProfile =>
@@ -27,6 +26,7 @@ trait LootProfile { this: DatabaseProfile =>
     job: String,
     isFreeLoot: Int
   ) {
+
     def toLoot: Loot = Loot(
       playerId,
       Piece(piece, PieceType.withName(pieceType), Job.withName(job)),
@@ -34,6 +34,7 @@ trait LootProfile { this: DatabaseProfile =>
       isFreeLoot == 1
     )
   }
+
   object LootRep {
     def fromLoot(playerId: Long, loot: Loot): LootRep =
       LootRep(
@@ -70,14 +71,18 @@ trait LootProfile { this: DatabaseProfile =>
       case Some(id) => db.run(lootTable.filter(_.lootId === id).delete)
       case _ => throw new IllegalArgumentException(s"Could not find piece $loot belong to $playerId")
     }
+
   def getPiecesById(playerId: Long): Future[Seq[Loot]] = getPiecesById(Seq(playerId))
+
   def getPiecesById(playerIds: Seq[Long]): Future[Seq[Loot]] =
     db.run(piecesLoot(playerIds).result).map(_.map(_.toLoot))
+
   def insertPieceById(loot: Loot)(playerId: Long): Future[Int] =
     db.run(lootTable.insertOrUpdate(LootRep.fromLoot(playerId, loot)))
 
   private def pieceLoot(piece: LootRep) =
     piecesLoot(Seq(piece.playerId)).filter(_.piece === piece.piece)
+
   private def piecesLoot(playerIds: Seq[Long]) =
     lootTable.filter(_.playerId.inSet(playerIds.toSet))
 }

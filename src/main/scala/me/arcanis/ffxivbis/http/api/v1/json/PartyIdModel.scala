@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -10,4 +10,4 @@ package me.arcanis.ffxivbis.http.api.v1.json
 
 import io.swagger.v3.oas.annotations.media.Schema
 
-case class PartyIdResponse(@Schema(description = "party id", required = true) partyId: String)
+case class PartyIdModel(@Schema(description = "party id", required = true, example = "abcdefgh") partyId: String)

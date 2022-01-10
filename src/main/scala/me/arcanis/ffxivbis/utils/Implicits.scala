@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -8,11 +8,10 @@
  */
 package me.arcanis.ffxivbis.utils
 
-import java.time.Duration
-import java.util.concurrent.TimeUnit
-
 import akka.util.Timeout
 
+import java.time.Duration
+import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 import scala.language.implicitConversions
 

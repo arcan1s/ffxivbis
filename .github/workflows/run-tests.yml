@@ -17,6 +17,6 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: temurin
-          java-version: 8
+          java-version: 17
       - name: run tests
-        run: sbt -v +test
+        run: make tests

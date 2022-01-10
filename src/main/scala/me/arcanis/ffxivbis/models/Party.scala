@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -17,10 +17,13 @@ import scala.util.Random
 
 case class Party(partyDescription: PartyDescription, rules: Seq[String], players: Map[PlayerId, Player])
   extends StrictLogging {
+
   require(players.keys.forall(_.partyId == partyDescription.partyId), "party id must be same")
 
   def getPlayers: Seq[Player] = players.values.toSeq
+
   def player(playerId: PlayerId): Option[Player] = players.get(playerId)
+
   def withPlayer(player: Player): Party =
     try {
       require(player.partyId == partyDescription.partyId, "player must belong to this party")

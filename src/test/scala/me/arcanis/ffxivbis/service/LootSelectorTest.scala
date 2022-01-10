@@ -3,9 +3,9 @@ package me.arcanis.ffxivbis.service
 import akka.actor.testkit.typed.scaladsl.ActorTestKit
 import akka.actor.typed.scaladsl.AskPattern.Askable
 import me.arcanis.ffxivbis.messages.DownloadBiS
-import me.arcanis.ffxivbis.{Fixtures, Settings}
 import me.arcanis.ffxivbis.models._
 import me.arcanis.ffxivbis.service.bis.BisProvider
+import me.arcanis.ffxivbis.{Fixtures, Settings}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike

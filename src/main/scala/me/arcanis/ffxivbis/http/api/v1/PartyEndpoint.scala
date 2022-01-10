@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -21,14 +21,18 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.{Operation, Parameter}
 import jakarta.ws.rs._
 import me.arcanis.ffxivbis.http.api.v1.json._
-import me.arcanis.ffxivbis.http.{Authorization, PlayerHelper}
+import me.arcanis.ffxivbis.http.helpers.PlayerHelper
+import me.arcanis.ffxivbis.http.{Authorization, AuthorizationProvider}
 import me.arcanis.ffxivbis.messages.{BiSProviderMessage, Message}
 
 import scala.util.{Failure, Success}
 
 @Path("/api/v1")
-class PartyEndpoint(override val storage: ActorRef[Message], override val provider: ActorRef[BiSProviderMessage])(
-  implicit
+class PartyEndpoint(
+  override val storage: ActorRef[Message],
+  override val provider: ActorRef[BiSProviderMessage],
+  override val auth: AuthorizationProvider
+)(implicit
   timeout: Timeout,
   scheduler: Scheduler
 ) extends PlayerHelper
@@ -51,22 +55,22 @@ class PartyEndpoint(override val storage: ActorRef[Message], override val provid
       new ApiResponse(
         responseCode = "200",
         description = "Party description",
-        content = Array(new Content(schema = new Schema(implementation = classOf[PartyDescriptionResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[PartyDescriptionModel])))
       ),
       new ApiResponse(
         responseCode = "401",
         description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "403",
         description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "500",
         description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("get"))),
@@ -77,9 +81,8 @@ class PartyEndpoint(override val storage: ActorRef[Message], override val provid
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
           get {
-            onComplete(getPartyDescription(partyId)) {
-              case Success(response) => complete(PartyDescriptionResponse.fromDescription(response))
-              case Failure(exception) => throw exception
+            onSuccess(getPartyDescription(partyId)) { response =>
+              complete(PartyDescriptionModel.fromDescription(response))
             }
           }
         }
@@ -98,29 +101,29 @@ class PartyEndpoint(override val storage: ActorRef[Message], override val provid
     requestBody = new RequestBody(
       description = "new party description",
       required = true,
-      content = Array(new Content(schema = new Schema(implementation = classOf[PartyDescriptionResponse])))
+      content = Array(new Content(schema = new Schema(implementation = classOf[PartyDescriptionModel])))
     ),
     responses = Array(
       new ApiResponse(responseCode = "202", description = "Party description has been modified"),
       new ApiResponse(
         responseCode = "400",
         description = "Invalid parameters were supplied",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "401",
         description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "403",
         description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "500",
         description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("post"))),
@@ -131,11 +134,10 @@ class PartyEndpoint(override val storage: ActorRef[Message], override val provid
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
           post {
-            entity(as[PartyDescriptionResponse]) { partyDescription =>
+            entity(as[PartyDescriptionModel]) { partyDescription =>
               val description = partyDescription.copy(partyId = partyId)
-              onComplete(updateDescription(description.toDescription)) {
-                case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
-                case Failure(exception) => throw exception
+              onSuccess(updateDescription(description.toDescription)) {
+                complete(StatusCodes.Accepted, HttpEntity.Empty)
               }
             }
           }

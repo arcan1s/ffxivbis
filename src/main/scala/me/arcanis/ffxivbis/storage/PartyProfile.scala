@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -16,9 +16,12 @@ trait PartyProfile { this: DatabaseProfile =>
   import dbConfig.profile.api._
 
   case class PartyRep(partyId: Option[Long], partyName: String, partyAlias: Option[String]) {
+
     def toDescription: PartyDescription = PartyDescription(partyName, partyAlias)
   }
+
   object PartyRep {
+
     def fromDescription(party: PartyDescription, id: Option[Long]): PartyRep =
       PartyRep(id, party.partyId, party.partyAlias)
   }
@@ -36,8 +39,10 @@ trait PartyProfile { this: DatabaseProfile =>
     db.run(
       partyDescription(partyId).result.headOption.map(_.map(_.toDescription).getOrElse(PartyDescription.empty(partyId)))
     )
+
   def getUniquePartyId(partyId: String): Future[Option[Long]] =
     db.run(partyDescription(partyId).map(_.partyId).result.headOption)
+
   def insertPartyDescription(partyDescription: PartyDescription): Future[Int] =
     getUniquePartyId(partyDescription.partyId).flatMap {
       case Some(id) => db.run(partiesTable.update(PartyRep.fromDescription(partyDescription, Some(id))))

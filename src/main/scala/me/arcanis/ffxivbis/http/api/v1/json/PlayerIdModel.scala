@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -11,7 +11,7 @@ package me.arcanis.ffxivbis.http.api.v1.json
 import io.swagger.v3.oas.annotations.media.Schema
 import me.arcanis.ffxivbis.models.{Job, PlayerId}
 
-case class PlayerIdResponse(
+case class PlayerIdModel(
   @Schema(description = "unique party ID. Required in responses", example = "abcdefgh") partyId: Option[String],
   @Schema(description = "job name", required = true, example = "DNC") job: String,
   @Schema(description = "player nick name", required = true, example = "Siuan Sanche") nick: String
@@ -21,8 +21,8 @@ case class PlayerIdResponse(
     PlayerId(partyId, Job.withName(job), nick)
 }
 
-object PlayerIdResponse {
+object PlayerIdModel {
 
-  def fromPlayerId(playerId: PlayerId): PlayerIdResponse =
-    PlayerIdResponse(Some(playerId.partyId), playerId.job.toString, playerId.nick)
+  def fromPlayerId(playerId: PlayerId): PlayerIdModel =
+    PlayerIdModel(Some(playerId.partyId), playerId.job.toString, playerId.nick)
 }

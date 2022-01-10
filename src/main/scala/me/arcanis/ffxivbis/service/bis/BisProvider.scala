@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -8,10 +8,9 @@
  */
 package me.arcanis.ffxivbis.service.bis
 
-import java.nio.file.Paths
 import akka.actor.ClassicActorSystemProvider
-import akka.actor.typed.{Behavior, PostStop, Signal}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
+import akka.actor.typed.{Behavior, PostStop, Signal}
 import akka.http.scaladsl.model._
 import com.typesafe.scalalogging.StrictLogging
 import me.arcanis.ffxivbis.messages.{BiSProviderMessage, DownloadBiS}
@@ -20,6 +19,7 @@ import me.arcanis.ffxivbis.service.bis.parser.Parser
 import me.arcanis.ffxivbis.service.bis.parser.impl.{Ariyala, Etro}
 import spray.json._
 
+import java.nio.file.Paths
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 

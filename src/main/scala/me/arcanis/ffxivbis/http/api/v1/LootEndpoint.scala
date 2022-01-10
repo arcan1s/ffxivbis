@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -21,20 +21,23 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.{Operation, Parameter}
 import jakarta.ws.rs._
 import me.arcanis.ffxivbis.http.api.v1.json._
-import me.arcanis.ffxivbis.http.{Authorization, LootHelper}
+import me.arcanis.ffxivbis.http.helpers.LootHelper
+import me.arcanis.ffxivbis.http.{Authorization, AuthorizationProvider}
 import me.arcanis.ffxivbis.messages.Message
 import me.arcanis.ffxivbis.models.PlayerId
 
 import scala.util.{Failure, Success}
 
 @Path("/api/v1")
-class LootEndpoint(override val storage: ActorRef[Message])(implicit timeout: Timeout, scheduler: Scheduler)
-  extends LootHelper
+class LootEndpoint(override val storage: ActorRef[Message], override val auth: AuthorizationProvider)(implicit
+  timeout: Timeout,
+  scheduler: Scheduler
+) extends LootHelper
   with Authorization
   with JsonSupport
   with HttpHandler {
 
-  def route: Route = getLoot ~ modifyLoot
+  def route: Route = getLoot ~ modifyLoot ~ suggestLoot
 
   @GET
   @Path("party/{partyId}/loot")
@@ -58,24 +61,24 @@ class LootEndpoint(override val storage: ActorRef[Message])(implicit timeout: Ti
         description = "Loot list",
         content = Array(
           new Content(
-            array = new ArraySchema(schema = new Schema(implementation = classOf[PlayerResponse]))
+            array = new ArraySchema(schema = new Schema(implementation = classOf[PlayerModel]))
           )
         )
       ),
       new ApiResponse(
         responseCode = "401",
         description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "403",
         description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "500",
         description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("get"))),
@@ -88,9 +91,8 @@ class LootEndpoint(override val storage: ActorRef[Message])(implicit timeout: Ti
           get {
             parameters("nick".as[String].?, "job".as[String].?) { (maybeNick, maybeJob) =>
               val playerId = PlayerId(partyId, maybeNick, maybeJob)
-              onComplete(loot(partyId, playerId)) {
-                case Success(response) => complete(response.map(PlayerResponse.fromPlayer))
-                case Failure(exception) => throw exception
+              onSuccess(loot(partyId, playerId)) { response =>
+                complete(response.map(PlayerModel.fromPlayer))
               }
             }
           }
@@ -110,29 +112,29 @@ class LootEndpoint(override val storage: ActorRef[Message])(implicit timeout: Ti
     requestBody = new RequestBody(
       description = "action and piece description",
       required = true,
-      content = Array(new Content(schema = new Schema(implementation = classOf[PieceActionResponse])))
+      content = Array(new Content(schema = new Schema(implementation = classOf[PieceActionModel])))
     ),
     responses = Array(
       new ApiResponse(responseCode = "202", description = "Loot list has been modified"),
       new ApiResponse(
         responseCode = "400",
         description = "Invalid parameters were supplied",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "401",
         description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "403",
         description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "500",
         description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("post"))),
@@ -143,11 +145,10 @@ class LootEndpoint(override val storage: ActorRef[Message])(implicit timeout: Ti
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
           post {
-            entity(as[PieceActionResponse]) { action =>
+            entity(as[PieceActionModel]) { action =>
               val playerId = action.playerId.withPartyId(partyId)
-              onComplete(doModifyLoot(action.action, playerId, action.piece.toPiece, action.isFreeLoot)) {
-                case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
-                case Failure(exception) => throw exception
+              onSuccess(doModifyLoot(action.action, playerId, action.piece.toPiece, action.isFreeLoot)) {
+                complete(StatusCodes.Accepted, HttpEntity.Empty)
               }
             }
           }
@@ -168,7 +169,7 @@ class LootEndpoint(override val storage: ActorRef[Message])(implicit timeout: Ti
     requestBody = new RequestBody(
       description = "piece description",
       required = true,
-      content = Array(new Content(schema = new Schema(implementation = classOf[PieceResponse])))
+      content = Array(new Content(schema = new Schema(implementation = classOf[PieceModel])))
     ),
     responses = Array(
       new ApiResponse(
@@ -176,29 +177,29 @@ class LootEndpoint(override val storage: ActorRef[Message])(implicit timeout: Ti
         description = "Players with counters ordered by priority to get this item",
         content = Array(
           new Content(
-            array = new ArraySchema(schema = new Schema(implementation = classOf[PlayerIdWithCountersResponse])),
+            array = new ArraySchema(schema = new Schema(implementation = classOf[PlayerIdWithCountersModel])),
           )
         )
       ),
       new ApiResponse(
         responseCode = "400",
         description = "Invalid parameters were supplied",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "401",
         description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "403",
         description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "500",
         description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("get"))),
@@ -209,10 +210,9 @@ class LootEndpoint(override val storage: ActorRef[Message])(implicit timeout: Ti
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { _ =>
           put {
-            entity(as[PieceResponse]) { piece =>
-              onComplete(suggestPiece(partyId, piece.toPiece)) {
-                case Success(response) => complete(response.map(PlayerIdWithCountersResponse.fromPlayerId))
-                case Failure(exception) => throw exception
+            entity(as[PieceModel]) { piece =>
+              onSuccess(suggestPiece(partyId, piece.toPiece)) { response =>
+                complete(response.map(PlayerIdWithCountersModel.fromPlayerId))
               }
             }
           }

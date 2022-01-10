@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -25,6 +25,7 @@ case class BiS(pieces: Seq[Piece]) {
       .withDefaultValue(0)
 
   def withPiece(piece: Piece): BiS = copy(pieces :+ piece)
+
   def withoutPiece(piece: Piece): BiS = copy(pieces.filterNot(_.strictEqual(piece)))
 
   override def equals(obj: Any): Boolean = {
