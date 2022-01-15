@@ -15,10 +15,10 @@ compile: clean
 format:
 	sbt scalafmt
 
-dist: tests version
+dist: tests
 	sbt dist
 
-push: dist
+push: version dist
 	git add version.sbt
 	git commit -m "Release $(VERSION)"
 	git tag "$(VERSION)"
