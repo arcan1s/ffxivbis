@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -8,11 +8,11 @@
  */
 package me.arcanis.ffxivbis.http.api.v1.json
 
-import java.time.Instant
-
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import me.arcanis.ffxivbis.models.Permission
 import spray.json._
+
+import java.time.Instant
 
 trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 
@@ -38,19 +38,19 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val actionFormat: RootJsonFormat[ApiAction.Value] = enumFormat(ApiAction)
   implicit val permissionFormat: RootJsonFormat[Permission.Value] = enumFormat(Permission)
 
-  implicit val errorFormat: RootJsonFormat[ErrorResponse] = jsonFormat1(ErrorResponse.apply)
-  implicit val partyIdFormat: RootJsonFormat[PartyIdResponse] = jsonFormat1(PartyIdResponse.apply)
-  implicit val pieceFormat: RootJsonFormat[PieceResponse] = jsonFormat3(PieceResponse.apply)
-  implicit val lootFormat: RootJsonFormat[LootResponse] = jsonFormat3(LootResponse.apply)
-  implicit val partyDescriptionFormat: RootJsonFormat[PartyDescriptionResponse] = jsonFormat2(
-    PartyDescriptionResponse.apply
+  implicit val errorFormat: RootJsonFormat[ErrorModel] = jsonFormat1(ErrorModel.apply)
+  implicit val partyIdFormat: RootJsonFormat[PartyIdModel] = jsonFormat1(PartyIdModel.apply)
+  implicit val pieceFormat: RootJsonFormat[PieceModel] = jsonFormat3(PieceModel.apply)
+  implicit val lootFormat: RootJsonFormat[LootModel] = jsonFormat3(LootModel.apply)
+  implicit val partyDescriptionFormat: RootJsonFormat[PartyDescriptionModel] = jsonFormat2(
+    PartyDescriptionModel.apply
   )
-  implicit val playerFormat: RootJsonFormat[PlayerResponse] = jsonFormat7(PlayerResponse.apply)
-  implicit val playerActionFormat: RootJsonFormat[PlayerActionResponse] = jsonFormat2(PlayerActionResponse.apply)
-  implicit val playerIdFormat: RootJsonFormat[PlayerIdResponse] = jsonFormat3(PlayerIdResponse.apply)
-  implicit val pieceActionFormat: RootJsonFormat[PieceActionResponse] = jsonFormat4(PieceActionResponse.apply)
-  implicit val playerBiSLinkFormat: RootJsonFormat[PlayerBiSLinkResponse] = jsonFormat2(PlayerBiSLinkResponse.apply)
-  implicit val playerIdWithCountersFormat: RootJsonFormat[PlayerIdWithCountersResponse] =
-    jsonFormat9(PlayerIdWithCountersResponse.apply)
-  implicit val userFormat: RootJsonFormat[UserResponse] = jsonFormat4(UserResponse.apply)
+  implicit val playerFormat: RootJsonFormat[PlayerModel] = jsonFormat9(PlayerModel.apply)
+  implicit val playerActionFormat: RootJsonFormat[PlayerActionModel] = jsonFormat2(PlayerActionModel.apply)
+  implicit val playerIdFormat: RootJsonFormat[PlayerIdModel] = jsonFormat3(PlayerIdModel.apply)
+  implicit val pieceActionFormat: RootJsonFormat[PieceActionModel] = jsonFormat4(PieceActionModel.apply)
+  implicit val playerBiSLinkFormat: RootJsonFormat[PlayerBiSLinkModel] = jsonFormat2(PlayerBiSLinkModel.apply)
+  implicit val playerIdWithCountersFormat: RootJsonFormat[PlayerIdWithCountersModel] =
+    jsonFormat9(PlayerIdWithCountersModel.apply)
+  implicit val userFormat: RootJsonFormat[UserModel] = jsonFormat4(UserModel.apply)
 }

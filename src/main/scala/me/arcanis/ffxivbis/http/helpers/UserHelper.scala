@@ -1,17 +1,9 @@
-/*
- * Copyright (c) 2019 Evgeniy Alekseev.
- *
- * This file is part of ffxivbis
- * (see https://github.com/arcan1s/ffxivbis).
- *
- * License: 3-clause BSD, see https://opensource.org/licenses/BSD-3-Clause
- */
-package me.arcanis.ffxivbis.http
+package me.arcanis.ffxivbis.http.helpers
 
 import akka.actor.typed.scaladsl.AskPattern.Askable
 import akka.actor.typed.{ActorRef, Scheduler}
 import akka.util.Timeout
-import me.arcanis.ffxivbis.messages.{AddUser, DeleteUser, GetNewPartyId, GetUser, GetUsers, Message}
+import me.arcanis.ffxivbis.messages._
 import me.arcanis.ffxivbis.models.User
 
 import scala.concurrent.Future

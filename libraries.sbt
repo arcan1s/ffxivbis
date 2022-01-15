@@ -14,7 +14,6 @@ libraryDependencies += "com.github.swagger-akka-http" %% "swagger-akka-http" % "
 libraryDependencies += "jakarta.platform" % "jakarta.jakartaee-web-api" % "9.1.0"
 
 libraryDependencies += "io.spray" %%  "spray-json" % "1.3.6"
-libraryDependencies += "com.lihaoyi" %% "scalatags" % "0.9.2"
 
 libraryDependencies += "com.typesafe.slick" %% "slick" % SlickVersion
 libraryDependencies += "com.typesafe.slick" %% "slick-hikaricp" % SlickVersion
@@ -23,6 +22,8 @@ libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.36.0.3"
 libraryDependencies += "org.postgresql" % "postgresql" % "42.3.1"
 
 libraryDependencies += "org.mindrot" % "jbcrypt" % "0.4"
+libraryDependencies += "com.google.guava" % "guava" % "31.0.1-jre"
+
 
 // testing
 libraryDependencies += "org.scalactic" %% "scalactic" % ScalaTestVersion % "test"

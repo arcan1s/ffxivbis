@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -8,16 +8,16 @@
  */
 package me.arcanis.ffxivbis
 
-import akka.actor.typed.{Behavior, PostStop, Signal}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
+import akka.actor.typed.{Behavior, PostStop, Signal}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
 import com.typesafe.scalalogging.StrictLogging
 import me.arcanis.ffxivbis.http.RootEndpoint
+import me.arcanis.ffxivbis.service.PartyService
 import me.arcanis.ffxivbis.service.bis.BisProvider
 import me.arcanis.ffxivbis.service.database.Database
-import me.arcanis.ffxivbis.service.PartyService
 import me.arcanis.ffxivbis.storage.Migration
 
 import scala.concurrent.ExecutionContext

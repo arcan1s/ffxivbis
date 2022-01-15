@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -21,19 +21,22 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.{Operation, Parameter}
 import jakarta.ws.rs._
 import me.arcanis.ffxivbis.http.api.v1.json._
-import me.arcanis.ffxivbis.http.{Authorization, UserHelper}
+import me.arcanis.ffxivbis.http.helpers.UserHelper
+import me.arcanis.ffxivbis.http.{Authorization, AuthorizationProvider}
 import me.arcanis.ffxivbis.messages.Message
 import me.arcanis.ffxivbis.models.Permission
 
 import scala.util.{Failure, Success}
 
 @Path("/api/v1")
-class UserEndpoint(override val storage: ActorRef[Message])(implicit timeout: Timeout, scheduler: Scheduler)
-  extends UserHelper
+class UserEndpoint(override val storage: ActorRef[Message], override val auth: AuthorizationProvider)(implicit
+  timeout: Timeout,
+  scheduler: Scheduler
+) extends UserHelper
   with Authorization
   with JsonSupport {
 
-  def route: Route = createParty ~ createUser ~ deleteUser ~ getUsers
+  def route: Route = createParty ~ createUser ~ deleteUser ~ getUsers ~ getUsersCurrent
 
   @PUT
   @Path("party")
@@ -44,24 +47,28 @@ class UserEndpoint(override val storage: ActorRef[Message])(implicit timeout: Ti
     requestBody = new RequestBody(
       description = "party administrator description",
       required = true,
-      content = Array(new Content(schema = new Schema(implementation = classOf[UserResponse])))
+      content = Array(new Content(schema = new Schema(implementation = classOf[UserModel])))
     ),
     responses = Array(
-      new ApiResponse(responseCode = "200", description = "Party has been created"),
+      new ApiResponse(
+        responseCode = "200",
+        description = "Party has been created",
+        content = Array(new Content(schema = new Schema(implementation = classOf[PartyIdModel])))
+      ),
       new ApiResponse(
         responseCode = "400",
         description = "Invalid parameters were supplied",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "406",
         description = "Party with the specified ID already exists",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "500",
         description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
     tags = Array("party"),
@@ -70,15 +77,12 @@ class UserEndpoint(override val storage: ActorRef[Message])(implicit timeout: Ti
     path("party") {
       extractExecutionContext { implicit executionContext =>
         put {
-          entity(as[UserResponse]) { user =>
-            onComplete(newPartyId) {
-              case Success(partyId) =>
-                val admin = user.toUser.copy(partyId = partyId, permission = Permission.admin)
-                onComplete(addUser(admin, isHashedPassword = false)) {
-                  case Success(_) => complete(PartyIdResponse(partyId))
-                  case Failure(exception) => throw exception
-                }
-              case Failure(exception) => throw exception
+          entity(as[UserModel]) { user =>
+            onSuccess(newPartyId) { partyId =>
+              val admin = user.toUser.copy(partyId = partyId, permission = Permission.admin)
+              onSuccess(addUser(admin, isHashedPassword = false)) {
+                complete(PartyIdModel(partyId))
+              }
             }
           }
         }
@@ -97,29 +101,29 @@ class UserEndpoint(override val storage: ActorRef[Message])(implicit timeout: Ti
     requestBody = new RequestBody(
       description = "user description",
       required = true,
-      content = Array(new Content(schema = new Schema(implementation = classOf[UserResponse])))
+      content = Array(new Content(schema = new Schema(implementation = classOf[UserModel])))
     ),
     responses = Array(
       new ApiResponse(responseCode = "201", description = "User has been created"),
       new ApiResponse(
         responseCode = "400",
         description = "Invalid parameters were supplied",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "401",
         description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "403",
         description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "500",
         description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("admin"))),
@@ -130,11 +134,10 @@ class UserEndpoint(override val storage: ActorRef[Message])(implicit timeout: Ti
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authAdmin(partyId)) { _ =>
           post {
-            entity(as[UserResponse]) { user =>
+            entity(as[UserModel]) { user =>
               val withPartyId = user.toUser.copy(partyId = partyId)
-              onComplete(addUser(withPartyId, isHashedPassword = false)) {
-                case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
-                case Failure(exception) => throw exception
+              onSuccess(addUser(withPartyId, isHashedPassword = false)) {
+                complete(StatusCodes.Accepted, HttpEntity.Empty)
               }
             }
           }
@@ -156,17 +159,17 @@ class UserEndpoint(override val storage: ActorRef[Message])(implicit timeout: Ti
       new ApiResponse(
         responseCode = "401",
         description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "403",
         description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "500",
         description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("admin"))),
@@ -177,9 +180,8 @@ class UserEndpoint(override val storage: ActorRef[Message])(implicit timeout: Ti
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authAdmin(partyId)) { _ =>
           delete {
-            onComplete(removeUser(partyId, username)) {
-              case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
-              case Failure(exception) => throw exception
+            onSuccess(removeUser(partyId, username)) {
+              complete(StatusCodes.Accepted, HttpEntity.Empty)
             }
           }
         }
@@ -201,27 +203,27 @@ class UserEndpoint(override val storage: ActorRef[Message])(implicit timeout: Ti
         description = "Users list",
         content = Array(
           new Content(
-            array = new ArraySchema(schema = new Schema(implementation = classOf[UserResponse])),
+            array = new ArraySchema(schema = new Schema(implementation = classOf[UserModel])),
           )
         )
       ),
       new ApiResponse(
         responseCode = "401",
         description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "403",
         description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "500",
         description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
-    security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("admin"))),
+    security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("get"))),
     tags = Array("users"),
   )
   def getUsers: Route =
@@ -229,10 +231,54 @@ class UserEndpoint(override val storage: ActorRef[Message])(implicit timeout: Ti
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authAdmin(partyId)) { _ =>
           get {
-            onComplete(users(partyId)) {
-              case Success(response) => complete(response.map(UserResponse.fromUser))
-              case Failure(exception) => throw exception
+            onSuccess(users(partyId)) { response =>
+              complete(response.map(UserModel.fromUser))
             }
+          }
+        }
+      }
+    }
+
+  @GET
+  @Path("party/{partyId}/users/current")
+  @Produces(value = Array("application/json"))
+  @Operation(
+    summary = "get current user",
+    description = "Return the current user descriptor",
+    parameters = Array(
+      new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
+    ),
+    responses = Array(
+      new ApiResponse(
+        responseCode = "200",
+        description = "User descriptor",
+        content = Array(new Content(schema = new Schema(implementation = classOf[UserModel])))
+      ),
+      new ApiResponse(
+        responseCode = "401",
+        description = "Supplied authorization is invalid",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
+      ),
+      new ApiResponse(
+        responseCode = "403",
+        description = "Access is forbidden",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
+      ),
+      new ApiResponse(
+        responseCode = "500",
+        description = "Internal server error",
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
+      ),
+    ),
+    security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("admin"))),
+    tags = Array("users"),
+  )
+  def getUsersCurrent: Route =
+    path("party" / Segment / "users" / "current") { partyId =>
+      extractExecutionContext { implicit executionContext =>
+        authenticateBasicBCrypt(s"party $partyId", authGet(partyId)) { user =>
+          get {
+            complete(UserModel.fromUser(user))
           }
         }
       }

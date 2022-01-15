@@ -11,6 +11,8 @@ REST json API description to interact with FFXIVBiS service.
 
 # Limitations
 
+No limitations for the API so far.
+
 # Authentication
 
 For the most party utils service requires user to be authenticated. User permission can be one of `get`, `post` or `admin`.

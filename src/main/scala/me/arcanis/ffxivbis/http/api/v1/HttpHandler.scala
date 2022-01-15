@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -19,18 +19,18 @@ trait HttpHandler extends StrictLogging { this: JsonSupport =>
 
   def exceptionHandler: ExceptionHandler = ExceptionHandler {
     case ex: IllegalArgumentException =>
-      complete(StatusCodes.BadRequest, ErrorResponse(ex.getMessage))
+      complete(StatusCodes.BadRequest, ErrorModel(ex.getMessage))
 
     case other: Exception =>
       logger.error("exception during request completion", other)
-      complete(StatusCodes.InternalServerError, ErrorResponse("unknown server error"))
+      complete(StatusCodes.InternalServerError, ErrorModel("unknown server error"))
   }
 
   def rejectionHandler: RejectionHandler =
     RejectionHandler.default
       .mapRejectionResponse {
         case response @ HttpResponse(_, _, entity: HttpEntity.Strict, _) =>
-          val message = ErrorResponse(entity.data.utf8String).toJson
+          val message = ErrorModel(entity.data.utf8String).toJson
           response.withEntity(HttpEntity(ContentTypes.`application/json`, message.compactPrint))
         case other => other
       }

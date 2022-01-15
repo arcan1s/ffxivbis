@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -8,13 +8,12 @@
  */
 package me.arcanis.ffxivbis.storage
 
-import java.time.Instant
-
 import com.typesafe.config.Config
 import me.arcanis.ffxivbis.models.{Loot, Piece, PlayerId}
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
+import java.time.Instant
 import scala.concurrent.{ExecutionContext, Future}
 
 class DatabaseProfile(context: ExecutionContext, config: Config)
@@ -40,12 +39,16 @@ class DatabaseProfile(context: ExecutionContext, config: Config)
   // generic bis api
   def deletePieceBiS(playerId: PlayerId, piece: Piece): Future[Int] =
     byPlayerId(playerId, deletePieceBiSById(piece))
+
   def deletePiecesBiS(playerId: PlayerId): Future[Int] =
     byPlayerId(playerId, deletePiecesBiSById)
+
   def getPiecesBiS(playerId: PlayerId): Future[Seq[Loot]] =
     byPlayerId(playerId, getPiecesBiSById)
+
   def getPiecesBiS(partyId: String): Future[Seq[Loot]] =
     byPartyId(partyId, getPiecesBiSById)
+
   def insertPieceBiS(playerId: PlayerId, piece: Piece): Future[Int] =
     byPlayerId(playerId, insertPieceBiSById(piece))
 
@@ -55,15 +58,19 @@ class DatabaseProfile(context: ExecutionContext, config: Config)
     val loot = Loot(-1, piece, Instant.now, isFreeLoot = false)
     byPlayerId(playerId, deletePieceById(loot))
   }
+
   def getPieces(playerId: PlayerId): Future[Seq[Loot]] =
     byPlayerId(playerId, getPiecesById)
+
   def getPieces(partyId: String): Future[Seq[Loot]] =
     byPartyId(partyId, getPiecesById)
+
   def insertPiece(playerId: PlayerId, loot: Loot): Future[Int] =
     byPlayerId(playerId, insertPieceById(loot))
 
   private def byPartyId[T](partyId: String, callback: Seq[Long] => Future[T]): Future[T] =
     getPlayers(partyId).flatMap(callback)
+
   private def byPlayerId[T](playerId: PlayerId, callback: Long => Future[T]): Future[T] =
     getPlayer(playerId).flatMap {
       case Some(id) => callback(id)
@@ -74,6 +81,7 @@ class DatabaseProfile(context: ExecutionContext, config: Config)
 object DatabaseProfile {
 
   def now: Long = Instant.now.toEpochMilli
+
   def getSection(config: Config): Config = {
     val section = config.getString("me.arcanis.ffxivbis.database.mode")
     config.getConfig("me.arcanis.ffxivbis.database").getConfig(section)

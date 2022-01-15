@@ -1,9 +1,8 @@
 package me.arcanis.ffxivbis.utils
 
-import java.time.Instant
-
 import me.arcanis.ffxivbis.models.{Loot, Piece}
 
+import java.time.Instant
 import scala.language.implicitConversions
 
 object Converters {

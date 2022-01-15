@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -9,7 +9,7 @@
 package me.arcanis.ffxivbis.service.database.impl
 
 import akka.actor.typed.scaladsl.Behaviors
-import me.arcanis.ffxivbis.messages.{AddUser, DatabaseMessage, DeleteUser, Exists, GetUser, GetUsers}
+import me.arcanis.ffxivbis.messages._
 import me.arcanis.ffxivbis.service.database.Database
 
 trait DatabaseUserHandler { this: Database =>

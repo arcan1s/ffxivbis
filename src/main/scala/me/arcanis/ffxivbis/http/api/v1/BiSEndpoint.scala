@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -21,14 +21,19 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.{Operation, Parameter}
 import jakarta.ws.rs._
 import me.arcanis.ffxivbis.http.api.v1.json._
-import me.arcanis.ffxivbis.http.{Authorization, BiSHelper}
+import me.arcanis.ffxivbis.http.helpers.BiSHelper
+import me.arcanis.ffxivbis.http.{Authorization, AuthorizationProvider}
 import me.arcanis.ffxivbis.messages.{BiSProviderMessage, Message}
 import me.arcanis.ffxivbis.models.PlayerId
 
 import scala.util.{Failure, Success}
 
 @Path("/api/v1")
-class BiSEndpoint(override val storage: ActorRef[Message], override val provider: ActorRef[BiSProviderMessage])(implicit
+class BiSEndpoint(
+  override val storage: ActorRef[Message],
+  override val provider: ActorRef[BiSProviderMessage],
+  override val auth: AuthorizationProvider
+)(implicit
   timeout: Timeout,
   scheduler: Scheduler
 ) extends BiSHelper
@@ -49,29 +54,29 @@ class BiSEndpoint(override val storage: ActorRef[Message], override val provider
     requestBody = new RequestBody(
       description = "player best in slot description",
       required = true,
-      content = Array(new Content(schema = new Schema(implementation = classOf[PlayerBiSLinkResponse])))
+      content = Array(new Content(schema = new Schema(implementation = classOf[PlayerBiSLinkModel])))
     ),
     responses = Array(
       new ApiResponse(responseCode = "201", description = "Best in slot set has been created"),
       new ApiResponse(
         responseCode = "400",
         description = "Invalid parameters were supplied",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "401",
         description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "403",
         description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "500",
         description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("post"))),
@@ -82,11 +87,10 @@ class BiSEndpoint(override val storage: ActorRef[Message], override val provider
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
           put {
-            entity(as[PlayerBiSLinkResponse]) { bisLink =>
+            entity(as[PlayerBiSLinkModel]) { bisLink =>
               val playerId = bisLink.playerId.withPartyId(partyId)
-              onComplete(putBiS(playerId, bisLink.link)) {
-                case Success(_) => complete(StatusCodes.Created, HttpEntity.Empty)
-                case Failure(exception) => throw exception
+              onSuccess(putBiS(playerId, bisLink.link)) {
+                complete(StatusCodes.Created, HttpEntity.Empty)
               }
             }
           }
@@ -116,24 +120,24 @@ class BiSEndpoint(override val storage: ActorRef[Message], override val provider
         description = "Best in slot",
         content = Array(
           new Content(
-            array = new ArraySchema(schema = new Schema(implementation = classOf[PlayerResponse]))
+            array = new ArraySchema(schema = new Schema(implementation = classOf[PlayerModel]))
           )
         )
       ),
       new ApiResponse(
         responseCode = "401",
         description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "403",
         description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "500",
         description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("get"))),
@@ -146,9 +150,8 @@ class BiSEndpoint(override val storage: ActorRef[Message], override val provider
           get {
             parameters("nick".as[String].?, "job".as[String].?) { (maybeNick, maybeJob) =>
               val playerId = PlayerId(partyId, maybeNick, maybeJob)
-              onComplete(bis(partyId, playerId)) {
-                case Success(response) => complete(response.map(PlayerResponse.fromPlayer))
-                case Failure(exception) => throw exception
+              onSuccess(bis(partyId, playerId)) { response =>
+                complete(response.map(PlayerModel.fromPlayer))
               }
             }
           }
@@ -169,29 +172,29 @@ class BiSEndpoint(override val storage: ActorRef[Message], override val provider
     requestBody = new RequestBody(
       description = "action and piece description",
       required = true,
-      content = Array(new Content(schema = new Schema(implementation = classOf[PieceActionResponse])))
+      content = Array(new Content(schema = new Schema(implementation = classOf[PieceActionModel])))
     ),
     responses = Array(
       new ApiResponse(responseCode = "202", description = "Best in slot set has been modified"),
       new ApiResponse(
         responseCode = "400",
         description = "Invalid parameters were supplied",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "401",
         description = "Supplied authorization is invalid",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "403",
         description = "Access is forbidden",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
       new ApiResponse(
         responseCode = "500",
         description = "Internal server error",
-        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorResponse])))
+        content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
     security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("post"))),
@@ -202,11 +205,10 @@ class BiSEndpoint(override val storage: ActorRef[Message], override val provider
       extractExecutionContext { implicit executionContext =>
         authenticateBasicBCrypt(s"party $partyId", authPost(partyId)) { _ =>
           post {
-            entity(as[PieceActionResponse]) { action =>
+            entity(as[PieceActionModel]) { action =>
               val playerId = action.playerId.withPartyId(partyId)
-              onComplete(doModifyBiS(action.action, playerId, action.piece.toPiece)) {
-                case Success(_) => complete(StatusCodes.Accepted, HttpEntity.Empty)
-                case Failure(exception) => throw exception
+              onSuccess(doModifyBiS(action.action, playerId, action.piece.toPiece)) {
+                complete(StatusCodes.Accepted, HttpEntity.Empty)
               }
             }
           }

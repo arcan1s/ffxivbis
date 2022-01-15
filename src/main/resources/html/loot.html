@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Loot table</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/static/favicon.ico" rel="shortcut icon">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" type="text/css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet" type="text/css">
+
+    <link href="https://unpkg.com/bootstrap-table@1.19.1/dist/bootstrap-table.min.css" rel="stylesheet" type="text/css">
+
+
+    <link href="https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.css" rel="stylesheet" type="text/css">
+
+    <link href="/static/styles.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+    <div class="container">
+        <nav class="navbar navbar-expand-lg justify-content-between align-items-center border-bottom">
+            <a class="navbar-brand" id="navbar-title">Party</a>
+            <ul class="navbar-nav">
+                <a class="nav-item nav-link" id="navbar-bis">best in slot</a>
+                <a class="nav-item nav-link" id="navbar-loot">looted items</a>
+            </ul>
+            <ul class="navbar-nav">
+                <a class="nav-item nav-link" id="navbar-users">users</a>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="alert-placeholder" class="container"></div>
+
+    <div class="container">
+        <h2>Looted items</h2>
+    </div>
+
+    <div class="container">
+        <div id="toolbar">
+            <button id="add-btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-loot-dialog" hidden>
+                <i class="bi bi-plus"></i> add
+            </button>
+            <button class="btn btn-secondary" onclick="reload()">
+                <i class="bi bi-arrow-clockwise"></i> reload
+            </button>
+            <button id="remove-btn" class="btn btn-danger" onclick="removeLoot()" disabled hidden>
+                <i class="bi bi-trash"></i> remove
+            </button>
+        </div>
+
+        <table id="loot" class="table table-striped table-hover"
+               data-click-to-select="true"
+               data-export-options='{"fileName": "loot"}'
+               data-page-list="[25, 50, 100, all]"
+               data-page-size="25"
+               data-pagination="true"
+               data-resizable="true"
+               data-search="true"
+               data-show-columns="true"
+               data-show-columns-search="true"
+               data-show-columns-toggle-all="true"
+               data-show-export="true"
+               data-show-fullscreen="true"
+               data-show-search-clear-button="true"
+               data-single-select="true"
+               data-sortable="true"
+               data-sort-reset="true"
+               data-toolbar="#toolbar">
+            <thead class="table-primary">
+            <tr>
+                <th data-checkbox="true"></th>
+                <th data-sortable="true" data-switchable="false" data-field="nick">nick</th>
+                <th data-sortable="true" data-switchable="false" data-field="job">job</th>
+                <th data-sortable="true" data-field="piece">piece</th>
+                <th data-sortable="true" data-field="pieceType">piece type</th>
+                <th data-sortable="true" data-field="isFreeLoot">is free loot</th>
+                <th data-sortable="true" data-field="timestamp">date</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+
+    <div id="add-loot-dialog" tabindex="-1" role="dialog" class="modal fade">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">add looted piece</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
+                </div>
+
+                <form class="modal-body">
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="player">player</label>
+                        <div class="col-sm-8">
+                            <select id="player" name="player" class="form-control" title="player"></select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="piece">piece</label>
+                        <div class="col-sm-8">
+                            <select id="piece" name="piece" class="form-control" title="piece"></select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="piece-type">piece type</label>
+                        <div class="col-sm-8">
+                            <select id="piece-type" name="pieceType" class="form-control" title="pieceType"></select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="job">job</label>
+                        <div class="col-sm-8">
+                            <select id="job" name="job" class="form-control" title="job"></select>
+                        </div>
+                    </div>
+
+                    <table id="stats" class="table table-striped table-hover">
+                        <thead class="table-primary">
+                        <tr>
+                            <th data-field="nick">nick</th>
+                            <th data-field="job">job</th>
+                            <th data-field="isRequired">required</th>
+                            <th data-field="lootCount">these pieces looted</th>
+                            <th data-field="lootCountBiS">total bis pieces looted</th>
+                            <th data-field="lootCountTotal">total pieces looted</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </form>
+
+                <div class="modal-footer">
+                    <div class="form-check form-switch">
+                        <input id="free-loot" name="freeLoot" type="checkbox" class="form-check-input">
+                        <label class="form-check-label" for="free-loot">as free loot</label>
+                    </div>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">close</button>
+                    <button type="button" class="btn btn-secondary" onclick="suggestLoot()">suggest</button>
+                    <button id="submit-btn" type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="addLoot()" disabled>add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <footer class="d-flex flex-wrap justify-content-between align-items-center border-top">
+            <ul class="nav">
+                <li><a class="nav-link" href="/" title="home">home</a></li>
+            </ul>
+
+            <ul class="nav">
+                <li><a class="nav-link" href="https://github.com/arcan1s/ffxivbis" title="sources">ffxivbis</a></li>
+                <li><a class="nav-link" href="https://github.com/arcan1s/ffxivbis/releases" title="releases list">releases</a></li>
+                <li><a class="nav-link" href="https://github.com/arcan1s/ffxivbis/issues" title="issues tracker">report a bug</a></li>
+            </ul>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+
+    <script src="https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js"></script>
+
+    <script src="https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.19.1/dist/bootstrap-table.min.js"></script>
+
+    <script src="https://unpkg.com/bootstrap-table@1.19.1/dist/extensions/export/bootstrap-table-export.min.js"></script>
+
+    <script src="https://unpkg.com/bootstrap-table@1.19.1/dist/extensions/resizable/bootstrap-table-resizable.js"></script>
+
+    <script src="/static/utils.js"></script>
+    <script src="/static/load.js"></script>
+
+    <script>
+        const [partyId, isReadOnly] = getPartyId();
+        const table = $("#loot");
+        const stats = $("#stats");
+        const addButton = $("#add-btn");
+        const removeButton = $("#remove-btn");
+
+        const submitLootButton = $("#submit-btn");
+        const addLootDialog = $("#add-loot-dialog");
+
+        const freeLootInput = $("#free-loot");
+        const jobInput = $("#job");
+        const pieceInput = $("#piece");
+        const pieceTypeInput = $("#piece-type");
+        const playerInput = $("#player");
+
+        function addLoot() {
+            const player = getCurrentOption(playerInput);
+            $.ajax({
+                url: `/api/v1/party/${partyId}/loot`,
+                data: JSON.stringify({
+                    action: "add",
+                    piece: {
+                        pieceType: pieceTypeInput.val(),
+                        job: player.dataset.job,
+                        piece: pieceInput.val(),
+                    },
+                    playerId: {
+                        partyId: partyId,
+                        nick: player.dataset.nick,
+                        job: player.dataset.job,
+                    },
+                    isFreeLoot: freeLootInput.is(":checked"),
+                }),
+                type: "POST",
+                contentType: "application/json",
+                success: function (_) { reload(); },
+                error: function (jqXHR, _, errorThrown) { requestAlert(jqXHR, errorThrown); },
+            });
+        }
+
+        function hideControls() {
+            addButton.attr("hidden", isReadOnly);
+            removeButton.attr("hidden", isReadOnly);
+        }
+
+        function reload() {
+            table.bootstrapTable("showLoading");
+            $.ajax({
+                url: `/api/v1/party/${partyId}`,
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    const items = data.map(function (player) {
+                        return player.loot.map(function (loot) {
+                            return {
+                                nick: player.nick,
+                                job: player.job,
+                                piece: loot.piece.piece,
+                                pieceType: loot.piece.pieceType,
+                                isFreeLoot: loot.isFreeLoot ? "yes" : "no",
+                                timestamp: loot.timestamp,
+                            };
+                        });
+                    });
+                    const payload = items.reduce(function (left, right) { return left.concat(right); }, []);
+                    table.bootstrapTable("load", payload);
+                    table.bootstrapTable("uncheckAll");
+                    table.bootstrapTable("hideLoading");
+
+                    const options = data.map(function (player) {
+                        const option = document.createElement("option");
+                        option.innerText = formatPlayerId(player);
+                        option.dataset.nick = player.nick;
+                        option.dataset.job = player.job;
+                        return option;
+                    });
+                    playerInput.empty().append(options);
+                    submitLootButton.attr("disabled", options.length === 0);
+                },
+                error: function (jqXHR, _, errorThrown) { requestAlert(jqXHR, errorThrown); },
+            });
+        }
+
+        function removeLoot() {
+            const pieces = table.bootstrapTable("getSelections");
+            pieces.map(function (loot) {
+                $.ajax({
+                    url: `/api/v1/party/${partyId}/loot`,
+                    data: JSON.stringify({
+                        action: "remove",
+                        piece: {
+                            pieceType: loot.pieceType,
+                            job: loot.job,
+                            piece: loot.piece,
+                        },
+                        playerId: {
+                            partyId: partyId,
+                            nick: loot.nick,
+                            job: loot.job,
+                        },
+                        isFreeLoot: loot.isFreeLoot === "yes",
+                    }),
+                    type: "POST",
+                    contentType: "application/json",
+                    success: function (_) { reload(); },
+                    error: function (jqXHR, _, errorThrown) { requestAlert(jqXHR, errorThrown); },
+                });
+            });
+        }
+
+        function suggestLoot() {
+            stats.bootstrapTable("showLoading");
+            $.ajax({
+                url: `/api/v1/party/${partyId}/loot`,
+                data: JSON.stringify({
+                    pieceType: pieceTypeInput.val(),
+                    job: jobInput.val(),
+                    piece: pieceInput.val(),
+                }),
+                type: "PUT",
+                contentType: "application/json",
+                dataType: "json",
+                success: function (data) {
+                    const payload = data.map(function (stat) {
+                        return {
+                            nick: stat.nick,
+                            job: stat.job,
+                            isRequired: stat.isRequired,
+                            lootCount: stat.lootCount,
+                            lootCountBiS: stat.lootCountBiS,
+                            lootCountTotal: stat.lootCountTotal,
+                        };
+                    });
+                    stats.bootstrapTable("load", payload);
+                    stats.bootstrapTable("uncheckAll");
+                    stats.bootstrapTable("hideLoading");
+                },
+                error: function (jqXHR, _, errorThrown) { requestAlert(jqXHR, errorThrown); },
+            });
+        }
+
+        $(function () {
+            setupFormClear(addLootDialog);
+            setupRemoveButton(table, removeButton);
+
+            loadHeader(partyId);
+            loadTypes("/api/v1/types/jobs/all", jobInput);
+            loadTypes("/api/v1/types/pieces", pieceInput);
+            loadTypes("/api/v1/types/pieces/types", pieceTypeInput);
+
+            hideControls();
+
+            table.bootstrapTable({});
+            stats.bootstrapTable({});
+            reload();
+        });
+    </script>
+
+</body>
+</html>

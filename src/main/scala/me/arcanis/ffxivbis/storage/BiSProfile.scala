@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -8,17 +8,17 @@
  */
 package me.arcanis.ffxivbis.storage
 
-import java.time.Instant
-
 import me.arcanis.ffxivbis.models.{Job, Loot, Piece, PieceType}
 import slick.lifted.ForeignKeyQuery
 
+import java.time.Instant
 import scala.concurrent.Future
 
 trait BiSProfile { this: DatabaseProfile =>
   import dbConfig.profile.api._
 
   case class BiSRep(playerId: Long, created: Long, piece: String, pieceType: String, job: String) {
+
     def toLoot: Loot = Loot(
       playerId,
       Piece(piece, PieceType.withName(pieceType), Job.withName(job)),
@@ -26,7 +26,9 @@ trait BiSProfile { this: DatabaseProfile =>
       isFreeLoot = false
     )
   }
+
   object BiSRep {
+
     def fromPiece(playerId: Long, piece: Piece): BiSRep =
       BiSRep(playerId, DatabaseProfile.now, piece.piece, piece.pieceType.toString, piece.job.toString)
   }
@@ -47,11 +49,15 @@ trait BiSProfile { this: DatabaseProfile =>
 
   def deletePieceBiSById(piece: Piece)(playerId: Long): Future[Int] =
     db.run(pieceBiS(BiSRep.fromPiece(playerId, piece)).delete)
+
   def deletePiecesBiSById(playerId: Long): Future[Int] =
     db.run(piecesBiS(Seq(playerId)).delete)
+
   def getPiecesBiSById(playerId: Long): Future[Seq[Loot]] = getPiecesBiSById(Seq(playerId))
+
   def getPiecesBiSById(playerIds: Seq[Long]): Future[Seq[Loot]] =
     db.run(piecesBiS(playerIds).result).map(_.map(_.toLoot))
+
   def insertPieceBiSById(piece: Piece)(playerId: Long): Future[Int] =
     getPiecesBiSById(playerId).flatMap {
       case pieces if pieces.exists(loot => loot.piece.strictEqual(piece)) => Future.successful(0)

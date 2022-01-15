@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -11,7 +11,9 @@ package me.arcanis.ffxivbis.models
 sealed trait Piece extends Equals {
 
   def pieceType: PieceType.PieceType
+
   def job: Job.Job
+
   def piece: String
 
   def withJob(other: Job.Job): Piece

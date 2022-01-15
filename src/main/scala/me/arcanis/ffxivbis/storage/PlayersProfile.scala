@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -24,10 +24,13 @@ trait PlayersProfile { this: DatabaseProfile =>
     link: Option[String],
     priority: Int
   ) {
+
     def toPlayer: Player =
       Player(playerId.getOrElse(-1), partyId, Job.withName(job), nick, BiS.empty, Seq.empty, link, priority)
   }
+
   object PlayerRep {
+
     def fromPlayer(player: Player, id: Option[Long]): PlayerRep =
       PlayerRep(player.partyId, id, DatabaseProfile.now, player.nick, player.job.toString, player.link, player.priority)
   }
@@ -46,18 +49,23 @@ trait PlayersProfile { this: DatabaseProfile =>
   }
 
   def deletePlayer(playerId: PlayerId): Future[Int] = db.run(player(playerId).delete)
+
   def getParty(partyId: String): Future[Map[Long, Player]] =
     db.run(players(partyId).result)
       .map(_.foldLeft(Map.empty[Long, Player]) {
         case (acc, p @ PlayerRep(_, Some(id), _, _, _, _, _)) => acc + (id -> p.toPlayer)
         case (acc, _) => acc
       })
+
   def getPlayer(playerId: PlayerId): Future[Option[Long]] =
     db.run(player(playerId).map(_.playerId).result.headOption)
+
   def getPlayerFull(playerId: PlayerId): Future[Option[Player]] =
     db.run(player(playerId).result.headOption.map(_.map(_.toPlayer)))
+
   def getPlayers(partyId: String): Future[Seq[Long]] =
     db.run(players(partyId).map(_.playerId).result)
+
   def insertPlayer(playerObj: Player): Future[Int] =
     getPlayer(playerObj.playerId).flatMap {
       case Some(id) => db.run(playersTable.update(PlayerRep.fromPlayer(playerObj, Some(id))))
@@ -69,6 +77,7 @@ trait PlayersProfile { this: DatabaseProfile =>
       .filter(_.partyId === playerId.partyId)
       .filter(_.job === playerId.job.toString)
       .filter(_.nick === playerId.nick)
+
   private def players(partyId: String) =
     playersTable.filter(_.partyId === partyId)
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -17,9 +17,12 @@ trait UsersProfile { this: DatabaseProfile =>
   import dbConfig.profile.api._
 
   case class UserRep(partyId: String, userId: Option[Long], username: String, password: String, permission: String) {
+
     def toUser: User = User(partyId, username, password, Permission.withName(permission))
   }
+
   object UserRep {
+
     def fromUser(user: User, id: Option[Long]): UserRep =
       UserRep(user.partyId, id, user.username, user.password, user.permission.toString)
   }
@@ -40,13 +43,21 @@ trait UsersProfile { this: DatabaseProfile =>
   }
 
   def deleteUser(partyId: String, username: String): Future[Int] =
-    db.run(user(partyId, Some(username)).delete)
+    db.run(
+      user(partyId, Some(username))
+        .filter(_.permission =!= Permission.admin.toString) // we do not allow to remove admins
+        .delete
+    )
+
   def exists(partyId: String): Future[Boolean] =
     db.run(user(partyId, None).exists.result)
+
   def getUser(partyId: String, username: String): Future[Option[User]] =
     db.run(user(partyId, Some(username)).result.headOption).map(_.map(_.toUser))
+
   def getUsers(partyId: String): Future[Seq[User]] =
     db.run(user(partyId, None).result).map(_.map(_.toUser))
+
   def insertUser(userObj: User): Future[Int] =
     db.run(user(userObj.partyId, Some(userObj.username)).map(_.userId).result.headOption).flatMap {
       case Some(id) => db.run(usersTable.insertOrUpdate(UserRep.fromUser(userObj, Some(id))))

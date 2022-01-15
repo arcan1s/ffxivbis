@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -17,7 +17,10 @@ object Permission extends Enumeration {
 case class User(partyId: String, username: String, password: String, permission: Permission.Value) {
 
   def hash: String = BCrypt.hashpw(password, BCrypt.gensalt)
+
   def verify(plain: String): Boolean = BCrypt.checkpw(plain, password)
+
   def verityScope(scope: Permission.Value): Boolean = permission >= scope
+
   def withHashedPassword: User = copy(password = hash)
 }

@@ -2,19 +2,19 @@ package me.arcanis.ffxivbis.http.api.v1
 
 import akka.actor.testkit.typed.scaladsl.ActorTestKit
 import akka.actor.typed.scaladsl.AskPattern.Askable
-import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials}
+import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.testkit.{RouteTestTimeout, ScalatestRouteTest}
 import akka.testkit.TestKit
 import com.typesafe.config.Config
-import me.arcanis.ffxivbis.{Fixtures, Settings}
 import me.arcanis.ffxivbis.http.api.v1.json._
 import me.arcanis.ffxivbis.messages.AddUser
 import me.arcanis.ffxivbis.models.PartyDescription
+import me.arcanis.ffxivbis.service.PartyService
 import me.arcanis.ffxivbis.service.bis.BisProvider
 import me.arcanis.ffxivbis.service.database.Database
-import me.arcanis.ffxivbis.service.PartyService
 import me.arcanis.ffxivbis.storage.Migration
+import me.arcanis.ffxivbis.{Fixtures, Settings}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
@@ -36,7 +36,7 @@ class PartyEndpointTest extends AnyWordSpecLike with Matchers with ScalatestRout
   private val storage = testKit.spawn(Database())
   private val provider = testKit.spawn(BisProvider())
   private val party = testKit.spawn(PartyService(storage))
-  private val route = new PartyEndpoint(party, provider)(askTimeout, testKit.scheduler).route
+  private val route = new PartyEndpoint(party, provider, Fixtures.authProvider)(askTimeout, testKit.scheduler).route
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -56,12 +56,12 @@ class PartyEndpointTest extends AnyWordSpecLike with Matchers with ScalatestRout
     "get empty party description" in {
       Get(endpoint).withHeaders(auth) ~> route ~> check {
         status shouldEqual StatusCodes.OK
-        responseAs[PartyDescriptionResponse].toDescription shouldEqual PartyDescription.empty(Fixtures.partyId)
+        responseAs[PartyDescriptionModel].toDescription shouldEqual PartyDescription.empty(Fixtures.partyId)
       }
     }
 
     "update party description" in {
-      val entity = PartyDescriptionResponse(Fixtures.partyId, Some("random party name"))
+      val entity = PartyDescriptionModel(Fixtures.partyId, Some("random party name"))
 
       Post(endpoint, entity).withHeaders(auth) ~> route ~> check {
         status shouldEqual StatusCodes.Accepted
@@ -69,7 +69,7 @@ class PartyEndpointTest extends AnyWordSpecLike with Matchers with ScalatestRout
 
       Get(endpoint).withHeaders(auth) ~> route ~> check {
         status shouldEqual StatusCodes.OK
-        responseAs[PartyDescriptionResponse].toDescription shouldEqual entity.toDescription
+        responseAs[PartyDescriptionModel].toDescription shouldEqual entity.toDescription
       }
     }
 

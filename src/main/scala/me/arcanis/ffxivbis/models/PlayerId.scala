@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -14,6 +14,7 @@ import scala.util.matching.Regex
 trait PlayerIdBase {
 
   def job: Job.Job
+
   def nick: String
 
   override def toString: String = s"$nick ($job)"

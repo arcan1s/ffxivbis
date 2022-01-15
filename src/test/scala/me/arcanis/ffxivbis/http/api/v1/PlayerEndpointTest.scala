@@ -2,18 +2,18 @@ package me.arcanis.ffxivbis.http.api.v1
 
 import akka.actor.testkit.typed.scaladsl.ActorTestKit
 import akka.actor.typed.scaladsl.AskPattern.Askable
-import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials}
+import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.testkit.{RouteTestTimeout, ScalatestRouteTest}
 import akka.testkit.TestKit
 import com.typesafe.config.Config
-import me.arcanis.ffxivbis.{Fixtures, Settings}
 import me.arcanis.ffxivbis.http.api.v1.json._
 import me.arcanis.ffxivbis.messages.{AddPlayer, AddUser}
+import me.arcanis.ffxivbis.service.PartyService
 import me.arcanis.ffxivbis.service.bis.BisProvider
 import me.arcanis.ffxivbis.service.database.Database
-import me.arcanis.ffxivbis.service.PartyService
 import me.arcanis.ffxivbis.storage.Migration
+import me.arcanis.ffxivbis.{Fixtures, Settings}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
@@ -35,7 +35,7 @@ class PlayerEndpointTest extends AnyWordSpecLike with Matchers with ScalatestRou
   private val storage = testKit.spawn(Database())
   private val provider = testKit.spawn(BisProvider())
   private val party = testKit.spawn(PartyService(storage))
-  private val route = new PlayerEndpoint(party, provider)(askTimeout, testKit.scheduler).route
+  private val route = new PlayerEndpoint(party, provider, Fixtures.authProvider)(askTimeout, testKit.scheduler).route
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -54,11 +54,11 @@ class PlayerEndpointTest extends AnyWordSpecLike with Matchers with ScalatestRou
   "api v1 player endpoint" must {
 
     "get users" in {
-      val response = Seq(PlayerResponse.fromPlayer(Fixtures.playerEmpty))
+      val response = Seq(PlayerModel.fromPlayer(Fixtures.playerEmpty))
 
       Get(endpoint).withHeaders(auth) ~> route ~> check {
         status shouldEqual StatusCodes.OK
-        responseAs[Seq[PlayerResponse]] shouldEqual response
+        responseAs[Seq[PlayerModel]] shouldEqual response
       }
     }
 

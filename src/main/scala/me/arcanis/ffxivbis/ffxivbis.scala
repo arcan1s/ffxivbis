@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -9,12 +9,9 @@
 package me.arcanis.ffxivbis
 
 import akka.actor.typed.ActorSystem
-import com.typesafe.config.ConfigFactory
 
 object ffxivbis {
 
-  def main(args: Array[String]): Unit = {
-    val config = ConfigFactory.load()
-    ActorSystem[Nothing](Application(), "ffxivbis", config)
-  }
+  def main(args: Array[String]): Unit =
+    ActorSystem[Nothing](Application(), "ffxivbis", Configuration.load())
 }

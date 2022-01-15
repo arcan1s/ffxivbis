@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -8,44 +8,30 @@
  */
 package me.arcanis.ffxivbis.http
 
-import java.time.Instant
-
 import akka.actor.typed.{ActorRef, ActorSystem, Scheduler}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.util.Timeout
-import com.typesafe.scalalogging.{Logger, StrictLogging}
+import com.typesafe.scalalogging.StrictLogging
 import me.arcanis.ffxivbis.http.api.v1.RootApiV1Endpoint
 import me.arcanis.ffxivbis.http.view.RootView
 import me.arcanis.ffxivbis.messages.{BiSProviderMessage, Message}
 
 class RootEndpoint(system: ActorSystem[Nothing], storage: ActorRef[Message], provider: ActorRef[BiSProviderMessage])
-  extends StrictLogging {
+  extends StrictLogging
+  with HttpLog {
   import me.arcanis.ffxivbis.utils.Implicits._
 
   private val config = system.settings.config
 
   implicit val scheduler: Scheduler = system.scheduler
-  implicit val timeout: Timeout =
-    config.getDuration("me.arcanis.ffxivbis.settings.request-timeout")
+  implicit val timeout: Timeout = config.getDuration("me.arcanis.ffxivbis.settings.request-timeout")
 
-  private val rootApiV1Endpoint: RootApiV1Endpoint = new RootApiV1Endpoint(storage, provider, config)
-  private val rootView: RootView = new RootView(storage, provider)
-  private val swagger: Swagger = new Swagger(config)
-  private val httpLogger = Logger("http")
+  private val auth = AuthorizationProvider(config, storage, timeout, scheduler)
 
-  private val withHttpLog: Directive0 =
-    extractRequestContext.flatMap { context =>
-      val start = Instant.now.toEpochMilli
-      mapResponse { response =>
-        val time = (Instant.now.toEpochMilli - start) / 1000.0
-        httpLogger.debug(
-          s"""- - [${Instant.now}] "${context.request.method.name()} ${context.request.uri.path}" ${response.status
-            .intValue()} ${response.entity.getContentLengthOption.getAsLong} $time"""
-        )
-        response
-      }
-    }
+  private val rootApiV1Endpoint = new RootApiV1Endpoint(storage, auth, provider, config)
+  private val rootView = new RootView(auth)
+  private val swagger = new Swagger(config)
 
   def route: Route =
     withHttpLog {
@@ -68,7 +54,7 @@ class RootEndpoint(system: ActorSystem[Nothing], storage: ActorRef[Message], pro
     } ~ rootView.route
 
   private def swaggerUIRoute: Route =
-    path("swagger") {
-      getFromResource("html/swagger.html")
+    path("api-docs") {
+      getFromResource("html/redoc.html")
     }
 }

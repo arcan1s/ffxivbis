@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -21,10 +21,12 @@ case class Player(
   require(job ne Job.AnyJob, "AnyJob is not allowed")
 
   val playerId: PlayerId = PlayerId(partyId, job, nick)
+
   def withBiS(set: Option[BiS]): Player = set match {
     case Some(value) => copy(bis = value)
     case None => this
   }
+
   def withCounters(piece: Option[Piece]): PlayerIdWithCounters =
     PlayerIdWithCounters(
       partyId,
@@ -32,12 +34,14 @@ case class Player(
       nick,
       isRequired(piece),
       priority,
-      bisCountTotal(piece),
+      bisCountTotal,
       lootCount(piece),
-      lootCountBiS(piece),
-      lootCountTotal(piece)
+      lootCountBiS,
+      lootCountTotal
     )
+
   def withLoot(piece: Loot): Player = withLoot(Seq(piece))
+
   def withLoot(list: Seq[Loot]): Player = {
     require(loot.forall(_.playerId == id), "player id must be same")
     copy(loot = loot ++ list)
@@ -51,12 +55,16 @@ case class Player(
       case Some(_) => lootCount(piece) == 0
     }
 
-  def bisCountTotal(piece: Option[Piece]): Int = bis.pieces.count(_.pieceType == PieceType.Savage)
+  def bisCountTotal: Int = bis.pieces.count(_.pieceType == PieceType.Savage)
+
   def lootCount(piece: Option[Piece]): Int = piece match {
     case Some(p) => loot.count(item => !item.isFreeLoot && item.piece == p)
-    case None => lootCountTotal(piece)
+    case None => lootCountTotal
   }
-  def lootCountBiS(piece: Option[Piece]): Int = loot.map(_.piece).count(bis.hasPiece)
-  def lootCountTotal(piece: Option[Piece]): Int = loot.count(!_.isFreeLoot)
-  def lootPriority(piece: Piece): Int = priority
+
+  def lootCountBiS: Int = loot.map(_.piece).count(bis.hasPiece)
+
+  def lootCountTotal: Int = loot.count(!_.isFreeLoot)
+
+  def lootPriority: Int = priority
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -11,14 +11,16 @@ package me.arcanis.ffxivbis.http.api.v1.json
 import io.swagger.v3.oas.annotations.media.Schema
 import me.arcanis.ffxivbis.models.{BiS, Job, Player}
 
-case class PlayerResponse(
+case class PlayerModel(
   @Schema(description = "unique party ID", required = true, example = "abcdefgh") partyId: String,
   @Schema(description = "job name", required = true, example = "DNC") job: String,
   @Schema(description = "player nick name", required = true, example = "Siuan Sanche") nick: String,
-  @Schema(description = "pieces in best in slot") bis: Option[Seq[PieceResponse]],
-  @Schema(description = "looted pieces") loot: Option[Seq[LootResponse]],
+  @Schema(description = "pieces in best in slot") bis: Option[Seq[PieceModel]],
+  @Schema(description = "looted pieces") loot: Option[Seq[LootModel]],
   @Schema(description = "link to best in slot", example = "https://ffxiv.ariyala.com/19V5R") link: Option[String],
-  @Schema(description = "player loot priority", `type` = "number") priority: Option[Int]
+  @Schema(description = "player loot priority", `type` = "number") priority: Option[Int],
+  @Schema(description = "count of looted pieces which are parts of best in slot") lootCountBiS: Option[Int],
+  @Schema(description = "total count of looted pieces", `type` = "number") lootCountTotal: Option[Int],
 ) {
 
   def toPlayer: Player =
@@ -34,16 +36,18 @@ case class PlayerResponse(
     )
 }
 
-object PlayerResponse {
+object PlayerModel {
 
-  def fromPlayer(player: Player): PlayerResponse =
-    PlayerResponse(
+  def fromPlayer(player: Player): PlayerModel =
+    PlayerModel(
       player.partyId,
       player.job.toString,
       player.nick,
-      Some(player.bis.pieces.map(PieceResponse.fromPiece)),
-      Some(player.loot.map(LootResponse.fromLoot)),
+      Some(player.bis.pieces.map(PieceModel.fromPiece)),
+      Some(player.loot.map(LootModel.fromLoot)),
       player.link,
-      Some(player.priority)
+      Some(player.priority),
+      Some(player.lootCountBiS),
+      Some(player.lootCountTotal),
     )
 }

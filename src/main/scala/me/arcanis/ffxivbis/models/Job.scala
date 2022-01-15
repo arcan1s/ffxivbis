@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Evgeniy Alekseev.
+ * Copyright (c) 2019-2022 Evgeniy Alekseev.
  *
  * This file is part of ffxivbis
  * (see https://github.com/arcan1s/ffxivbis).
@@ -29,6 +29,7 @@ object Job {
   sealed trait Job extends Equals {
 
     def leftSide: LeftSide
+
     def rightSide: RightSide
 
     // conversion to string to avoid recursion
