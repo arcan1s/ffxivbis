@@ -19,47 +19,48 @@ trait DatabasePartyHandler { this: Database =>
 
   def partyHandler: DatabaseMessage.Handler = {
     case AddPlayer(player, client) =>
-      profile.insertPlayer(player).foreach(_ => client ! ())
+      run(profile.insertPlayer(player))(_ => client ! ())
       Behaviors.same
 
     case GetParty(partyId, client) =>
-      getParty(partyId, withBiS = true, withLoot = true).foreach(client ! _)
+      run(getParty(partyId, withBiS = true, withLoot = true))(client ! _)
       Behaviors.same
 
     case GetPartyDescription(partyId, client) =>
-      profile.getPartyDescription(partyId).foreach(client ! _)
+      run(profile.getPartyDescription(partyId))(client ! _)
       Behaviors.same
 
     case GetPlayer(playerId, client) =>
-      val player = profile
-        .getPlayerFull(playerId)
-        .flatMap { maybePlayerData =>
-          Future.traverse(maybePlayerData.toSeq) { playerData =>
-            for {
-              bis <- profile.getPiecesBiS(playerId)
-              loot <- profile.getPieces(playerId)
-            } yield Player(
-              playerData.id,
-              playerId.partyId,
-              playerId.job,
-              playerId.nick,
-              BiS(bis.map(_.piece)),
-              loot,
-              playerData.link,
-              playerData.priority
-            )
+      run {
+        profile
+          .getPlayerFull(playerId)
+          .flatMap { maybePlayerData =>
+            Future.traverse(maybePlayerData.toSeq) { playerData =>
+              for {
+                bis <- profile.getPiecesBiS(playerId)
+                loot <- profile.getPieces(playerId)
+              } yield Player(
+                playerData.id,
+                playerId.partyId,
+                playerId.job,
+                playerId.nick,
+                BiS(bis.map(_.piece)),
+                loot,
+                playerData.link,
+                playerData.priority
+              )
+            }
           }
-        }
-        .map(_.headOption)
-      player.foreach(client ! _)
+          .map(_.headOption)
+      }(client ! _)
       Behaviors.same
 
     case RemovePlayer(playerId, client) =>
-      profile.deletePlayer(playerId).foreach(_ => client ! ())
+      run(profile.deletePlayer(playerId))(_ => client ! ())
       Behaviors.same
 
     case UpdateParty(description, client) =>
-      profile.insertPartyDescription(description).foreach(_ => client ! ())
+      run(profile.insertPartyDescription(description))(_ => client ! ())
       Behaviors.same
   }
 }

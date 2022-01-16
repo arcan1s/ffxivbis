@@ -20,23 +20,25 @@ trait DatabaseLootHandler { this: Database =>
   def lootHandler: DatabaseMessage.Handler = {
     case AddPieceTo(playerId, piece, isFreeLoot, client) =>
       val loot = Loot(-1, piece, Instant.now, isFreeLoot)
-      profile.insertPiece(playerId, loot).foreach(_ => client ! ())
+      run(profile.insertPiece(playerId, loot))(_ => client ! ())
       Behaviors.same
 
     case GetLoot(partyId, maybePlayerId, client) =>
-      getParty(partyId, withBiS = false, withLoot = true)
-        .map(filterParty(_, maybePlayerId))
-        .foreach(client ! _)
+      run {
+        getParty(partyId, withBiS = false, withLoot = true)
+          .map(filterParty(_, maybePlayerId))
+      }(client ! _)
       Behaviors.same
 
     case RemovePieceFrom(playerId, piece, client) =>
-      profile.deletePiece(playerId, piece).foreach(_ => client ! ())
+      run(profile.deletePiece(playerId, piece))(_ => client ! ())
       Behaviors.same
 
     case SuggestLoot(partyId, piece, client) =>
-      getParty(partyId, withBiS = true, withLoot = true)
-        .map(_.suggestLoot(piece))
-        .foreach(client ! _)
+      run {
+        getParty(partyId, withBiS = true, withLoot = true)
+          .map(_.suggestLoot(piece))
+      }(client ! _)
       Behaviors.same
   }
 }

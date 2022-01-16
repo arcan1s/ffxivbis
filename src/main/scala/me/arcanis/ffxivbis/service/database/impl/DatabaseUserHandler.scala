@@ -17,23 +17,23 @@ trait DatabaseUserHandler { this: Database =>
   def userHandler: DatabaseMessage.Handler = {
     case AddUser(user, isHashedPassword, client) =>
       val toInsert = if (isHashedPassword) user else user.withHashedPassword
-      profile.insertUser(toInsert).foreach(_ => client ! ())
+      run(profile.insertUser(toInsert))(_ => client ! ())
       Behaviors.same
 
     case DeleteUser(partyId, username, client) =>
-      profile.deleteUser(partyId, username).foreach(_ => client ! ())
+      run(profile.deleteUser(partyId, username))(_ => client ! ())
       Behaviors.same
 
     case Exists(partyId, client) =>
-      profile.exists(partyId).foreach(client ! _)
+      run(profile.exists(partyId))(client ! _)
       Behaviors.same
 
     case GetUser(partyId, username, client) =>
-      profile.getUser(partyId, username).foreach(client ! _)
+      run(profile.getUser(partyId, username))(client ! _)
       Behaviors.same
 
     case GetUsers(partyId, client) =>
-      profile.getUsers(partyId).foreach(client ! _)
+      run(profile.getUsers(partyId))(client ! _)
       Behaviors.same
   }
 }

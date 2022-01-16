@@ -16,21 +16,22 @@ trait DatabaseBiSHandler { this: Database =>
 
   def bisHandler: DatabaseMessage.Handler = {
     case AddPieceToBis(playerId, piece, client) =>
-      profile.insertPieceBiS(playerId, piece).foreach(_ => client ! ())
+      run(profile.insertPieceBiS(playerId, piece))(_ => client ! ())
       Behaviors.same
 
     case GetBiS(partyId, maybePlayerId, client) =>
-      getParty(partyId, withBiS = true, withLoot = false)
-        .map(filterParty(_, maybePlayerId))
-        .foreach(client ! _)
+      run {
+        getParty(partyId, withBiS = true, withLoot = false)
+          .map(filterParty(_, maybePlayerId))
+      }(client ! _)
       Behaviors.same
 
     case RemovePieceFromBiS(playerId, piece, client) =>
-      profile.deletePieceBiS(playerId, piece).foreach(_ => client ! ())
+      run(profile.deletePieceBiS(playerId, piece))(_ => client ! ())
       Behaviors.same
 
     case RemovePiecesFromBiS(playerId, client) =>
-      profile.deletePiecesBiS(playerId).foreach(_ => client ! ())
+      run(profile.deletePiecesBiS(playerId))(_ => client ! ())
       Behaviors.same
   }
 }

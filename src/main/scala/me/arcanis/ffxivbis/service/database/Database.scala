@@ -18,6 +18,7 @@ import me.arcanis.ffxivbis.service.database.impl.DatabaseImpl
 import me.arcanis.ffxivbis.storage.DatabaseProfile
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 trait Database extends StrictLogging {
 
@@ -38,6 +39,12 @@ trait Database extends StrictLogging {
       bis <- if (withBiS) profile.getPiecesBiS(partyId) else Future(Seq.empty)
       loot <- if (withLoot) profile.getPieces(partyId) else Future(Seq.empty)
     } yield Party(partyDescription, config, players, bis, loot)
+
+  protected def run[T](fn: => Future[T])(onSuccess: T => Unit): Unit =
+    fn.onComplete {
+      case Success(value) => onSuccess(value)
+      case Failure(exception) => logger.error("exception during performing database request", exception)
+    }
 }
 
 object Database {
