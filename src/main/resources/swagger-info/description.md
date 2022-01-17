@@ -1,4 +1,4 @@
-REST json API description to interact with FFXIVBiS service.
+REST json API description to interact with FFXIV Best-in-slot service.
 
 # Basic workflow
 

@@ -22,10 +22,10 @@ from the extracted archive root.
 
 ## Web service
 
-REST API documentation is available at `http://0.0.0.0:8000/swagger`. HTML representation is available at `http://0.0.0.0:8000`.
+REST API documentation is available at `http://0.0.0.0:8000/api-docs`. HTML representation is available at `http://0.0.0.0:8000`.
 
 *Note*: host and port depend on configuration settings. 
 
 ## Public service
 
-There is also public service which is available at http://ffxivbis.arcanis.me.
+There is also public service which is available at https://ffxivbis.arcanis.me.
