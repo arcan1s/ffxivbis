@@ -24,14 +24,14 @@ class PartyService(context: ActorContext[Message], storage: ActorRef[DatabaseMes
   with StrictLogging {
   import me.arcanis.ffxivbis.utils.Implicits._
 
-  private val cacheTimeout: FiniteDuration =
-    context.system.settings.config.getDuration("me.arcanis.ffxivbis.settings.cache-timeout")
+  private val cacheTimeout =
+    context.system.settings.config.getFiniteDuration("me.arcanis.ffxivbis.settings.cache-timeout")
   implicit private val executionContext: ExecutionContext = {
     val selector = DispatcherSelector.fromConfig("me.arcanis.ffxivbis.default-dispatcher")
     context.system.dispatchers.lookup(selector)
   }
   implicit private val timeout: Timeout =
-    context.system.settings.config.getDuration("me.arcanis.ffxivbis.settings.request-timeout")
+    context.system.settings.config.getTimeout("me.arcanis.ffxivbis.settings.request-timeout")
   implicit private val scheduler: Scheduler = context.system.scheduler
 
   override def onMessage(msg: Message): Behavior[Message] = handle(Map.empty)(msg)
