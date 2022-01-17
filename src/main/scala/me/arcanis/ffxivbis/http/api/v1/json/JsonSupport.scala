@@ -52,5 +52,6 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val playerBiSLinkFormat: RootJsonFormat[PlayerBiSLinkModel] = jsonFormat2(PlayerBiSLinkModel.apply)
   implicit val playerIdWithCountersFormat: RootJsonFormat[PlayerIdWithCountersModel] =
     jsonFormat9(PlayerIdWithCountersModel.apply)
+  implicit val statusFormat: RootJsonFormat[StatusModel] = jsonFormat1(StatusModel.apply)
   implicit val userFormat: RootJsonFormat[UserModel] = jsonFormat4(UserModel.apply)
 }

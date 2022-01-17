@@ -22,6 +22,7 @@ class Swagger(config: Config) extends SwaggerHttpService {
     classOf[api.v1.LootEndpoint],
     classOf[api.v1.PartyEndpoint],
     classOf[api.v1.PlayerEndpoint],
+    classOf[api.v1.StatusEndpoint],
     classOf[api.v1.TypesEndpoint],
     classOf[api.v1.UserEndpoint]
   )
@@ -35,7 +36,7 @@ class Swagger(config: Config) extends SwaggerHttpService {
 
   override val host: String =
     if (config.hasPath("me.arcanis.ffxivbis.web.hostname")) config.getString("me.arcanis.ffxivbis.web.hostname")
-    else s"${config.getString("me.arcanis.ffxivbis.web.host")}:${config.getString("me.arcanis.ffxivbis.web.port")}"
+    else s"${config.getString("me.arcanis.ffxivbis.web.host")}:${config.getInt("me.arcanis.ffxivbis.web.port")}"
 
   private val basicAuth = new SecurityScheme()
     .description("basic http auth")

@@ -11,6 +11,6 @@
         <appender-ref ref="http" />
     </logger>
     <logger name="org.flywaydb.core.internal" level="INFO" />
-    <logger name="com.zaxxer.hikari.pool.HikariPool" level="INFO" />
+    <logger name="com.zaxxer.hikari.pool" level="INFO" />
 
 </configuration>

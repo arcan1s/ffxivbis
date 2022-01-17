@@ -13,8 +13,8 @@ import akka.http.scaladsl.server.Directive0
 import akka.http.scaladsl.server.Directives.{extractClientIP, extractRequestContext, mapResponse, optionalHeaderValueByType}
 import com.typesafe.scalalogging.Logger
 
-import java.time.{Instant, ZoneId}
 import java.time.format.DateTimeFormatter
+import java.time.{Instant, ZoneId}
 import java.util.Locale
 
 trait HttpLog {
@@ -68,7 +68,7 @@ object HttpLog {
 
   val httpLogDatetimeFormatter: DateTimeFormatter =
     DateTimeFormatter
-      .ofPattern("dd/MMM/uuuu:HH:mm:ss xx  ")
+      .ofPattern("dd/MMM/uuuu:HH:mm:ss xx")
       .withLocale(Locale.UK)
       .withZone(ZoneId.systemDefault())
 }
