@@ -3,7 +3,6 @@ package me.arcanis.ffxivbis.service.database
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import me.arcanis.ffxivbis.messages.{AddPlayer, GetParty, GetPlayer, RemovePlayer}
 import me.arcanis.ffxivbis.models._
-import me.arcanis.ffxivbis.storage.Migration
 import me.arcanis.ffxivbis.utils.Compare
 import me.arcanis.ffxivbis.{Fixtures, Settings}
 import org.scalatest.wordspec.AnyWordSpecLike

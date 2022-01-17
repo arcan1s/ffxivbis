@@ -23,7 +23,9 @@ import scala.util.{Failure, Success}
 trait Database extends StrictLogging {
 
   implicit def executionContext: ExecutionContext
+
   def config: Config
+
   def profile: DatabaseProfile
 
   def filterParty(party: Party, maybePlayerId: Option[PlayerId]): Seq[Player] =
@@ -36,8 +38,8 @@ trait Database extends StrictLogging {
     for {
       partyDescription <- profile.getPartyDescription(partyId)
       players <- profile.getParty(partyId)
-      bis <- if (withBiS) profile.getPiecesBiS(partyId) else Future(Seq.empty)
-      loot <- if (withLoot) profile.getPieces(partyId) else Future(Seq.empty)
+      bis <- if (withBiS) profile.getPiecesBiS(partyId) else Future.successful(Seq.empty)
+      loot <- if (withLoot) profile.getPieces(partyId) else Future.successful(Seq.empty)
     } yield Party(partyDescription, config, players, bis, loot)
 
   protected def run[T](fn: => Future[T])(onSuccess: T => Unit): Unit =

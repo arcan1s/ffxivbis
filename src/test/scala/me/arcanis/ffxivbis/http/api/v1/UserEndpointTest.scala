@@ -8,8 +8,7 @@ import akka.testkit.TestKit
 import com.typesafe.config.Config
 import me.arcanis.ffxivbis.http.api.v1.json._
 import me.arcanis.ffxivbis.service.PartyService
-import me.arcanis.ffxivbis.service.database.Database
-import me.arcanis.ffxivbis.storage.Migration
+import me.arcanis.ffxivbis.service.database.{Database, Migration}
 import me.arcanis.ffxivbis.{Fixtures, Settings}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike

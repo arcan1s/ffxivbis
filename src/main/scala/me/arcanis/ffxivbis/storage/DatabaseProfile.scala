@@ -9,32 +9,32 @@
 package me.arcanis.ffxivbis.storage
 
 import com.typesafe.config.Config
+import com.typesafe.scalalogging.StrictLogging
+import com.zaxxer.hikari.HikariDataSource
 import me.arcanis.ffxivbis.models.{Loot, Piece, PlayerId}
-import slick.basic.DatabaseConfig
-import slick.jdbc.JdbcProfile
 
 import java.time.Instant
+import javax.sql.DataSource
 import scala.concurrent.{ExecutionContext, Future}
 
-class DatabaseProfile(context: ExecutionContext, config: Config)
-  extends BiSProfile
+class DatabaseProfile(override val executionContext: ExecutionContext, config: Config)
+  extends StrictLogging
+  with BiSProfile
   with LootProfile
   with PartyProfile
   with PlayersProfile
   with UsersProfile {
 
-  implicit val executionContext: ExecutionContext = context
-
-  val dbConfig: DatabaseConfig[JdbcProfile] =
-    DatabaseConfig.forConfig[JdbcProfile]("", DatabaseProfile.getSection(config))
-  import dbConfig.profile.api._
-  val db = dbConfig.db
-
-  val bisTable: TableQuery[BiSPieces] = TableQuery[BiSPieces]
-  val lootTable: TableQuery[LootPieces] = TableQuery[LootPieces]
-  val partiesTable: TableQuery[Parties] = TableQuery[Parties]
-  val playersTable: TableQuery[Players] = TableQuery[Players]
-  val usersTable: TableQuery[Users] = TableQuery[Users]
+  override val datasource: DataSource =
+    try {
+      val profile = DatabaseProfile.getSection(config)
+      val dataSourceConfig = DatabaseConnection.getDataSourceConfig(profile)
+      new HikariDataSource(dataSourceConfig)
+    } catch {
+      case exception: Exception =>
+        logger.error("exception during storage initialization", exception)
+        throw exception
+    }
 
   // generic bis api
   def deletePieceBiS(playerId: PlayerId, piece: Piece): Future[Int] =
@@ -53,9 +53,8 @@ class DatabaseProfile(context: ExecutionContext, config: Config)
     byPlayerId(playerId, insertPieceBiSById(piece))
 
   // generic loot api
-  def deletePiece(playerId: PlayerId, piece: Piece): Future[Int] = {
-    // we don't really care here about loot
-    val loot = Loot(-1, piece, Instant.now, isFreeLoot = false)
+  def deletePiece(playerId: PlayerId, piece: Piece, isFreeLoot: Boolean): Future[Int] = {
+    val loot = Loot(-1, piece, Instant.now, isFreeLoot)
     byPlayerId(playerId, deletePieceById(loot))
   }
 
@@ -69,21 +68,23 @@ class DatabaseProfile(context: ExecutionContext, config: Config)
     byPlayerId(playerId, insertPieceById(loot))
 
   private def byPartyId[T](partyId: String, callback: Seq[Long] => Future[T]): Future[T] =
-    getPlayers(partyId).flatMap(callback)
+    getPlayers(partyId).flatMap(callback)(executionContext)
 
   private def byPlayerId[T](playerId: PlayerId, callback: Long => Future[T]): Future[T] =
     getPlayer(playerId).flatMap {
       case Some(id) => callback(id)
-      case None => Future.failed(new Error(s"Could not find player $playerId"))
-    }
+      case None => Future.failed(DatabaseProfile.PlayerNotFound(playerId))
+    }(executionContext)
 }
 
 object DatabaseProfile {
 
-  def now: Long = Instant.now.toEpochMilli
+  case class PlayerNotFound(playerId: PlayerId) extends Exception(s"Could not find player $playerId")
 
   def getSection(config: Config): Config = {
     val section = config.getString("me.arcanis.ffxivbis.database.mode")
-    config.getConfig("me.arcanis.ffxivbis.database").getConfig(section)
+    config.getConfig(s"me.arcanis.ffxivbis.database.$section")
   }
+
+  def now: Long = Instant.now.toEpochMilli
 }

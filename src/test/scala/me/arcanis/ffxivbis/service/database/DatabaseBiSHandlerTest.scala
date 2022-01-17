@@ -4,7 +4,6 @@ import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.AskPattern.Askable
 import me.arcanis.ffxivbis.messages.{AddPieceToBis, AddPlayer, GetBiS, RemovePieceFromBiS}
 import me.arcanis.ffxivbis.models._
-import me.arcanis.ffxivbis.storage.Migration
 import me.arcanis.ffxivbis.utils.Compare
 import me.arcanis.ffxivbis.{Fixtures, Settings}
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -85,6 +84,6 @@ class DatabaseBiSHandlerTest extends ScalaTestWithActorTestKit(Settings.withRand
 
   }
 
-  private def partyBiSCompare[T](party: Seq[T], bis: Seq[Piece]): Boolean =
-    Compare.seqEquals(party.foldLeft(Seq.empty[Piece]){ case (acc, player) => acc ++ player.asInstanceOf[Player].bis.pieces }, bis)
+  private def partyBiSCompare(party: Seq[Player], bis: Seq[Piece]): Boolean =
+    Compare.seqEquals(party.foldLeft(Seq.empty[Piece]){ case (acc, player) => acc ++ player.bis.pieces }, bis)
 }

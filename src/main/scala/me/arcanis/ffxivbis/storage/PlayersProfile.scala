@@ -8,76 +8,97 @@
  */
 package me.arcanis.ffxivbis.storage
 
+import anorm.SqlParser._
+import anorm._
 import me.arcanis.ffxivbis.models.{BiS, Job, Player, PlayerId}
 
 import scala.concurrent.Future
 
-trait PlayersProfile { this: DatabaseProfile =>
-  import dbConfig.profile.api._
+trait PlayersProfile extends DatabaseConnection {
 
-  case class PlayerRep(
-    partyId: String,
-    playerId: Option[Long],
-    created: Long,
-    nick: String,
-    job: String,
-    link: Option[String],
-    priority: Int
-  ) {
+  private val player: RowParser[Player] =
+    (long("player_id") ~ str("party_id") ~ str("job")
+      ~ str("nick") ~ str("bis_link").? ~ int("priority").?)
+      .map { case playerId ~ partyId ~ job ~ nick ~ link ~ priority =>
+        Player(
+          id = playerId,
+          partyId = partyId,
+          job = Job.withName(job),
+          nick = nick,
+          bis = BiS.empty,
+          loot = Seq.empty,
+          link = link,
+          priority = priority.getOrElse(0),
+        )
+      }
 
-    def toPlayer: Player =
-      Player(playerId.getOrElse(-1), partyId, Job.withName(job), nick, BiS.empty, Seq.empty, link, priority)
-  }
-
-  object PlayerRep {
-
-    def fromPlayer(player: Player, id: Option[Long]): PlayerRep =
-      PlayerRep(player.partyId, id, DatabaseProfile.now, player.nick, player.job.toString, player.link, player.priority)
-  }
-
-  class Players(tag: Tag) extends Table[PlayerRep](tag, "players") {
-    def partyId: Rep[String] = column[String]("party_id")
-    def playerId: Rep[Long] = column[Long]("player_id", O.AutoInc, O.PrimaryKey)
-    def created: Rep[Long] = column[Long]("created")
-    def nick: Rep[String] = column[String]("nick")
-    def job: Rep[String] = column[String]("job")
-    def bisLink: Rep[Option[String]] = column[Option[String]]("bis_link")
-    def priority: Rep[Int] = column[Int]("priority", O.Default(1))
-
-    def * =
-      (partyId, playerId.?, created, nick, job, bisLink, priority) <> ((PlayerRep.apply _).tupled, PlayerRep.unapply)
-  }
-
-  def deletePlayer(playerId: PlayerId): Future[Int] = db.run(player(playerId).delete)
-
-  def getParty(partyId: String): Future[Map[Long, Player]] =
-    db.run(players(partyId).result)
-      .map(_.foldLeft(Map.empty[Long, Player]) {
-        case (acc, p @ PlayerRep(_, Some(id), _, _, _, _, _)) => acc + (id -> p.toPlayer)
-        case (acc, _) => acc
-      })
-
-  def getPlayer(playerId: PlayerId): Future[Option[Long]] =
-    db.run(player(playerId).map(_.playerId).result.headOption)
-
-  def getPlayerFull(playerId: PlayerId): Future[Option[Player]] =
-    db.run(player(playerId).result.headOption.map(_.map(_.toPlayer)))
-
-  def getPlayers(partyId: String): Future[Seq[Long]] =
-    db.run(players(partyId).map(_.playerId).result)
-
-  def insertPlayer(playerObj: Player): Future[Int] =
-    getPlayer(playerObj.playerId).flatMap {
-      case Some(id) => db.run(playersTable.update(PlayerRep.fromPlayer(playerObj, Some(id))))
-      case _ => db.run(playersTable.insertOrUpdate(PlayerRep.fromPlayer(playerObj, None)))
+  def deletePlayer(playerId: PlayerId): Future[Int] =
+    withConnection { implicit conn =>
+      SQL("""delete from players
+          | where party_id = {party_id}
+          |   and nick = {nick}
+          |   and job = {job}""".stripMargin)
+        .on("party_id" -> playerId.partyId, "nick" -> playerId.nick, "job" -> playerId.job.toString)
+        .executeUpdate()
     }
 
-  private def player(playerId: PlayerId) =
-    playersTable
-      .filter(_.partyId === playerId.partyId)
-      .filter(_.job === playerId.job.toString)
-      .filter(_.nick === playerId.nick)
+  def getParty(partyId: String): Future[Map[Long, Player]] =
+    withConnection { implicit conn =>
+      SQL("""select * from players where party_id = {party_id}""")
+        .on("party_id" -> partyId)
+        .executeQuery()
+        .as(player.*)
+        .map(p => p.id -> p)
+        .toMap
+    }
 
-  private def players(partyId: String) =
-    playersTable.filter(_.partyId === partyId)
+  def getPlayer(playerId: PlayerId): Future[Option[Long]] =
+    withConnection { implicit conn =>
+      SQL("""select player_id from players
+          | where party_id = {party_id}
+          |   and nick = {nick}
+          |   and job = {job}""".stripMargin)
+        .on("party_id" -> playerId.partyId, "nick" -> playerId.nick, "job" -> playerId.job.toString)
+        .executeQuery()
+        .as(scalar[Long].singleOpt)
+    }
+
+  def getPlayerFull(playerId: PlayerId): Future[Option[Player]] =
+    withConnection { implicit conn =>
+      SQL("""select * from players
+          | where party_id = {party_id}
+          |   and nick = {nick}
+          |   and job = {job}""".stripMargin)
+        .on("party_id" -> playerId.partyId, "nick" -> playerId.nick, "job" -> playerId.job.toString)
+        .executeQuery()
+        .as(player.singleOpt)
+    }
+
+  def getPlayers(partyId: String): Future[Seq[Long]] =
+    withConnection { implicit conn =>
+      SQL("""select player_id from players where party_id = {party_id}""")
+        .on("party_id" -> partyId)
+        .executeQuery()
+        .as(scalar[Long].*)
+    }
+
+  def insertPlayer(player: Player): Future[Int] =
+    withConnection { implicit conn =>
+      SQL("""insert into players
+          |  (party_id, created, job, nick, bis_link, priority)
+          | values
+          |  ({party_id}, {created}, {job}, {nick}, {link}, {priority})
+          | on conflict (party_id, nick, job) do update set
+          |  bis_link = {link}, priority = {priority}""".stripMargin)
+        .on(
+          "party_id" -> player.partyId,
+          "created" -> DatabaseProfile.now,
+          "job" -> player.job.toString,
+          "nick" -> player.nick,
+          "link" -> player.link,
+          "priority" -> player.priority
+        )
+        .executeUpdate()
+    }
+
 }

@@ -8,64 +8,67 @@
  */
 package me.arcanis.ffxivbis.storage
 
+import anorm.SqlParser._
+import anorm._
 import me.arcanis.ffxivbis.models.{Permission, User}
-import slick.lifted.{Index, PrimaryKey}
 
 import scala.concurrent.Future
 
-trait UsersProfile { this: DatabaseProfile =>
-  import dbConfig.profile.api._
+trait UsersProfile extends DatabaseConnection {
 
-  case class UserRep(partyId: String, userId: Option[Long], username: String, password: String, permission: String) {
-
-    def toUser: User = User(partyId, username, password, Permission.withName(permission))
-  }
-
-  object UserRep {
-
-    def fromUser(user: User, id: Option[Long]): UserRep =
-      UserRep(user.partyId, id, user.username, user.password, user.permission.toString)
-  }
-
-  class Users(tag: Tag) extends Table[UserRep](tag, "users") {
-    def partyId: Rep[String] = column[String]("party_id")
-    def userId: Rep[Long] = column[Long]("user_id", O.AutoInc, O.PrimaryKey)
-    def username: Rep[String] = column[String]("username")
-    def password: Rep[String] = column[String]("password")
-    def permission: Rep[String] = column[String]("permission")
-
-    def * =
-      (partyId, userId.?, username, password, permission) <> ((UserRep.apply _).tupled, UserRep.unapply)
-
-    def pk: PrimaryKey = primaryKey("users_username_idx", (partyId, username))
-    def usersUsernameIdx: Index =
-      index("users_username_idx", (partyId, username), unique = true)
-  }
+  private val user: RowParser[User] =
+    (str("party_id") ~ str("username") ~ str("password") ~ str("permission"))
+      .map { case partyId ~ username ~ password ~ permission =>
+        User(
+          partyId = partyId,
+          username = username,
+          password = password,
+          permission = Permission.withName(permission),
+        )
+      }
 
   def deleteUser(partyId: String, username: String): Future[Int] =
-    db.run(
-      user(partyId, Some(username))
-        .filter(_.permission =!= Permission.admin.toString) // we do not allow to remove admins
-        .delete
-    )
-
-  def exists(partyId: String): Future[Boolean] =
-    db.run(user(partyId, None).exists.result)
-
-  def getUser(partyId: String, username: String): Future[Option[User]] =
-    db.run(user(partyId, Some(username)).result.headOption).map(_.map(_.toUser))
-
-  def getUsers(partyId: String): Future[Seq[User]] =
-    db.run(user(partyId, None).result).map(_.map(_.toUser))
-
-  def insertUser(userObj: User): Future[Int] =
-    db.run(user(userObj.partyId, Some(userObj.username)).map(_.userId).result.headOption).flatMap {
-      case Some(id) => db.run(usersTable.insertOrUpdate(UserRep.fromUser(userObj, Some(id))))
-      case _ => db.run(usersTable.insertOrUpdate(UserRep.fromUser(userObj, None)))
+    withConnection { implicit conn =>
+      SQL("""delete from users
+          | where party_id = {party_id}
+          |   and username = {username}
+          |   and permission <> {admin}""".stripMargin)
+        .on("party_id" -> partyId, "username" -> username, "admin" -> Permission.admin.toString)
+        .executeUpdate()
     }
 
-  private def user(partyId: String, username: Option[String]) =
-    usersTable
-      .filter(_.partyId === partyId)
-      .filterIf(username.isDefined)(_.username === username.orNull)
+  def exists(partyId: String): Future[Boolean] = getUsers(partyId).map(_.nonEmpty)(executionContext)
+
+  def getUser(partyId: String, username: String): Future[Option[User]] =
+    withConnection { implicit conn =>
+      SQL("""select * from users where party_id = {party_id} and username = {username}""")
+        .on("party_id" -> partyId, "username" -> username)
+        .executeQuery()
+        .as(user.singleOpt)
+    }
+
+  def getUsers(partyId: String): Future[Seq[User]] =
+    withConnection { implicit conn =>
+      SQL("""select * from users where party_id = {party_id}""")
+        .on("party_id" -> partyId)
+        .executeQuery()
+        .as(user.*)
+    }
+
+  def insertUser(user: User): Future[Int] =
+    withConnection { implicit conn =>
+      SQL("""insert into users
+          |  (party_id, username, password, permission)
+          | values
+          |  ({party_id}, {username}, {password}, {permission})
+          | on conflict (party_id, username) do update set
+          |  password = {password}, permission = {permission}""".stripMargin)
+        .on(
+          "party_id" -> user.partyId,
+          "username" -> user.username,
+          "password" -> user.password,
+          "permission" -> user.permission.toString
+        )
+        .executeUpdate()
+    }
 }

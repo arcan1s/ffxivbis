@@ -17,8 +17,7 @@ import com.typesafe.scalalogging.StrictLogging
 import me.arcanis.ffxivbis.http.RootEndpoint
 import me.arcanis.ffxivbis.service.PartyService
 import me.arcanis.ffxivbis.service.bis.BisProvider
-import me.arcanis.ffxivbis.service.database.Database
-import me.arcanis.ffxivbis.storage.Migration
+import me.arcanis.ffxivbis.service.database.{Database, Migration}
 
 import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters._

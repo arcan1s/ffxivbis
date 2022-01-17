@@ -8,47 +8,41 @@
  */
 package me.arcanis.ffxivbis.storage
 
+import anorm.SqlParser._
+import anorm._
 import me.arcanis.ffxivbis.models.PartyDescription
 
 import scala.concurrent.Future
 
-trait PartyProfile { this: DatabaseProfile =>
-  import dbConfig.profile.api._
+trait PartyProfile extends DatabaseConnection {
 
-  case class PartyRep(partyId: Option[Long], partyName: String, partyAlias: Option[String]) {
-
-    def toDescription: PartyDescription = PartyDescription(partyName, partyAlias)
-  }
-
-  object PartyRep {
-
-    def fromDescription(party: PartyDescription, id: Option[Long]): PartyRep =
-      PartyRep(id, party.partyId, party.partyAlias)
-  }
-
-  class Parties(tag: Tag) extends Table[PartyRep](tag, "parties") {
-    def partyId: Rep[Long] = column[Long]("party_id", O.AutoInc, O.PrimaryKey)
-    def partyName: Rep[String] = column[String]("party_name")
-    def partyAlias: Rep[Option[String]] = column[Option[String]]("party_alias")
-
-    def * =
-      (partyId.?, partyName, partyAlias) <> ((PartyRep.apply _).tupled, PartyRep.unapply)
-  }
+  private val description: RowParser[PartyDescription] =
+    (str("party_name") ~ str("party_alias").?)
+      .map { case partyName ~ partyAlias =>
+        PartyDescription(
+          partyId = partyName,
+          partyAlias = partyAlias,
+        )
+      }
 
   def getPartyDescription(partyId: String): Future[PartyDescription] =
-    db.run(
-      partyDescription(partyId).result.headOption.map(_.map(_.toDescription).getOrElse(PartyDescription.empty(partyId)))
-    )
-
-  def getUniquePartyId(partyId: String): Future[Option[Long]] =
-    db.run(partyDescription(partyId).map(_.partyId).result.headOption)
-
-  def insertPartyDescription(partyDescription: PartyDescription): Future[Int] =
-    getUniquePartyId(partyDescription.partyId).flatMap {
-      case Some(id) => db.run(partiesTable.update(PartyRep.fromDescription(partyDescription, Some(id))))
-      case _ => db.run(partiesTable.insertOrUpdate(PartyRep.fromDescription(partyDescription, None)))
+    withConnection { implicit conn =>
+      SQL("""select * from parties where party_name = {party_name}""")
+        .on("party_name" -> partyId)
+        .executeQuery()
+        .as(description.singleOpt)
+        .getOrElse(PartyDescription.empty(partyId))
     }
 
-  private def partyDescription(partyId: String) =
-    partiesTable.filter(_.partyName === partyId)
+  def insertPartyDescription(partyDescription: PartyDescription): Future[Int] =
+    withConnection { implicit conn =>
+      SQL("""insert into parties
+          |  (party_name, party_alias)
+          | values
+          |  ({party_name}, {party_alias})
+          | on conflict (party_name) do update set
+          |  party_alias = {party_alias}""".stripMargin)
+        .on("party_name" -> partyDescription.partyId, "party_alias" -> partyDescription.partyAlias)
+        .executeUpdate()
+    }
 }

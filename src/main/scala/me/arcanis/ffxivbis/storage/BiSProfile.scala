@@ -8,66 +8,72 @@
  */
 package me.arcanis.ffxivbis.storage
 
+import anorm.SqlParser._
+import anorm._
 import me.arcanis.ffxivbis.models.{Job, Loot, Piece, PieceType}
-import slick.lifted.ForeignKeyQuery
 
 import java.time.Instant
 import scala.concurrent.Future
 
-trait BiSProfile { this: DatabaseProfile =>
-  import dbConfig.profile.api._
+trait BiSProfile extends DatabaseConnection {
 
-  case class BiSRep(playerId: Long, created: Long, piece: String, pieceType: String, job: String) {
-
-    def toLoot: Loot = Loot(
-      playerId,
-      Piece(piece, PieceType.withName(pieceType), Job.withName(job)),
-      Instant.ofEpochMilli(created),
-      isFreeLoot = false
-    )
-  }
-
-  object BiSRep {
-
-    def fromPiece(playerId: Long, piece: Piece): BiSRep =
-      BiSRep(playerId, DatabaseProfile.now, piece.piece, piece.pieceType.toString, piece.job.toString)
-  }
-
-  class BiSPieces(tag: Tag) extends Table[BiSRep](tag, "bis") {
-    def playerId: Rep[Long] = column[Long]("player_id", O.PrimaryKey)
-    def created: Rep[Long] = column[Long]("created")
-    def piece: Rep[String] = column[String]("piece", O.PrimaryKey)
-    def pieceType: Rep[String] = column[String]("piece_type")
-    def job: Rep[String] = column[String]("job")
-
-    def * =
-      (playerId, created, piece, pieceType, job) <> ((BiSRep.apply _).tupled, BiSRep.unapply)
-
-    def fkPlayerId: ForeignKeyQuery[Players, PlayerRep] =
-      foreignKey("player_id", playerId, playersTable)(_.playerId, onDelete = ForeignKeyAction.Cascade)
-  }
+  private val loot: RowParser[Loot] =
+    (long("player_id") ~ str("piece") ~ str("piece_type")
+      ~ str("job") ~ long("created"))
+      .map { case playerId ~ piece ~ pieceType ~ job ~ created =>
+        Loot(
+          playerId = playerId,
+          piece = Piece(
+            piece = piece,
+            pieceType = PieceType.withName(pieceType),
+            job = Job.withName(job)
+          ),
+          timestamp = Instant.ofEpochMilli(created),
+          isFreeLoot = false,
+        )
+      }
 
   def deletePieceBiSById(piece: Piece)(playerId: Long): Future[Int] =
-    db.run(pieceBiS(BiSRep.fromPiece(playerId, piece)).delete)
+    withConnection { implicit conn =>
+      SQL("""delete from bis
+          | where player_id = {player_id}
+          |   and piece = {piece}
+          |   and piece_type = {piece_type}""".stripMargin)
+        .on("player_id" -> playerId, "piece" -> piece.piece, "piece_type" -> piece.pieceType.toString)
+        .executeUpdate()
+    }
 
   def deletePiecesBiSById(playerId: Long): Future[Int] =
-    db.run(piecesBiS(Seq(playerId)).delete)
+    withConnection { implicit conn =>
+      SQL("""delete from bis where player_id = {player_id}""")
+        .on("player_id" -> playerId)
+        .executeUpdate()
+    }
 
   def getPiecesBiSById(playerId: Long): Future[Seq[Loot]] = getPiecesBiSById(Seq(playerId))
 
   def getPiecesBiSById(playerIds: Seq[Long]): Future[Seq[Loot]] =
-    db.run(piecesBiS(playerIds).result).map(_.map(_.toLoot))
+    withConnection { implicit conn =>
+      SQL("""select * from bis where player_id in ({player_ids})""")
+        .on("player_ids" -> playerIds)
+        .executeQuery()
+        .as(loot.*)
+    }
 
   def insertPieceBiSById(piece: Piece)(playerId: Long): Future[Int] =
-    getPiecesBiSById(playerId).flatMap {
-      case pieces if pieces.exists(loot => loot.piece.strictEqual(piece)) => Future.successful(0)
-      case _ => db.run(bisTable.insertOrUpdate(BiSRep.fromPiece(playerId, piece)))
+    withConnection { implicit conn =>
+      SQL("""insert into bis
+          |  (player_id, piece, piece_type, job, created)
+          | values
+          |  ({player_id}, {piece}, {piece_type}, {job}, {created})
+          | on conflict (player_id, piece, piece_type) do nothing""".stripMargin)
+        .on(
+          "player_id" -> playerId,
+          "piece" -> piece.piece,
+          "piece_type" -> piece.pieceType.toString,
+          "job" -> piece.job.toString,
+          "created" -> DatabaseProfile.now
+        )
+        .executeUpdate()
     }
-
-  private def pieceBiS(piece: BiSRep) =
-    piecesBiS(Seq(piece.playerId)).filter { stored =>
-      (stored.piece === piece.piece) && (stored.pieceType === piece.pieceType)
-    }
-  private def piecesBiS(playerIds: Seq[Long]) =
-    bisTable.filter(_.playerId.inSet(playerIds.toSet))
 }

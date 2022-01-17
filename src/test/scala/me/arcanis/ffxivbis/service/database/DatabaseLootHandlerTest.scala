@@ -2,9 +2,9 @@ package me.arcanis.ffxivbis.service.database
 
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.AskPattern.Askable
+import ch.qos.logback.core.util.FixedDelay
 import me.arcanis.ffxivbis.messages.{AddPieceTo, AddPlayer, GetLoot, RemovePieceFrom}
 import me.arcanis.ffxivbis.models._
-import me.arcanis.ffxivbis.storage.Migration
 import me.arcanis.ffxivbis.utils.Compare
 import me.arcanis.ffxivbis.{Fixtures, Settings}
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -58,7 +58,7 @@ class DatabaseLootHandlerTest extends ScalaTestWithActorTestKit(Settings.withRan
 
     "remove loot" in {
       val updateProbe = testKit.createTestProbe[Unit]()
-      database ! RemovePieceFrom(Fixtures.playerEmpty.playerId, Fixtures.lootBody, updateProbe.ref)
+      database ! RemovePieceFrom(Fixtures.playerEmpty.playerId, Fixtures.lootBody, isFreeLoot = false, updateProbe.ref)
       updateProbe.expectMessage(askTimeout, ())
 
       val newLoot = Fixtures.loot.filterNot(_ == Fixtures.lootBody)
@@ -87,10 +87,24 @@ class DatabaseLootHandlerTest extends ScalaTestWithActorTestKit(Settings.withRan
       partyLootCompare(party, Fixtures.loot ++ Fixtures.loot) shouldEqual true
     }
 
+    "remove only one piece" in {
+      val updateProbe = testKit.createTestProbe[Unit]()
+      database ! RemovePieceFrom(Fixtures.playerEmpty.playerId, Fixtures.lootBody, isFreeLoot = false, updateProbe.ref)
+      updateProbe.expectMessage(askTimeout, ())
+
+      val probe = testKit.createTestProbe[Seq[Player]]()
+      database ! GetLoot(Fixtures.playerEmpty.partyId, None, probe.ref)
+
+      val party = probe.expectMessageType[Seq[Player]](askTimeout)
+      val player = party.filter(_.playerId == Fixtures.playerEmpty.playerId)
+      player should not be empty
+      player.flatMap(_.loot).map(_.piece) should contain (Fixtures.lootBody)
+    }
+
   }
 
-  private def partyLootCompare[T](party: Seq[T], loot: Seq[Piece]): Boolean =
+  private def partyLootCompare(party: Seq[Player], loot: Seq[Piece]): Boolean =
     Compare.seqEquals(party.foldLeft(Seq.empty[Piece]){ case (acc, player) =>
-      acc ++ player.asInstanceOf[Player].loot.map(_.piece)
+      acc ++ player.loot.map(_.piece)
     }, loot)
 }

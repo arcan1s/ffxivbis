@@ -51,7 +51,8 @@ case class AddPieceTo(playerId: PlayerId, piece: Piece, isFreeLoot: Boolean, rep
 case class GetLoot(partyId: String, playerId: Option[PlayerId], replyTo: ActorRef[Seq[Player]])
   extends LootDatabaseMessage
 
-case class RemovePieceFrom(playerId: PlayerId, piece: Piece, replyTo: ActorRef[Unit]) extends LootDatabaseMessage {
+case class RemovePieceFrom(playerId: PlayerId, piece: Piece, isFreeLoot: Boolean, replyTo: ActorRef[Unit])
+  extends LootDatabaseMessage {
   override def partyId: String = playerId.partyId
 }
 

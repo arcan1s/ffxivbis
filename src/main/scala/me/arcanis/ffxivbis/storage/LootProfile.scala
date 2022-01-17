@@ -8,81 +8,78 @@
  */
 package me.arcanis.ffxivbis.storage
 
+import anorm.SqlParser._
+import anorm._
 import me.arcanis.ffxivbis.models.{Job, Loot, Piece, PieceType}
-import slick.lifted.{ForeignKeyQuery, Index}
 
 import java.time.Instant
 import scala.concurrent.Future
 
-trait LootProfile { this: DatabaseProfile =>
-  import dbConfig.profile.api._
+trait LootProfile extends DatabaseConnection {
 
-  case class LootRep(
-    lootId: Option[Long],
-    playerId: Long,
-    created: Long,
-    piece: String,
-    pieceType: String,
-    job: String,
-    isFreeLoot: Int
-  ) {
-
-    def toLoot: Loot = Loot(
-      playerId,
-      Piece(piece, PieceType.withName(pieceType), Job.withName(job)),
-      Instant.ofEpochMilli(created),
-      isFreeLoot == 1
-    )
-  }
-
-  object LootRep {
-    def fromLoot(playerId: Long, loot: Loot): LootRep =
-      LootRep(
-        None,
-        playerId,
-        loot.timestamp.toEpochMilli,
-        loot.piece.piece,
-        loot.piece.pieceType.toString,
-        loot.piece.job.toString,
-        if (loot.isFreeLoot) 1 else 0
-      )
-  }
-
-  class LootPieces(tag: Tag) extends Table[LootRep](tag, "loot") {
-    def lootId: Rep[Long] = column[Long]("loot_id", O.AutoInc, O.PrimaryKey)
-    def playerId: Rep[Long] = column[Long]("player_id")
-    def created: Rep[Long] = column[Long]("created")
-    def piece: Rep[String] = column[String]("piece")
-    def pieceType: Rep[String] = column[String]("piece_type")
-    def job: Rep[String] = column[String]("job")
-    def isFreeLoot: Rep[Int] = column[Int]("is_free_loot")
-
-    def * =
-      (lootId.?, playerId, created, piece, pieceType, job, isFreeLoot) <> ((LootRep.apply _).tupled, LootRep.unapply)
-
-    def fkPlayerId: ForeignKeyQuery[Players, PlayerRep] =
-      foreignKey("player_id", playerId, playersTable)(_.playerId, onDelete = ForeignKeyAction.Cascade)
-    def lootOwnerIdx: Index =
-      index("loot_owner_idx", playerId, unique = false)
-  }
+  private val loot: RowParser[Loot] =
+    (long("player_id") ~ str("piece") ~ str("piece_type")
+      ~ str("job") ~ long("created") ~ int("is_free_loot"))
+      .map { case playerId ~ piece ~ pieceType ~ job ~ created ~ isFreeLoot =>
+        Loot(
+          playerId = playerId,
+          piece = Piece(
+            piece = piece,
+            pieceType = PieceType.withName(pieceType),
+            job = Job.withName(job)
+          ),
+          timestamp = Instant.ofEpochMilli(created),
+          isFreeLoot = isFreeLoot == 1,
+        )
+      }
 
   def deletePieceById(loot: Loot)(playerId: Long): Future[Int] =
-    db.run(pieceLoot(LootRep.fromLoot(playerId, loot)).map(_.lootId).max.result).flatMap {
-      case Some(id) => db.run(lootTable.filter(_.lootId === id).delete)
-      case _ => throw new IllegalArgumentException(s"Could not find piece $loot belong to $playerId")
+    withConnection { implicit conn =>
+      SQL("""delete from loot
+          | where loot_id in
+          | (
+          |   select loot_id from loot
+          |    where player_id = {player_id}
+          |      and piece = {piece}
+          |      and piece_type = {piece_type}
+          |      and job = {job}
+          |      and is_free_loot = {is_free_loot}
+          |    limit 1
+          | )""".stripMargin)
+        .on(
+          "player_id" -> playerId,
+          "piece" -> loot.piece.piece,
+          "piece_type" -> loot.piece.pieceType.toString,
+          "job" -> loot.piece.job.toString,
+          "is_free_loot" -> loot.isFreeLootToInt
+        )
+        .executeUpdate()
     }
 
   def getPiecesById(playerId: Long): Future[Seq[Loot]] = getPiecesById(Seq(playerId))
 
   def getPiecesById(playerIds: Seq[Long]): Future[Seq[Loot]] =
-    db.run(piecesLoot(playerIds).result).map(_.map(_.toLoot))
+    withConnection { implicit conn =>
+      SQL("""select * from loot where player_id in ({player_ids})""")
+        .on("player_ids" -> playerIds)
+        .executeQuery()
+        .as(loot.*)
+    }
 
   def insertPieceById(loot: Loot)(playerId: Long): Future[Int] =
-    db.run(lootTable.insertOrUpdate(LootRep.fromLoot(playerId, loot)))
-
-  private def pieceLoot(piece: LootRep) =
-    piecesLoot(Seq(piece.playerId)).filter(_.piece === piece.piece)
-
-  private def piecesLoot(playerIds: Seq[Long]) =
-    lootTable.filter(_.playerId.inSet(playerIds.toSet))
+    withConnection { implicit conn =>
+      SQL("""insert into loot
+          |  (player_id, piece, piece_type, job, created, is_free_loot)
+          | values
+          |  ({player_id}, {piece}, {piece_type}, {job}, {created}, {is_free_loot})""".stripMargin)
+        .on(
+          "player_id" -> playerId,
+          "piece" -> loot.piece.piece,
+          "piece_type" -> loot.piece.pieceType.toString,
+          "job" -> loot.piece.job.toString,
+          "created" -> DatabaseProfile.now,
+          "is_free_loot" -> loot.isFreeLootToInt
+        )
+        .executeUpdate()
+    }
 }

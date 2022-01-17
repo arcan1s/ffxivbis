@@ -30,8 +30,8 @@ trait DatabaseLootHandler { this: Database =>
       }(client ! _)
       Behaviors.same
 
-    case RemovePieceFrom(playerId, piece, client) =>
-      run(profile.deletePiece(playerId, piece))(_ => client ! ())
+    case RemovePieceFrom(playerId, piece, isFreeLoot, client) =>
+      run(profile.deletePiece(playerId, piece, isFreeLoot))(_ => client ! ())
       Behaviors.same
 
     case SuggestLoot(partyId, piece, client) =>

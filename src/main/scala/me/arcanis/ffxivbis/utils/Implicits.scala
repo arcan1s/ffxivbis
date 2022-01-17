@@ -9,11 +9,13 @@
 package me.arcanis.ffxivbis.utils
 
 import akka.util.Timeout
+import com.typesafe.config.Config
 
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 import scala.language.implicitConversions
+import scala.util.Try
 
 object Implicits {
 
@@ -27,4 +29,10 @@ object Implicits {
 
   implicit def getTimeout(duration: Duration): Timeout =
     FiniteDuration(duration.toNanos, TimeUnit.NANOSECONDS)
+
+  implicit class ConfigExtension(config: Config) {
+
+    def getOptString(path: String): Option[String] =
+      Try(config.getString(path)).toOption.filter(_.nonEmpty)
+  }
 }
