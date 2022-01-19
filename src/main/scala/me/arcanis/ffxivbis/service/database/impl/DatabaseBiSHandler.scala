@@ -8,30 +8,32 @@
  */
 package me.arcanis.ffxivbis.service.database.impl
 
+import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import me.arcanis.ffxivbis.messages._
 import me.arcanis.ffxivbis.service.database.Database
 
 trait DatabaseBiSHandler { this: Database =>
 
-  def bisHandler: DatabaseMessage.Handler = {
-    case AddPieceToBis(playerId, piece, client) =>
-      run(profile.insertPieceBiS(playerId, piece))(_ => client ! ())
-      Behaviors.same
+  def bisHandler(msg: BisDatabaseMessage): Behavior[DatabaseMessage] =
+    msg match {
+      case AddPieceToBis(playerId, piece, client) =>
+        run(profile.insertPieceBiS(playerId, piece))(_ => client ! ())
+        Behaviors.same
 
-    case GetBiS(partyId, maybePlayerId, client) =>
-      run {
-        getParty(partyId, withBiS = true, withLoot = false)
-          .map(filterParty(_, maybePlayerId))
-      }(client ! _)
-      Behaviors.same
+      case GetBiS(partyId, maybePlayerId, client) =>
+        run {
+          getParty(partyId, withBiS = true, withLoot = false)
+            .map(filterParty(_, maybePlayerId))
+        }(client ! _)
+        Behaviors.same
 
-    case RemovePieceFromBiS(playerId, piece, client) =>
-      run(profile.deletePieceBiS(playerId, piece))(_ => client ! ())
-      Behaviors.same
+      case RemovePieceFromBiS(playerId, piece, client) =>
+        run(profile.deletePieceBiS(playerId, piece))(_ => client ! ())
+        Behaviors.same
 
-    case RemovePiecesFromBiS(playerId, client) =>
-      run(profile.deletePiecesBiS(playerId))(_ => client ! ())
-      Behaviors.same
-  }
+      case RemovePiecesFromBiS(playerId, client) =>
+        run(profile.deletePiecesBiS(playerId))(_ => client ! ())
+        Behaviors.same
+    }
 }

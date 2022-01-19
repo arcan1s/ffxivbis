@@ -8,6 +8,7 @@
  */
 package me.arcanis.ffxivbis.service.database.impl
 
+import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import me.arcanis.ffxivbis.messages._
 import me.arcanis.ffxivbis.models.Loot
@@ -17,28 +18,29 @@ import java.time.Instant
 
 trait DatabaseLootHandler { this: Database =>
 
-  def lootHandler: DatabaseMessage.Handler = {
-    case AddPieceTo(playerId, piece, isFreeLoot, client) =>
-      val loot = Loot(-1, piece, Instant.now, isFreeLoot)
-      run(profile.insertPiece(playerId, loot))(_ => client ! ())
-      Behaviors.same
+  def lootHandler(msg: LootDatabaseMessage): Behavior[DatabaseMessage] =
+    msg match {
+      case AddPieceTo(playerId, piece, isFreeLoot, client) =>
+        val loot = Loot(-1, piece, Instant.now, isFreeLoot)
+        run(profile.insertPiece(playerId, loot))(_ => client ! ())
+        Behaviors.same
 
-    case GetLoot(partyId, maybePlayerId, client) =>
-      run {
-        getParty(partyId, withBiS = false, withLoot = true)
-          .map(filterParty(_, maybePlayerId))
-      }(client ! _)
-      Behaviors.same
+      case GetLoot(partyId, maybePlayerId, client) =>
+        run {
+          getParty(partyId, withBiS = false, withLoot = true)
+            .map(filterParty(_, maybePlayerId))
+        }(client ! _)
+        Behaviors.same
 
-    case RemovePieceFrom(playerId, piece, isFreeLoot, client) =>
-      run(profile.deletePiece(playerId, piece, isFreeLoot))(_ => client ! ())
-      Behaviors.same
+      case RemovePieceFrom(playerId, piece, isFreeLoot, client) =>
+        run(profile.deletePiece(playerId, piece, isFreeLoot))(_ => client ! ())
+        Behaviors.same
 
-    case SuggestLoot(partyId, piece, client) =>
-      run {
-        getParty(partyId, withBiS = true, withLoot = true)
-          .map(_.suggestLoot(piece))
-      }(client ! _)
-      Behaviors.same
-  }
+      case SuggestLoot(partyId, piece, client) =>
+        run {
+          getParty(partyId, withBiS = true, withLoot = true)
+            .map(_.suggestLoot(piece))
+        }(client ! _)
+        Behaviors.same
+    }
 }

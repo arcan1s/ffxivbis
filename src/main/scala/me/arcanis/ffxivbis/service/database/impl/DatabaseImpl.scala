@@ -11,7 +11,7 @@ package me.arcanis.ffxivbis.service.database.impl
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext}
 import akka.actor.typed.{Behavior, DispatcherSelector}
 import com.typesafe.config.Config
-import me.arcanis.ffxivbis.messages.DatabaseMessage
+import me.arcanis.ffxivbis.messages.{BisDatabaseMessage, DatabaseMessage, LootDatabaseMessage, PartyDatabaseMessage, UserDatabaseMessage}
 import me.arcanis.ffxivbis.service.database.Database
 import me.arcanis.ffxivbis.storage.DatabaseProfile
 
@@ -32,8 +32,12 @@ class DatabaseImpl(context: ActorContext[DatabaseMessage])
   override val config: Config = context.system.settings.config
   override val profile: DatabaseProfile = new DatabaseProfile(executionContext, config)
 
-  override def onMessage(msg: DatabaseMessage): Behavior[DatabaseMessage] = handle(msg)
+  override def onMessage(msg: DatabaseMessage): Behavior[DatabaseMessage] =
+    msg match {
+      case msg: BisDatabaseMessage => bisHandler(msg)
+      case msg: LootDatabaseMessage => lootHandler(msg)
+      case msg: PartyDatabaseMessage => partyHandler(msg)
+      case msg: UserDatabaseMessage => userHandler(msg)
+    }
 
-  private def handle: DatabaseMessage.Handler =
-    bisHandler.orElse(lootHandler).orElse(partyHandler).orElse(userHandler)
 }
