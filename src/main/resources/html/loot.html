@@ -88,35 +88,35 @@
 
     <div id="add-loot-dialog" tabindex="-1" role="dialog" class="modal fade">
         <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
+            <form class="modal-content" action="javascript:" onsubmit="addLoot()">
                 <div class="modal-header">
                     <h4 class="modal-title">add looted piece</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
                 </div>
 
-                <form class="modal-body">
+                <div class="modal-body">
                     <div class="form-group row">
                         <label class="col-sm-4 col-form-label" for="player">player</label>
                         <div class="col-sm-8">
-                            <select id="player" name="player" class="form-control" title="player"></select>
+                            <select id="player" name="player" class="form-control" title="player" required></select>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-4 col-form-label" for="piece">piece</label>
                         <div class="col-sm-8">
-                            <select id="piece" name="piece" class="form-control" title="piece"></select>
+                            <select id="piece" name="piece" class="form-control" title="piece" required></select>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-4 col-form-label" for="piece-type">piece type</label>
                         <div class="col-sm-8">
-                            <select id="piece-type" name="pieceType" class="form-control" title="pieceType"></select>
+                            <select id="piece-type" name="pieceType" class="form-control" title="pieceType" required></select>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-4 col-form-label" for="job">job</label>
                         <div class="col-sm-8">
-                            <select id="job" name="job" class="form-control" title="job"></select>
+                            <select id="job" name="job" class="form-control" title="job" required></select>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -141,14 +141,14 @@
                         </tr>
                         </thead>
                     </table>
-                </form>
+                </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">close</button>
                     <button type="button" class="btn btn-secondary" onclick="suggestLoot()">suggest</button>
-                    <button id="submit-btn" type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="addLoot()" disabled>add</button>
+                    <button type="submit" class="btn btn-primary">add</button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
@@ -189,7 +189,6 @@
         const addButton = $("#add-btn");
         const removeButton = $("#remove-btn");
 
-        const submitLootButton = $("#submit-btn");
         const addLootDialog = $("#add-loot-dialog");
 
         const freeLootInput = $("#free-loot");
@@ -221,6 +220,8 @@
                 success: function (_) { reload(); },
                 error: function (jqXHR, _, errorThrown) { requestAlert(jqXHR, errorThrown); },
             });
+            addLootDialog.modal("hide");
+            return true; // action expects boolean result
         }
 
         function hideControls() {
@@ -260,7 +261,6 @@
                         return option;
                     });
                     playerInput.empty().append(options);
-                    submitLootButton.attr("disabled", options.length === 0);
                 },
                 error: function (jqXHR, _, errorThrown) { requestAlert(jqXHR, errorThrown); },
             });

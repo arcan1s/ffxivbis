@@ -84,38 +84,38 @@
 
     <div id="add-user-dialog" tabindex="-1" role="dialog" class="modal fade">
         <div class="modal-dialog" role="document">
-            <div class="modal-content">
+            <form class="modal-content" action="javascript:" onsubmit="addUser()">
                 <div class="modal-header">
                     <h4 class="modal-title">add new user</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
                 </div>
 
-                <form class="modal-body">
+                <div class="modal-body">
                     <div class="form-group row">
                         <label class="col-sm-4 col-form-label" for="username">login</label>
                         <div class="col-sm-8">
-                            <input id="username" name="username" class="form-control" placeholder="username" onkeyup="disableAddUserForm()">
+                            <input id="username" name="username" class="form-control" placeholder="username" required>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-4 col-form-label" for="password">password</label>
                         <div class="col-sm-8">
-                            <input id="password" name="password" type="password" class="form-control" placeholder="password" onkeyup="disableAddUserForm()">
+                            <input id="password" name="password" type="password" class="form-control" placeholder="password" required>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-4 col-form-label" for="permission">permission</label>
                         <div class="col-sm-8">
-                            <select id="permission" name="permission" class="form-control" title="permission"></select>
+                            <select id="permission" name="permission" class="form-control" title="permission" required></select>
                         </div>
                     </div>
-                </form>
+                </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">close</button>
-                    <button id="submit-btn" type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="addUser()" disabled>add</button>
+                    <button type="submit" class="btn btn-primary">add</button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
@@ -156,7 +156,6 @@
         const removeButton = $("#remove-btn");
 
         const addUserDialog = $("#add-user-dialog");
-        const submitUserButton = $("#submit-btn");
 
         const usernameInput = $("#username");
         const passwordInput = $("#password");
@@ -176,10 +175,8 @@
                 success: function (_) { reload(); },
                 error: function (jqXHR, _, errorThrown) { requestAlert(jqXHR, errorThrown); },
             });
-        }
-
-        function disableAddUserForm() {
-            submitUserButton.attr("disabled", !(usernameInput.val() && passwordInput.val()));
+            addUserDialog.modal("hide");
+            return true; // action expects boolean result
         }
 
         function hideControls() {

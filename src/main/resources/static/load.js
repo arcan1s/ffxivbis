@@ -37,7 +37,7 @@ function loadTypes(url, selector) {
 }
 
 function setupFormClear(dialog, reset) {
-    dialog.on("shown.bs.modal", function () {
+    dialog.on("hide.bs.modal", function () {
         $(this).find("form").trigger("reset");
         $(this).find("table").bootstrapTable("removeAll");
         if (reset) {
