@@ -16,7 +16,7 @@ class TypesEndpointTest extends AnyWordSpecLike
 
   override val testConfig: Config = Settings.withRandomDatabase
 
-  private val route = new TypesEndpoint(testConfig).route
+  private val route = new TypesEndpoint(testConfig).routes
 
   "api v1 types endpoint" must {
 

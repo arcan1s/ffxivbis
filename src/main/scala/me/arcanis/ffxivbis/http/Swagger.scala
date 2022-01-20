@@ -42,8 +42,8 @@ class Swagger(config: Config) extends SwaggerHttpService {
     .description("basic http auth")
     .`type`(SecurityScheme.Type.HTTP)
     .in(SecurityScheme.In.HEADER)
-    .scheme("bearer")
-  override val securitySchemes: Map[String, SecurityScheme] = Map("basic auth" -> basicAuth)
+    .scheme("basic")
+  override val securitySchemes: Map[String, SecurityScheme] = Map("auth" -> basicAuth)
 
   override val unwantedDefinitions: Seq[String] =
     Seq("Function1", "Function1RequestContextFutureRouteResult")

@@ -40,7 +40,7 @@ class BiSEndpoint(
   with Authorization
   with JsonSupport {
 
-  def route: Route = createBiS ~ getBiS ~ modifyBiS
+  def routes: Route = createBiS ~ getBiS ~ modifyBiS
 
   @PUT
   @Path("party/{partyId}/bis")

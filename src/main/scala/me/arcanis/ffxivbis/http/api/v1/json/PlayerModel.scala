@@ -19,7 +19,10 @@ case class PlayerModel(
   @Schema(description = "looted pieces") loot: Option[Seq[LootModel]],
   @Schema(description = "link to best in slot", example = "https://ffxiv.ariyala.com/19V5R") link: Option[String],
   @Schema(description = "player loot priority", `type` = "number") priority: Option[Int],
-  @Schema(description = "count of looted pieces which are parts of best in slot") lootCountBiS: Option[Int],
+  @Schema(
+    description = "count of looted pieces which are parts of best in slot",
+    `type` = "number"
+  ) lootCountBiS: Option[Int],
   @Schema(description = "total count of looted pieces", `type` = "number") lootCountTotal: Option[Int],
 ) {
 

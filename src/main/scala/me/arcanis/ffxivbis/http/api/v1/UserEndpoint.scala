@@ -36,7 +36,7 @@ class UserEndpoint(override val storage: ActorRef[Message], override val auth: A
   with Authorization
   with JsonSupport {
 
-  def route: Route = createParty ~ createUser ~ deleteUser ~ getUsers ~ getUsersCurrent
+  def routes: Route = createParty ~ createUser ~ deleteUser ~ getUsers ~ getUsersCurrent
 
   @PUT
   @Path("party")

@@ -12,6 +12,7 @@ libraryDependencies += "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion
 libraryDependencies += "com.typesafe.akka" %% "akka-stream" % AkkaVersion
 libraryDependencies += "com.github.swagger-akka-http" %% "swagger-akka-http" % "2.6.0"
 libraryDependencies += "jakarta.platform" % "jakarta.jakartaee-web-api" % "9.1.0"
+libraryDependencies += "ch.megard" %% "akka-http-cors" % "1.1.2"
 
 libraryDependencies += "io.spray" %%  "spray-json" % "1.3.6"
 

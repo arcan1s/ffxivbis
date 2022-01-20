@@ -41,7 +41,7 @@ class PlayerEndpoint(
   with JsonSupport
   with HttpHandler {
 
-  def route: Route = getParty ~ getPartyStats ~ modifyParty
+  def routes: Route = getParty ~ getPartyStats ~ modifyParty
 
   @GET
   @Path("party/{partyId}")

@@ -50,7 +50,7 @@ class Application(context: ActorContext[Nothing]) extends AbstractBehavior[Nothi
         val party = context.spawn(PartyService(storage), "party")
         val http = new RootEndpoint(context.system, party, bisProvider)
 
-        val flow = Route.toFlow(http.route)(context.system)
+        val flow = Route.toFlow(http.routes)(context.system)
         Http(context.system).newServerAt(host, port).bindFlow(flow)
 
       case Success(result) =>

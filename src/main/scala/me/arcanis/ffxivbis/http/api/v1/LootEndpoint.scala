@@ -37,7 +37,7 @@ class LootEndpoint(override val storage: ActorRef[Message], override val auth: A
   with JsonSupport
   with HttpHandler {
 
-  def route: Route = getLoot ~ modifyLoot ~ suggestLoot
+  def routes: Route = getLoot ~ modifyLoot ~ suggestLoot
 
   @GET
   @Path("party/{partyId}/loot")

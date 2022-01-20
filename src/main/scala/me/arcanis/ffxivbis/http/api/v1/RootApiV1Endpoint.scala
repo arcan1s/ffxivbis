@@ -36,11 +36,11 @@ class RootApiV1Endpoint(
   private val typesEndpoint = new TypesEndpoint(config)
   private val userEndpoint = new UserEndpoint(storage, auth)
 
-  def route: Route =
+  def routes: Route =
     handleExceptions(exceptionHandler) {
       handleRejections(rejectionHandler) {
-        biSEndpoint.route ~ lootEndpoint.route ~ partyEndpoint.route ~ playerEndpoint.route ~
-          statusEndpoint.route ~ typesEndpoint.route ~ userEndpoint.route
+        biSEndpoint.routes ~ lootEndpoint.routes ~ partyEndpoint.routes ~ playerEndpoint.routes ~
+          statusEndpoint.routes ~ typesEndpoint.routes ~ userEndpoint.routes
       }
     }
 }

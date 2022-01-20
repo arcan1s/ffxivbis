@@ -15,7 +15,7 @@ import me.arcanis.ffxivbis.http.{Authorization, AuthorizationProvider}
 
 class RootView(override val auth: AuthorizationProvider) extends Authorization {
 
-  def route: Route = getBiS ~ getIndex ~ getLoot ~ getParty ~ getUsers
+  def routes: Route = getBiS ~ getIndex ~ getLoot ~ getParty ~ getUsers
 
   def getBiS: Route =
     path("party" / Segment / "bis") { partyId: String =>

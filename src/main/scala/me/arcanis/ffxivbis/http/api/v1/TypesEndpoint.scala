@@ -21,7 +21,7 @@ import me.arcanis.ffxivbis.models._
 @Path("/api/v1")
 class TypesEndpoint(config: Config) extends JsonSupport {
 
-  def route: Route = getAllJobs ~ getJobs ~ getPermissions ~ getPieces ~ getPieceTypes ~ getPriority
+  def routes: Route = getAllJobs ~ getJobs ~ getPermissions ~ getPieces ~ getPieceTypes ~ getPriority
 
   @GET
   @Path("types/jobs/all")

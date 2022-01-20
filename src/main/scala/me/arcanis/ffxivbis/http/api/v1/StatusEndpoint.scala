@@ -19,7 +19,7 @@ import me.arcanis.ffxivbis.http.api.v1.json._
 @Path("/api/v1")
 class StatusEndpoint extends JsonSupport {
 
-  def route: Route = getServerStatus
+  def routes: Route = getServerStatus
 
   @GET
   @Path("status")

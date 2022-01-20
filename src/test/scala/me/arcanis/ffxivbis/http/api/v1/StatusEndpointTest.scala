@@ -15,7 +15,7 @@ class StatusEndpointTest extends AnyWordSpecLike
 
   override val testConfig: Config = Settings.withRandomDatabase
 
-  private val route = new StatusEndpoint().route
+  private val route = new StatusEndpoint().routes
 
   "api v1 status endpoint" must {
 

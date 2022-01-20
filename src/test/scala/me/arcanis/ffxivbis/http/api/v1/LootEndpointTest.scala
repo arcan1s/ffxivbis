@@ -34,7 +34,7 @@ class LootEndpointTest extends AnyWordSpecLike with Matchers with ScalatestRoute
 
   private val storage = testKit.spawn(Database())
   private val party = testKit.spawn(PartyService(storage))
-  private val route = new LootEndpoint(party, Fixtures.authProvider)(askTimeout, testKit.scheduler).route
+  private val route = new LootEndpoint(party, Fixtures.authProvider)(askTimeout, testKit.scheduler).routes
 
   override def beforeAll(): Unit = {
     super.beforeAll()

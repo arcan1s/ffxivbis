@@ -12,6 +12,7 @@ import akka.actor.typed.{ActorRef, ActorSystem, Scheduler}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.util.Timeout
+import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
 import com.typesafe.scalalogging.StrictLogging
 import me.arcanis.ffxivbis.http.api.v1.RootApiV1Endpoint
 import me.arcanis.ffxivbis.http.view.RootView
@@ -33,28 +34,30 @@ class RootEndpoint(system: ActorSystem[Nothing], storage: ActorRef[Message], pro
   private val rootView = new RootView(auth)
   private val swagger = new Swagger(config)
 
-  def route: Route =
+  def routes: Route =
     withHttpLog {
       ignoreTrailingSlash {
-        apiRoute ~ htmlRoute ~ swagger.routes ~ swaggerUIRoute
+        cors() {
+          apiRoutes ~ htmlRoutes ~ swagger.routes ~ swaggerUIRoutes
+        }
       }
     }
 
-  private def apiRoute: Route =
+  private def apiRoutes: Route =
     pathPrefix("api") {
       pathPrefix(Segment) {
-        case "v1" => rootApiV1Endpoint.route
+        case "v1" => rootApiV1Endpoint.routes
         case _ => reject
       }
     }
 
-  private def htmlRoute: Route =
+  private def htmlRoutes: Route =
     pathPrefix("static") {
       getFromResourceDirectory("static")
-    } ~ rootView.route
+    } ~ rootView.routes
 
-  private def swaggerUIRoute: Route =
+  private def swaggerUIRoutes: Route =
     path("api-docs") {
-      getFromResource("html/redoc.html")
+      getFromResource("html/api.html")
     }
 }

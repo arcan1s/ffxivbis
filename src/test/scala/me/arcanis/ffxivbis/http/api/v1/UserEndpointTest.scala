@@ -30,7 +30,7 @@ class UserEndpointTest extends AnyWordSpecLike with Matchers with ScalatestRoute
   private var partyId = Fixtures.partyId
   private val storage = testKit.spawn(Database())
   private val party = testKit.spawn(PartyService(storage))
-  private val route = new UserEndpoint(party, Fixtures.authProvider)(askTimeout, testKit.scheduler).route
+  private val route = new UserEndpoint(party, Fixtures.authProvider)(askTimeout, testKit.scheduler).routes
 
   override def beforeAll(): Unit = {
     super.beforeAll()

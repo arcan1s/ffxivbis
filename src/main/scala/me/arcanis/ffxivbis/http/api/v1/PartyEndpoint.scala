@@ -40,7 +40,7 @@ class PartyEndpoint(
   with JsonSupport
   with HttpHandler {
 
-  def route: Route = getPartyDescription ~ modifyPartyDescription
+  def routes: Route = getPartyDescription ~ modifyPartyDescription
 
   @GET
   @Path("party/{partyId}/description")
