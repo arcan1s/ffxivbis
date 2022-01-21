@@ -79,7 +79,7 @@ class BiSEndpoint(
         content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
-    security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("post"))),
+    security = Array(new SecurityRequirement(name = "basic", scopes = Array("post"))),
     tags = Array("best in slot"),
   )
   def createBiS: Route =
@@ -140,7 +140,7 @@ class BiSEndpoint(
         content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
-    security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("get"))),
+    security = Array(new SecurityRequirement(name = "basic", scopes = Array("get"))),
     tags = Array("best in slot"),
   )
   def getBiS: Route =
@@ -197,7 +197,7 @@ class BiSEndpoint(
         content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
-    security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("post"))),
+    security = Array(new SecurityRequirement(name = "basic", scopes = Array("post"))),
     tags = Array("best in slot"),
   )
   def modifyBiS: Route =

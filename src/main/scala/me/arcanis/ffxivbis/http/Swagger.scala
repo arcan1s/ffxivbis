@@ -14,6 +14,7 @@ import com.typesafe.config.Config
 import io.swagger.v3.oas.models.security.SecurityScheme
 
 import scala.io.Source
+import scala.jdk.CollectionConverters._
 
 class Swagger(config: Config) extends SwaggerHttpService {
 
@@ -38,12 +39,14 @@ class Swagger(config: Config) extends SwaggerHttpService {
     if (config.hasPath("me.arcanis.ffxivbis.web.hostname")) config.getString("me.arcanis.ffxivbis.web.hostname")
     else s"${config.getString("me.arcanis.ffxivbis.web.host")}:${config.getInt("me.arcanis.ffxivbis.web.port")}"
 
+  override val schemes: List[String] = config.getStringList("me.arcanis.ffxivbis.web.schemes").asScala.toList
+
   private val basicAuth = new SecurityScheme()
     .description("basic http auth")
     .`type`(SecurityScheme.Type.HTTP)
     .in(SecurityScheme.In.HEADER)
     .scheme("basic")
-  override val securitySchemes: Map[String, SecurityScheme] = Map("auth" -> basicAuth)
+  override val securitySchemes: Map[String, SecurityScheme] = Map("basic" -> basicAuth)
 
   override val unwantedDefinitions: Seq[String] =
     Seq("Function1", "Function1RequestContextFutureRouteResult")

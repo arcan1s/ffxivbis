@@ -126,7 +126,7 @@ class UserEndpoint(override val storage: ActorRef[Message], override val auth: A
         content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
-    security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("admin"))),
+    security = Array(new SecurityRequirement(name = "basic", scopes = Array("admin"))),
     tags = Array("users"),
   )
   def createUser: Route =
@@ -172,7 +172,7 @@ class UserEndpoint(override val storage: ActorRef[Message], override val auth: A
         content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
-    security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("admin"))),
+    security = Array(new SecurityRequirement(name = "basic", scopes = Array("admin"))),
     tags = Array("users"),
   )
   def deleteUser: Route =
@@ -223,7 +223,7 @@ class UserEndpoint(override val storage: ActorRef[Message], override val auth: A
         content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
-    security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("get"))),
+    security = Array(new SecurityRequirement(name = "basic", scopes = Array("get"))),
     tags = Array("users"),
   )
   def getUsers: Route =
@@ -270,7 +270,7 @@ class UserEndpoint(override val storage: ActorRef[Message], override val auth: A
         content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
-    security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("admin"))),
+    security = Array(new SecurityRequirement(name = "basic", scopes = Array("admin"))),
     tags = Array("users"),
   )
   def getUsersCurrent: Route =

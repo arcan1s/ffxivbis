@@ -81,7 +81,7 @@ class LootEndpoint(override val storage: ActorRef[Message], override val auth: A
         content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
-    security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("get"))),
+    security = Array(new SecurityRequirement(name = "basic", scopes = Array("get"))),
     tags = Array("loot"),
   )
   def getLoot: Route =
@@ -137,7 +137,7 @@ class LootEndpoint(override val storage: ActorRef[Message], override val auth: A
         content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
-    security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("post"))),
+    security = Array(new SecurityRequirement(name = "basic", scopes = Array("post"))),
     tags = Array("loot"),
   )
   def modifyLoot: Route =
@@ -202,7 +202,7 @@ class LootEndpoint(override val storage: ActorRef[Message], override val auth: A
         content = Array(new Content(schema = new Schema(implementation = classOf[ErrorModel])))
       ),
     ),
-    security = Array(new SecurityRequirement(name = "basic auth", scopes = Array("get"))),
+    security = Array(new SecurityRequirement(name = "basic", scopes = Array("get"))),
     tags = Array("loot"),
   )
   def suggestLoot: Route =
