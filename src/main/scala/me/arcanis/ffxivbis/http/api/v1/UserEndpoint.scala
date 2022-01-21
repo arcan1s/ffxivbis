@@ -38,7 +38,7 @@ class UserEndpoint(override val storage: ActorRef[Message], override val auth: A
 
   def routes: Route = createParty ~ createUser ~ deleteUser ~ getUsers ~ getUsersCurrent
 
-  @PUT
+  @POST
   @Path("party")
   @Consumes(value = Array("application/json"))
   @Operation(
@@ -76,7 +76,7 @@ class UserEndpoint(override val storage: ActorRef[Message], override val auth: A
   def createParty: Route =
     path("party") {
       extractExecutionContext { implicit executionContext =>
-        put {
+        post {
           entity(as[UserModel]) { user =>
             onSuccess(newPartyId) { partyId =>
               val admin = user.toUser.copy(partyId = partyId, permission = Permission.admin)

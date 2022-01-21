@@ -50,7 +50,7 @@ class UserEndpointTest extends AnyWordSpecLike with Matchers with ScalatestRoute
       val uri = Uri(s"/party")
       val entity = UserModel.fromUser(Fixtures.userAdmin).copy(password = Fixtures.userPassword)
 
-      Put(uri, entity) ~> route ~> check {
+      Post(uri, entity) ~> route ~> check {
         status shouldEqual StatusCodes.OK
         partyId = responseAs[PartyIdModel].partyId
       }
