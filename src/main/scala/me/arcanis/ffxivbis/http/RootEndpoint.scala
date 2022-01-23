@@ -28,7 +28,7 @@ class RootEndpoint(system: ActorSystem[Nothing], storage: ActorRef[Message], pro
   implicit val scheduler: Scheduler = system.scheduler
   implicit val timeout: Timeout = config.getTimeout("me.arcanis.ffxivbis.settings.request-timeout")
 
-  private val auth = AuthorizationProvider(config, storage, timeout, scheduler)
+  private val auth = AuthorizationProvider(config, storage)
 
   private val rootApiV1Endpoint = new RootApiV1Endpoint(storage, auth, provider, config)
   private val rootView = new RootView(auth)

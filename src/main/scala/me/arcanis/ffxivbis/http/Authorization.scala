@@ -37,23 +37,16 @@ trait Authorization {
   def authAdmin(partyId: String)(username: String, password: String)(implicit
     executionContext: ExecutionContext
   ): Future[Option[User]] =
-    authenticator(Permission.admin, partyId)(username, password)
+    auth.authenticator(Permission.admin, partyId)(username, password)
 
   def authGet(partyId: String)(username: String, password: String)(implicit
     executionContext: ExecutionContext
   ): Future[Option[User]] =
-    authenticator(Permission.get, partyId)(username, password)
+    auth.authenticator(Permission.get, partyId)(username, password)
 
   def authPost(partyId: String)(username: String, password: String)(implicit
     executionContext: ExecutionContext
   ): Future[Option[User]] =
-    authenticator(Permission.post, partyId)(username, password)
+    auth.authenticator(Permission.post, partyId)(username, password)
 
-  private def authenticator(scope: Permission.Value, partyId: String)(username: String, password: String)(implicit
-    executionContext: ExecutionContext
-  ): Future[Option[User]] =
-    auth.get(partyId, username).map {
-      case Some(user) if user.verify(password) && user.verityScope(scope) => Some(user)
-      case _ => None
-    }
 }

@@ -95,5 +95,15 @@ class LootEndpointTest extends AnyWordSpecLike with Matchers with ScalatestRoute
       }
     }
 
+    "suggest loot" in {
+      val entity = PieceModel.fromPiece(Fixtures.lootBody)
+      val response = Seq(Fixtures.playerEmpty.withCounters(Some(Fixtures.lootBody))).map(PlayerIdWithCountersModel.fromPlayerId)
+
+      Put(endpoint, entity).withHeaders(auth) ~> route ~> check {
+        status shouldEqual StatusCodes.OK
+        responseAs[Seq[PlayerIdWithCountersModel]] shouldEqual response
+      }
+    }
+
   }
 }

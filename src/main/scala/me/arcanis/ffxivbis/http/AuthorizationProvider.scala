@@ -14,19 +14,31 @@ import akka.util.Timeout
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import com.typesafe.config.Config
 import me.arcanis.ffxivbis.messages.{GetUser, Message}
-import me.arcanis.ffxivbis.models.User
+import me.arcanis.ffxivbis.models.{Permission, User}
 
 import java.util.concurrent.TimeUnit
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait AuthorizationProvider {
 
   def get(partyId: String, username: String): Future[Option[User]]
+
+  def authenticator[T](scope: Permission.Value, partyId: String)(username: String, password: String)(implicit
+    executionContext: ExecutionContext,
+    extractor: User => T
+  ): Future[Option[T]] =
+    get(partyId, username).map {
+      case Some(user) if user.verify(password) && user.verityScope(scope) => Some(extractor(user))
+      case _ => None
+    }
 }
 
 object AuthorizationProvider {
 
-  def apply(config: Config, storage: ActorRef[Message], timeout: Timeout, scheduler: Scheduler): AuthorizationProvider =
+  def apply(config: Config, storage: ActorRef[Message])(implicit
+    timeout: Timeout,
+    scheduler: Scheduler
+  ): AuthorizationProvider =
     new AuthorizationProvider {
       private val cacheSize = config.getInt("me.arcanis.ffxivbis.web.authorization-cache.cache-size")
       private val cacheTimeout =

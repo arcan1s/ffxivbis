@@ -84,4 +84,5 @@ object Fixtures {
   lazy val users: Seq[User] = Seq(userAdmin, userGet)
 
   lazy val authProvider: AuthorizationProvider = (_: String, _: String) => Future.successful(Some(userAdmin))
+  lazy val rejectingProvider: AuthorizationProvider = (_: String, _: String) => Future.successful(None)
 }

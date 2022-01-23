@@ -7,6 +7,7 @@ import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.testkit.{RouteTestTimeout, ScalatestRouteTest}
 import akka.testkit.TestKit
 import com.typesafe.config.Config
+import me.arcanis.ffxivbis
 import me.arcanis.ffxivbis.http.api.v1.json._
 import me.arcanis.ffxivbis.messages.{AddPlayer, AddUser}
 import me.arcanis.ffxivbis.service.PartyService
@@ -52,12 +53,49 @@ class PlayerEndpointTest extends AnyWordSpecLike with Matchers with ScalatestRou
 
   "api v1 player endpoint" must {
 
-    "get users" in {
+    "get users belonging to the party" in {
       val response = Seq(PlayerModel.fromPlayer(Fixtures.playerEmpty))
 
       Get(endpoint).withHeaders(auth) ~> route ~> check {
         status shouldEqual StatusCodes.OK
         responseAs[Seq[PlayerModel]] shouldEqual response
+      }
+    }
+
+    "get party stats" in {
+      val response = Seq(PlayerIdWithCountersModel.fromPlayerId(Fixtures.playerEmpty.withCounters(None)))
+
+      Get(endpoint.withPath(endpoint.path / "stats")).withHeaders(auth) ~> route ~> check {
+        status shouldEqual StatusCodes.OK
+        responseAs[Seq[PlayerIdWithCountersModel]] shouldEqual response
+      }
+    }
+
+    "add new player to the party" in {
+      val entity = PlayerActionModel(ApiAction.add, PlayerModel.fromPlayer(Fixtures.playerWithBiS))
+
+      Post(endpoint, entity).withHeaders(auth) ~> route ~> check {
+        status shouldEqual StatusCodes.Accepted
+        responseAs[String] shouldEqual ""
+      }
+
+      Get(endpoint).withHeaders(auth) ~> route ~> check {
+        status shouldEqual StatusCodes.OK
+        responseAs[Seq[PlayerModel]].map(_.toPlayer.playerId) should contain(Fixtures.playerWithBiS.playerId)
+      }
+    }
+
+    "remove player from the party" in {
+      val entity = PlayerActionModel(ApiAction.remove, PlayerModel.fromPlayer(Fixtures.playerEmpty))
+
+      Post(endpoint, entity).withHeaders(auth) ~> route ~> check {
+        status shouldEqual StatusCodes.Accepted
+        responseAs[String] shouldEqual ""
+      }
+
+      Get(endpoint).withHeaders(auth) ~> route ~> check {
+        status shouldEqual StatusCodes.OK
+        responseAs[Seq[PlayerModel]].map(_.toPlayer.playerId) should not contain(Fixtures.playerEmpty.playerId)
       }
     }
 

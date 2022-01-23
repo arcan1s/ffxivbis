@@ -16,7 +16,6 @@ import com.typesafe.scalalogging.StrictLogging
 import me.arcanis.ffxivbis.messages._
 import me.arcanis.ffxivbis.models.Party
 
-import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 
 class PartyService(context: ActorContext[Message], storage: ActorRef[DatabaseMessage])
@@ -62,7 +61,8 @@ class PartyService(context: ActorContext[Message], storage: ActorRef[DatabaseMes
 
     case req: DatabaseMessage =>
       storage ! req
-      Behaviors.receiveMessage(handle(cache - req.partyId))
+      val result = if (req.isReadOnly) cache else cache - req.partyId
+      Behaviors.receiveMessage(handle(result))
   }
 
   private def getPartyId: Future[String] = {
