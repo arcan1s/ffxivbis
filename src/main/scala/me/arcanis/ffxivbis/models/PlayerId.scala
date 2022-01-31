@@ -13,14 +13,14 @@ import scala.util.matching.Regex
 
 trait PlayerIdBase {
 
-  def job: Job.Job
+  def job: Job
 
   def nick: String
 
   override def toString: String = s"$nick ($job)"
 }
 
-case class PlayerId(partyId: String, job: Job.Job, nick: String) extends PlayerIdBase
+case class PlayerId(partyId: String, job: Job, nick: String) extends PlayerIdBase
 
 object PlayerId {
 

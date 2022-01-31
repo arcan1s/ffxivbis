@@ -16,13 +16,15 @@ import com.typesafe.scalalogging.StrictLogging
 import me.arcanis.ffxivbis.http.api.v1.json._
 import spray.json._
 
+import scala.util.control.NonFatal
+
 trait HttpHandler extends StrictLogging { this: JsonSupport =>
 
   def exceptionHandler: ExceptionHandler = ExceptionHandler {
-    case ex: IllegalArgumentException =>
-      complete(StatusCodes.BadRequest, ErrorModel(ex.getMessage))
+    case exception: IllegalArgumentException =>
+      complete(StatusCodes.BadRequest, ErrorModel(exception.getMessage))
 
-    case other: Exception =>
+    case NonFatal(other) =>
       logger.error("exception during request completion", other)
       complete(StatusCodes.InternalServerError, ErrorModel("unknown server error"))
   }

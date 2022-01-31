@@ -14,6 +14,7 @@ import me.arcanis.ffxivbis.service.LootSelector
 
 import scala.jdk.CollectionConverters._
 import scala.util.Random
+import scala.util.control.NonFatal
 
 case class Party(partyDescription: PartyDescription, rules: Seq[String], players: Map[PlayerId, Player])
   extends StrictLogging {
@@ -29,7 +30,7 @@ case class Party(partyDescription: PartyDescription, rules: Seq[String], players
       require(player.partyId == partyDescription.partyId, "player must belong to this party")
       copy(players = players + (player.playerId -> player))
     } catch {
-      case exception: Exception =>
+      case NonFatal(exception) =>
         logger.error("cannot add player", exception)
         this
     }

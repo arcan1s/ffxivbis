@@ -11,7 +11,9 @@ package me.arcanis.ffxivbis.http.helpers
 import akka.actor.typed.scaladsl.AskPattern.Askable
 import akka.actor.typed.{ActorRef, Scheduler}
 import akka.util.Timeout
-import me.arcanis.ffxivbis.messages._
+import me.arcanis.ffxivbis.messages.ControlMessage.GetNewPartyId
+import me.arcanis.ffxivbis.messages.DatabaseMessage._
+import me.arcanis.ffxivbis.messages.Message
 import me.arcanis.ffxivbis.models.User
 
 import scala.concurrent.Future

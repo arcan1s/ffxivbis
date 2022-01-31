@@ -5,11 +5,12 @@ import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import java.io.File
 
 object Settings {
+
   def config(values: Map[String, AnyRef]): Config = {
     @scala.annotation.tailrec
-    def replace(acc: Config, iter: List[(String, AnyRef)]): Config = iter match {
-      case Nil => acc
-      case (key -> value) :: tail => replace(acc.withValue(key, ConfigValueFactory.fromAnyRef(value)), tail)
+    def replace(config: Config, iter: List[(String, AnyRef)]): Config = iter match {
+      case Nil => config
+      case (key -> value) :: tail => replace(config.withValue(key, ConfigValueFactory.fromAnyRef(value)), tail)
     }
 
     val default = ConfigFactory.load()
@@ -23,7 +24,9 @@ object Settings {
         if (databaseFile.exists)
           databaseFile.delete()
       }
+
   def randomDatabasePath: String = File.createTempFile("ffxivdb-",".db").toPath.toString
+
   def withRandomDatabase: Config =
     config(Map("me.arcanis.ffxivbis.database.sqlite.jdbcUrl" -> s"jdbc:sqlite:$randomDatabasePath"))
 }

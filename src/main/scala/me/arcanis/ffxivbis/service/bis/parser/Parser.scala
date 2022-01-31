@@ -17,7 +17,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait Parser extends StrictLogging {
 
-  def parse(job: Job.Job, js: JsObject)(implicit executionContext: ExecutionContext): Future[Map[String, Long]]
+  def parse(job: Job, js: JsObject)(implicit executionContext: ExecutionContext): Future[Map[String, Long]]
 
   def uri(root: Uri, id: String): Uri
 }

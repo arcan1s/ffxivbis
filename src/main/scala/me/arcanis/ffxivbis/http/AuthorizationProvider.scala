@@ -13,7 +13,8 @@ import akka.actor.typed.{ActorRef, Scheduler}
 import akka.util.Timeout
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import com.typesafe.config.Config
-import me.arcanis.ffxivbis.messages.{GetUser, Message}
+import me.arcanis.ffxivbis.messages.DatabaseMessage.GetUser
+import me.arcanis.ffxivbis.messages.Message
 import me.arcanis.ffxivbis.models.{Permission, User}
 
 import java.util.concurrent.TimeUnit

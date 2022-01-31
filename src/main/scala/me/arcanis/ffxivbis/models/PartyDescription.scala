@@ -8,10 +8,7 @@
  */
 package me.arcanis.ffxivbis.models
 
-case class PartyDescription(partyId: String, partyAlias: Option[String]) {
-
-  def alias: String = partyAlias.getOrElse(partyId)
-}
+case class PartyDescription(partyId: String, partyAlias: Option[String])
 
 object PartyDescription {
 

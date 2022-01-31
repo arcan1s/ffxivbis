@@ -11,6 +11,7 @@ package me.arcanis.ffxivbis.models
 import org.mindrot.jbcrypt.BCrypt
 
 object Permission extends Enumeration {
+
   val get, post, admin = Value
 }
 

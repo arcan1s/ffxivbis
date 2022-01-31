@@ -1,7 +1,7 @@
 package me.arcanis.ffxivbis.service.bis
 
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import me.arcanis.ffxivbis.messages.DownloadBiS
+import me.arcanis.ffxivbis.messages.BiSProviderMessage.DownloadBiS
 import me.arcanis.ffxivbis.models._
 import me.arcanis.ffxivbis.{Fixtures, Settings}
 import org.scalatest.wordspec.AnyWordSpecLike

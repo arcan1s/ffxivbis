@@ -22,7 +22,7 @@ trait XivApi extends RequestExecutor {
   private val xivapiUrl = config.getString("me.arcanis.ffxivbis.bis-provider.xivapi-url")
   private val xivapiKey = Try(config.getString("me.arcanis.ffxivbis.bis-provider.xivapi-key")).toOption
 
-  private val preloadedItems: Map[Long, PieceType.PieceType] =
+  private val preloadedItems: Map[Long, PieceType] =
     config
       .getConfigList("me.arcanis.ffxivbis.bis-provider.cached-items")
       .asScala
@@ -31,17 +31,16 @@ trait XivApi extends RequestExecutor {
       }
       .toMap
 
-  def getPieceType(itemIds: Seq[Long]): Future[Map[Long, PieceType.PieceType]] = {
-    val (local, remote) = itemIds.foldLeft((Map.empty[Long, PieceType.PieceType], Seq.empty[Long])) {
-      case ((l, r), id) =>
-        if (preloadedItems.contains(id)) (l.updated(id, preloadedItems(id)), r)
-        else (l, r :+ id)
+  def getPieceType(itemIds: Seq[Long]): Future[Map[Long, PieceType]] = {
+    val (local, remote) = itemIds.foldLeft((Map.empty[Long, PieceType], Seq.empty[Long])) { case ((l, r), id) =>
+      if (preloadedItems.contains(id)) (l.updated(id, preloadedItems(id)), r)
+      else (l, r :+ id)
     }
     if (remote.isEmpty) Future.successful(local)
     else remotePieceType(remote).map(_ ++ local)
   }
 
-  private def remotePieceType(itemIds: Seq[Long]): Future[Map[Long, PieceType.PieceType]] = {
+  private def remotePieceType(itemIds: Seq[Long]): Future[Map[Long, PieceType]] = {
     val uriForItems = Uri(xivapiUrl)
       .withPath(Uri.Path / "item")
       .withQuery(
@@ -111,7 +110,7 @@ object XivApi {
 
   private def parseXivapiJsonToType(
     shops: Map[Long, (String, Long)]
-  )(js: JsObject)(implicit executionContext: ExecutionContext): Future[Map[Long, PieceType.PieceType]] =
+  )(js: JsObject)(implicit executionContext: ExecutionContext): Future[Map[Long, PieceType]] =
     Future {
       val shopMap = js.fields("Results") match {
         case array: JsArray =>

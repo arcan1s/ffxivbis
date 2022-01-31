@@ -11,7 +11,7 @@ package me.arcanis.ffxivbis.models
 case class Player(
   id: Long,
   partyId: String,
-  job: Job.Job,
+  job: Job,
   nick: String,
   bis: BiS,
   loot: Seq[Loot],
@@ -51,7 +51,7 @@ case class Player(
     piece match {
       case None => false
       case Some(p) if !bis.hasPiece(p) => false
-      case Some(p: PieceUpgrade) => bis.upgrades(p) > lootCount(piece)
+      case Some(p: Piece.PieceUpgrade) => bis.upgrades(p) > lootCount(piece)
       case Some(_) => lootCount(piece) == 0
     }
 

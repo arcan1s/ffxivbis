@@ -12,7 +12,8 @@ import akka.actor.typed.scaladsl.AskPattern.Askable
 import akka.actor.typed.{ActorRef, Scheduler}
 import akka.util.Timeout
 import me.arcanis.ffxivbis.http.api.v1.json.ApiAction
-import me.arcanis.ffxivbis.messages._
+import me.arcanis.ffxivbis.messages.DatabaseMessage._
+import me.arcanis.ffxivbis.messages.Message
 import me.arcanis.ffxivbis.models.{Piece, Player, PlayerId, PlayerIdWithCounters}
 
 import scala.concurrent.{ExecutionContext, Future}

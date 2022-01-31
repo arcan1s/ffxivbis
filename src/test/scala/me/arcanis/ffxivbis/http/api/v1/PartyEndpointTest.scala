@@ -8,7 +8,7 @@ import akka.http.scaladsl.testkit.{RouteTestTimeout, ScalatestRouteTest}
 import akka.testkit.TestKit
 import com.typesafe.config.Config
 import me.arcanis.ffxivbis.http.api.v1.json._
-import me.arcanis.ffxivbis.messages.AddUser
+import me.arcanis.ffxivbis.messages.DatabaseMessage.AddUser
 import me.arcanis.ffxivbis.models.PartyDescription
 import me.arcanis.ffxivbis.service.PartyService
 import me.arcanis.ffxivbis.service.bis.BisProvider

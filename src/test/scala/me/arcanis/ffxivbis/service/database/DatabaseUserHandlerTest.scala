@@ -1,7 +1,7 @@
 package me.arcanis.ffxivbis.service.database
 
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import me.arcanis.ffxivbis.messages.{AddUser, DeleteUser, GetUser, GetUsers}
+import me.arcanis.ffxivbis.messages.DatabaseMessage._
 import me.arcanis.ffxivbis.models.User
 import me.arcanis.ffxivbis.utils.Compare
 import me.arcanis.ffxivbis.{Fixtures, Settings}
@@ -80,5 +80,6 @@ class DatabaseUserHandlerTest extends ScalaTestWithActorTestKit(Settings.withRan
       database ! GetUser(Fixtures.partyId, Fixtures.userGet.username, probe.ref)
       probe.expectMessage(askTimeout, None)
     }
+
   }
 }

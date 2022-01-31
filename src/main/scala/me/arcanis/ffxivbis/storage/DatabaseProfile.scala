@@ -16,6 +16,7 @@ import me.arcanis.ffxivbis.models.{Loot, Piece, PlayerId}
 import java.time.Instant
 import javax.sql.DataSource
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 class DatabaseProfile(override val executionContext: ExecutionContext, config: Config)
   extends StrictLogging
@@ -31,7 +32,7 @@ class DatabaseProfile(override val executionContext: ExecutionContext, config: C
       val dataSourceConfig = DatabaseConnection.getDataSourceConfig(profile)
       new HikariDataSource(dataSourceConfig)
     } catch {
-      case exception: Exception =>
+      case NonFatal(exception) =>
         logger.error("exception during storage initialization", exception)
         throw exception
     }

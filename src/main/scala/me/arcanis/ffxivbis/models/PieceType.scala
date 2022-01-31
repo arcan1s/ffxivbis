@@ -8,17 +8,16 @@
  */
 package me.arcanis.ffxivbis.models
 
+sealed trait PieceType
+
 object PieceType {
 
-  sealed trait PieceType
-
-  case object Crafted extends PieceType
-  case object Tome extends PieceType
   case object Savage extends PieceType
+  case object Tome extends PieceType
+  case object Crafted extends PieceType
   case object Artifact extends PieceType
 
-  lazy val available: Seq[PieceType] =
-    Seq(Crafted, Tome, Savage, Artifact)
+  val available: Seq[PieceType] = Seq(Savage, Tome, Crafted, Artifact)
 
   def withName(pieceType: String): PieceType =
     available.find(_.toString.equalsIgnoreCase(pieceType)) match {

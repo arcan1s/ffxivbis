@@ -46,7 +46,7 @@ class BiSTest extends AnyWordSpecLike with Matchers {
     }
 
     "return upgrade list" in {
-      Compare.mapEquals(Fixtures.bis.upgrades, Map[PieceUpgrade, Int](BodyUpgrade -> 2, AccessoryUpgrade -> 3)) shouldEqual true
+      Compare.mapEquals(Fixtures.bis.upgrades, Map[Piece.PieceUpgrade, Int](Piece.BodyUpgrade -> 2, Piece.AccessoryUpgrade -> 3)) shouldEqual true
     }
 
   }

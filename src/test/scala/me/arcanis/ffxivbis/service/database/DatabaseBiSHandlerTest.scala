@@ -2,7 +2,7 @@ package me.arcanis.ffxivbis.service.database
 
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.AskPattern.Askable
-import me.arcanis.ffxivbis.messages.{AddPieceToBis, AddPlayer, GetBiS, RemovePieceFromBiS}
+import me.arcanis.ffxivbis.messages.DatabaseMessage._
 import me.arcanis.ffxivbis.models._
 import me.arcanis.ffxivbis.utils.Compare
 import me.arcanis.ffxivbis.{Fixtures, Settings}
@@ -70,7 +70,7 @@ class DatabaseBiSHandlerTest extends ScalaTestWithActorTestKit(Settings.withRand
 
     "update piece in bis set" in {
       val updateProbe = testKit.createTestProbe[Unit]()
-      val newPiece = Hands(pieceType = PieceType.Savage, Job.DNC)
+      val newPiece = Piece.Hands(pieceType = PieceType.Savage, Job.DNC)
 
       database ! AddPieceToBis(Fixtures.playerEmpty.playerId, newPiece, updateProbe.ref)
       updateProbe.expectMessage(askTimeout, ())

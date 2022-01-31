@@ -8,7 +8,7 @@ import akka.http.scaladsl.testkit.{RouteTestTimeout, ScalatestRouteTest}
 import akka.testkit.TestKit
 import com.typesafe.config.Config
 import me.arcanis.ffxivbis.http.api.v1.json._
-import me.arcanis.ffxivbis.messages.{AddPlayer, AddUser}
+import me.arcanis.ffxivbis.messages.DatabaseMessage.{AddPlayer, AddUser}
 import me.arcanis.ffxivbis.models.{BiS, Job}
 import me.arcanis.ffxivbis.service.PartyService
 import me.arcanis.ffxivbis.service.bis.BisProvider
@@ -51,15 +51,6 @@ class BiSEndpointTest extends AnyWordSpecLike with Matchers with ScalatestRouteT
     TestKit.shutdownActorSystem(system)
     testKit.shutdownTestKit()
     super.afterAll()
-  }
-
-  private def compareBiSResponse(actual: PlayerModel, expected: PlayerModel): Unit = {
-    actual.partyId shouldEqual expected.partyId
-    actual.nick shouldEqual expected.nick
-    actual.job shouldEqual expected.job
-    Compare.seqEquals(actual.bis.get, expected.bis.get) shouldEqual true
-    actual.link shouldEqual expected.link
-    actual.priority shouldEqual expected.priority
   }
 
   "api v1 bis endpoint" must {
@@ -215,5 +206,14 @@ class BiSEndpointTest extends AnyWordSpecLike with Matchers with ScalatestRouteT
       }
     }
 
+  }
+
+  private def compareBiSResponse(actual: PlayerModel, expected: PlayerModel): Unit = {
+    actual.partyId shouldEqual expected.partyId
+    actual.nick shouldEqual expected.nick
+    actual.job shouldEqual expected.job
+    Compare.seqEquals(actual.bis.get, expected.bis.get) shouldEqual true
+    actual.link shouldEqual expected.link
+    actual.priority shouldEqual expected.priority
   }
 }

@@ -10,8 +10,7 @@ package me.arcanis.ffxivbis
 
 import akka.actor.typed.ActorSystem
 
-object ffxivbis {
+object ffxivbis extends App {
 
-  def main(args: Array[String]): Unit =
-    ActorSystem[Nothing](Application(), "ffxivbis", Configuration.load())
+  ActorSystem[Nothing](Application(), "ffxivbis", Configuration.load())
 }

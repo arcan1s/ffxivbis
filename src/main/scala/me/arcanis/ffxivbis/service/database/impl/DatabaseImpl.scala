@@ -11,7 +11,8 @@ package me.arcanis.ffxivbis.service.database.impl
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext}
 import akka.actor.typed.{Behavior, DispatcherSelector}
 import com.typesafe.config.Config
-import me.arcanis.ffxivbis.messages.{BisDatabaseMessage, DatabaseMessage, LootDatabaseMessage, PartyDatabaseMessage, UserDatabaseMessage}
+import me.arcanis.ffxivbis.messages.DatabaseMessage
+import me.arcanis.ffxivbis.messages.DatabaseMessage.{BisDatabaseMessage, LootDatabaseMessage, PartyDatabaseMessage, UserDatabaseMessage}
 import me.arcanis.ffxivbis.service.database.Database
 import me.arcanis.ffxivbis.storage.DatabaseProfile
 

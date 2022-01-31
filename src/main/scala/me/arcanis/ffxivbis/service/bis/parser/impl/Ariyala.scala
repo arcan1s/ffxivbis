@@ -18,7 +18,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object Ariyala extends Parser {
 
-  override def parse(job: Job.Job, js: JsObject)(implicit
+  override def parse(job: Job, js: JsObject)(implicit
     executionContext: ExecutionContext
   ): Future[Map[String, Long]] =
     Future {

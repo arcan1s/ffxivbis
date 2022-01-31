@@ -36,23 +36,24 @@ class PartyService(context: ActorContext[Message], storage: ActorRef[DatabaseMes
   override def onMessage(msg: Message): Behavior[Message] = handle(Map.empty)(msg)
 
   private def handle(cache: Map[String, Party]): Message.Handler = {
-    case ForgetParty(partyId) =>
+    case ControlMessage.ForgetParty(partyId) =>
       Behaviors.receiveMessage(handle(cache - partyId))
 
-    case GetNewPartyId(client) =>
+    case ControlMessage.GetNewPartyId(client) =>
       getPartyId.foreach(client ! _)
       Behaviors.same
 
-    case StoreParty(partyId, party) =>
+    case ControlMessage.StoreParty(partyId, party) =>
       Behaviors.receiveMessage(handle(cache.updated(partyId, party)))
 
-    case GetParty(partyId, client) =>
+    case DatabaseMessage.GetParty(partyId, client) =>
       val party = cache.get(partyId) match {
         case Some(party) => Future.successful(party)
         case None =>
-          storage.ask(ref => GetParty(partyId, ref)).map { party =>
-            context.self ! StoreParty(partyId, party)
-            context.system.scheduler.scheduleOnce(cacheTimeout, () => context.self ! ForgetParty(partyId))
+          storage.ask(ref => DatabaseMessage.GetParty(partyId, ref)).map { party =>
+            context.self ! ControlMessage.StoreParty(partyId, party)
+            context.system.scheduler
+              .scheduleOnce(cacheTimeout, () => context.self ! ControlMessage.ForgetParty(partyId))
             party
           }
       }
@@ -67,7 +68,7 @@ class PartyService(context: ActorContext[Message], storage: ActorRef[DatabaseMes
 
   private def getPartyId: Future[String] = {
     val partyId = Party.randomPartyId
-    storage.ask(ref => Exists(partyId, ref)).flatMap {
+    storage.ask(ref => DatabaseMessage.Exists(partyId, ref)).flatMap {
       case true => getPartyId
       case false => Future.successful(partyId)
     }

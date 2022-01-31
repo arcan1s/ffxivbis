@@ -11,14 +11,14 @@ package me.arcanis.ffxivbis.models
 case class BiS(pieces: Seq[Piece]) {
 
   def hasPiece(piece: Piece): Boolean = piece match {
-    case upgrade: PieceUpgrade => upgrades.contains(upgrade)
+    case upgrade: Piece.PieceUpgrade => upgrades.contains(upgrade)
     case _ => pieces.contains(piece)
   }
 
-  def upgrades: Map[PieceUpgrade, Int] =
+  def upgrades: Map[Piece.PieceUpgrade, Int] =
     pieces
       .groupBy(_.upgrade)
-      .foldLeft(Map.empty[PieceUpgrade, Int]) {
+      .foldLeft(Map.empty[Piece.PieceUpgrade, Int]) {
         case (acc, (Some(k), v)) => acc + (k -> v.size)
         case (acc, _) => acc
       }
@@ -43,5 +43,5 @@ case class BiS(pieces: Seq[Piece]) {
 
 object BiS {
 
-  def empty: BiS = BiS(Seq.empty)
+  val empty: BiS = BiS(Seq.empty)
 }

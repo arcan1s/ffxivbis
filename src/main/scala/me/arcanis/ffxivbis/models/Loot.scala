@@ -12,7 +12,5 @@ import java.time.Instant
 
 case class Loot(playerId: Long, piece: Piece, timestamp: Instant, isFreeLoot: Boolean) {
 
-  def isFreeLootToString: String = if (isFreeLoot) "yes" else "no"
-
-  def isFreeLootToInt: Int = if (isFreeLoot) 1 else 0
+  lazy val isFreeLootToInt: Int = if (isFreeLoot) 1 else 0
 }

@@ -10,7 +10,7 @@ package me.arcanis.ffxivbis.models
 
 case class PlayerIdWithCounters(
   partyId: String,
-  job: Job.Job,
+  job: Job,
   nick: String,
   isRequired: Boolean,
   priority: Int,
@@ -23,8 +23,6 @@ case class PlayerIdWithCounters(
 
   def gt(that: PlayerIdWithCounters, orderBy: Seq[String]): Boolean =
     withCounters(orderBy) > that.withCounters(orderBy)
-
-  def isRequiredToString: String = if (isRequired) "yes" else "no"
 
   def playerId: PlayerId = PlayerId(partyId, job, nick)
 
@@ -47,13 +45,13 @@ object PlayerIdWithCounters {
 
     def >(that: PlayerCountersComparator): Boolean = {
       @scala.annotation.tailrec
-      def compareLists(left: List[Int], right: List[Int]): Boolean =
+      def compare(left: Seq[Int], right: Seq[Int]): Boolean =
         (left, right) match {
-          case (hl :: tl, hr :: tr) => if (hl == hr) compareLists(tl, tr) else hl > hr
+          case (hl :: tl, hr :: tr) => if (hl == hr) compare(tl, tr) else hl > hr
           case (_ :: _, Nil) => true
           case (_, _) => false
         }
-      compareLists(values.toList, that.values.toList)
+      compare(values, that.values)
     }
   }
 }

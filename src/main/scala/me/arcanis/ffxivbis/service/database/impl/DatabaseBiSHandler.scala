@@ -10,7 +10,8 @@ package me.arcanis.ffxivbis.service.database.impl
 
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
-import me.arcanis.ffxivbis.messages._
+import me.arcanis.ffxivbis.messages.DatabaseMessage
+import me.arcanis.ffxivbis.messages.DatabaseMessage._
 import me.arcanis.ffxivbis.service.database.Database
 
 trait DatabaseBiSHandler { this: Database =>

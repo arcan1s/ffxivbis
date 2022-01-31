@@ -1,6 +1,7 @@
 package me.arcanis.ffxivbis.utils
 
 object Compare {
+
   def mapEquals[K, T](left: Map[K, T], right: Map[K, T]): Boolean =
     left.forall {
       case (key, value) => right.contains(key) && right(key) == value
