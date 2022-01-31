@@ -36,6 +36,16 @@ function loadTypes(url, selector) {
     });
 }
 
+function loadVersion() {
+    $.ajax({
+        url: "/api/v1/status",
+        type: "GET",
+        dataType: "json",
+        success: function (data) { $("#sources-link").text(`ffxivbis ${data.version}`); },
+        error: function (jqXHR, _, errorThrown) { requestAlert(jqXHR, errorThrown); },
+    });
+}
+
 function setupFormClear(dialog, reset) {
     dialog.on("hide.bs.modal", function () {
         $(this).find("form").trigger("reset");

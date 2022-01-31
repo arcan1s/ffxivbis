@@ -133,7 +133,7 @@
             </ul>
 
             <ul class="nav">
-                <li><a class="nav-link" href="https://github.com/arcan1s/ffxivbis" title="sources">ffxivbis</a></li>
+                <li><a id="sources-link" class="nav-link" href="https://github.com/arcan1s/ffxivbis" title="sources">ffxivbis</a></li>
                 <li><a class="nav-link" href="https://github.com/arcan1s/ffxivbis/releases" title="releases list">releases</a></li>
                 <li><a class="nav-link" href="https://github.com/arcan1s/ffxivbis/issues" title="issues tracker">report a bug</a></li>
             </ul>
@@ -244,6 +244,7 @@
             setupFormClear(addPlayerDialog);
             setupRemoveButton(table, removeButton);
 
+            loadVersion();
             loadHeader(partyId);
             loadTypes("/api/v1/types/jobs", jobInput);
 
