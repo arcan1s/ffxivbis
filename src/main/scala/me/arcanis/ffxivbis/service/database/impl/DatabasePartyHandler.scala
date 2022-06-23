@@ -62,6 +62,10 @@ trait DatabasePartyHandler { this: Database =>
         run(profile.deletePlayer(playerId))(_ => client ! ())
         Behaviors.same
 
+      case UpdateBiSLink(playerId, link, client) =>
+        run(profile.updateBiSLink(playerId, link))(_ => client ! ())
+        Behaviors.same
+
       case UpdateParty(description, client) =>
         run(profile.insertPartyDescription(description))(_ => client ! ())
         Behaviors.same

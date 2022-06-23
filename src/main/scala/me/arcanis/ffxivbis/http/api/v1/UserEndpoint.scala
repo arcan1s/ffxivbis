@@ -96,7 +96,12 @@ class UserEndpoint(override val storage: ActorRef[Message], override val auth: A
     summary = "create new user",
     description = "Add an user to the specified party",
     parameters = Array(
-      new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
+      new Parameter(
+        name = "partyId",
+        in = ParameterIn.PATH,
+        description = "unique party ID",
+        example = "o3KicHQPW5b0JcOm5yI3"
+      ),
     ),
     requestBody = new RequestBody(
       description = "user description",
@@ -151,7 +156,12 @@ class UserEndpoint(override val storage: ActorRef[Message], override val auth: A
     summary = "remove user",
     description = "Remove an user from the specified party",
     parameters = Array(
-      new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
+      new Parameter(
+        name = "partyId",
+        in = ParameterIn.PATH,
+        description = "unique party ID",
+        example = "o3KicHQPW5b0JcOm5yI3"
+      ),
       new Parameter(name = "username", in = ParameterIn.PATH, description = "username to remove", example = "siuan"),
     ),
     responses = Array(
@@ -195,7 +205,12 @@ class UserEndpoint(override val storage: ActorRef[Message], override val auth: A
     summary = "get users",
     description = "Return the list of users belong to party",
     parameters = Array(
-      new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
+      new Parameter(
+        name = "partyId",
+        in = ParameterIn.PATH,
+        description = "unique party ID",
+        example = "o3KicHQPW5b0JcOm5yI3"
+      ),
     ),
     responses = Array(
       new ApiResponse(
@@ -246,7 +261,12 @@ class UserEndpoint(override val storage: ActorRef[Message], override val auth: A
     summary = "get current user",
     description = "Return the current user descriptor",
     parameters = Array(
-      new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
+      new Parameter(
+        name = "partyId",
+        in = ParameterIn.PATH,
+        description = "unique party ID",
+        example = "o3KicHQPW5b0JcOm5yI3"
+      ),
     ),
     responses = Array(
       new ApiResponse(

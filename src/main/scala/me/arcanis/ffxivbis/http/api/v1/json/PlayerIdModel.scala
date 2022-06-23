@@ -12,10 +12,14 @@ import io.swagger.v3.oas.annotations.media.Schema
 import me.arcanis.ffxivbis.models.{Job, PlayerId}
 
 case class PlayerIdModel(
-  @Schema(description = "unique party ID. Required in responses", example = "abcdefgh") partyId: Option[String],
+  @Schema(description = "unique party ID. Required in responses", example = "o3KicHQPW5b0JcOm5yI3") partyId: Option[
+    String
+  ],
   @Schema(description = "job name", required = true, example = "DNC") job: String,
   @Schema(description = "player nick name", required = true, example = "Siuan Sanche") nick: String
-) {
+) extends Validator {
+
+  require(isValidString(nick), stringMatchError("Player name"))
 
   def withPartyId(partyId: String): PlayerId =
     PlayerId(partyId, Job.withName(job), nick)

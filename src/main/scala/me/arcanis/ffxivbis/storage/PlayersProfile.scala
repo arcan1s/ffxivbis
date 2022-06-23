@@ -101,4 +101,18 @@ trait PlayersProfile extends DatabaseConnection {
         .executeUpdate()
     }
 
+  def updateBiSLink(playerId: PlayerId, link: String): Future[Int] =
+    withConnection { implicit conn =>
+      SQL("""update players
+          |  set bis_link = {link}
+          | where party_id = {party_id} and nick = {nick} and job = {job}""".stripMargin)
+        .on(
+          "link" -> link,
+          "party_id" -> playerId.partyId,
+          "nick" -> playerId.nick,
+          "job" -> playerId.job.toString
+        )
+        .executeUpdate()
+    }
+
 }

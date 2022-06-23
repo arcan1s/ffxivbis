@@ -46,7 +46,12 @@ class LootEndpoint(override val storage: ActorRef[Message], override val auth: A
     summary = "get loot list",
     description = "Return the looted items",
     parameters = Array(
-      new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
+      new Parameter(
+        name = "partyId",
+        in = ParameterIn.PATH,
+        description = "unique party ID",
+        example = "o3KicHQPW5b0JcOm5yI3"
+      ),
       new Parameter(
         name = "nick",
         in = ParameterIn.QUERY,
@@ -107,7 +112,12 @@ class LootEndpoint(override val storage: ActorRef[Message], override val auth: A
     summary = "modify loot list",
     description = "Add or remove an item from the loot list",
     parameters = Array(
-      new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
+      new Parameter(
+        name = "partyId",
+        in = ParameterIn.PATH,
+        description = "unique party ID",
+        example = "o3KicHQPW5b0JcOm5yI3"
+      ),
     ),
     requestBody = new RequestBody(
       description = "action and piece description",
@@ -164,7 +174,12 @@ class LootEndpoint(override val storage: ActorRef[Message], override val auth: A
     summary = "suggest loot",
     description = "Suggest loot piece to party",
     parameters = Array(
-      new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
+      new Parameter(
+        name = "partyId",
+        in = ParameterIn.PATH,
+        description = "unique party ID",
+        example = "o3KicHQPW5b0JcOm5yI3"
+      ),
     ),
     requestBody = new RequestBody(
       description = "piece description",

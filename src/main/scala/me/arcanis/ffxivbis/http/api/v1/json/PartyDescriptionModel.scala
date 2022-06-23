@@ -12,9 +12,11 @@ import io.swagger.v3.oas.annotations.media.Schema
 import me.arcanis.ffxivbis.models.PartyDescription
 
 case class PartyDescriptionModel(
-  @Schema(description = "party id", required = true, example = "abcdefgh") partyId: String,
+  @Schema(description = "party id", required = true, example = "o3KicHQPW5b0JcOm5yI3") partyId: String,
   @Schema(description = "party name") partyAlias: Option[String]
-) {
+) extends Validator {
+
+  require(partyAlias.forall(isValidString), stringMatchError("Party alias"))
 
   def toDescription: PartyDescription = PartyDescription(partyId, partyAlias)
 }

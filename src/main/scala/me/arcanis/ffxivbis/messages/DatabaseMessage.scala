@@ -95,6 +95,11 @@ object DatabaseMessage {
     override val isReadOnly: Boolean = false
   }
 
+  case class UpdateBiSLink(playerId: PlayerId, link: String, actorRef: ActorRef[Unit]) extends PartyDatabaseMessage {
+    override val partyId: String = playerId.partyId
+    override val isReadOnly: Boolean = false
+  }
+
   case class UpdateParty(partyDescription: PartyDescription, replyTo: ActorRef[Unit]) extends PartyDatabaseMessage {
     override val partyId: String = partyDescription.partyId
     override val isReadOnly: Boolean = false

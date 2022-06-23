@@ -49,7 +49,12 @@ class PartyEndpoint(
     summary = "get party description",
     description = "Return the party description",
     parameters = Array(
-      new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
+      new Parameter(
+        name = "partyId",
+        in = ParameterIn.PATH,
+        description = "unique party ID",
+        example = "o3KicHQPW5b0JcOm5yI3"
+      ),
     ),
     responses = Array(
       new ApiResponse(
@@ -96,7 +101,12 @@ class PartyEndpoint(
     summary = "modify party description",
     description = "Edit party description",
     parameters = Array(
-      new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
+      new Parameter(
+        name = "partyId",
+        in = ParameterIn.PATH,
+        description = "unique party ID",
+        example = "o3KicHQPW5b0JcOm5yI3"
+      ),
     ),
     requestBody = new RequestBody(
       description = "new party description",

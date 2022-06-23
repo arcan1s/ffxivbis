@@ -53,12 +53,14 @@ trait BiSProfile extends DatabaseConnection {
   def getPiecesBiSById(playerId: Long): Future[Seq[Loot]] = getPiecesBiSById(Seq(playerId))
 
   def getPiecesBiSById(playerIds: Seq[Long]): Future[Seq[Loot]] =
-    withConnection { implicit conn =>
-      SQL("""select * from bis where player_id in ({player_ids})""")
-        .on("player_ids" -> playerIds)
-        .executeQuery()
-        .as(loot.*)
-    }
+    if (playerIds.isEmpty) Future.successful(Seq.empty)
+    else
+      withConnection { implicit conn =>
+        SQL("""select * from bis where player_id in ({player_ids})""")
+          .on("player_ids" -> playerIds)
+          .executeQuery()
+          .as(loot.*)
+      }
 
   def insertPieceBiSById(piece: Piece)(playerId: Long): Future[Int] =
     withConnection { implicit conn =>

@@ -66,6 +66,18 @@ class DatabasePartyHandlerTest extends ScalaTestWithActorTestKit(Settings.withRa
       Compare.seqEquals(party.getPlayers, Seq(newPlayer)) shouldEqual true
     }
 
+    "update bis link" in {
+      val updateProbe = testKit.createTestProbe[Unit]()
+      val newPlayer = Fixtures.playerEmpty.copy(priority = 2, link = Some("link"))
+
+      database ! UpdateBiSLink(Fixtures.playerEmpty.playerId, "link", updateProbe.ref)
+      updateProbe.expectMessage(askTimeout, ())
+
+       val probe = testKit.createTestProbe[Option[Player]]()
+      database ! GetPlayer(Fixtures.playerEmpty.playerId, probe.ref)
+      probe.expectMessage(askTimeout, Some(newPlayer))
+    }
+
     "remove player" in {
       val updateProbe = testKit.createTestProbe[Unit]()
       database ! RemovePlayer(Fixtures.playerEmpty.playerId, updateProbe.ref)

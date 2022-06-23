@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import me.arcanis.ffxivbis.models.PlayerIdWithCounters
 
 case class PlayerIdWithCountersModel(
-  @Schema(description = "unique party ID", required = true, example = "abcdefgh") partyId: String,
+  @Schema(description = "unique party ID", required = true, example = "o3KicHQPW5b0JcOm5yI3") partyId: String,
   @Schema(description = "job name", required = true, example = "DNC") job: String,
   @Schema(description = "player nick name", required = true, example = "Siuan Sanche") nick: String,
   @Schema(description = "is piece required by player or not", required = true) isRequired: Boolean,

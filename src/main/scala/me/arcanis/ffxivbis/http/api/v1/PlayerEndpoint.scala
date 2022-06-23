@@ -50,7 +50,12 @@ class PlayerEndpoint(
     summary = "get party",
     description = "Return the players who belong to the party",
     parameters = Array(
-      new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
+      new Parameter(
+        name = "partyId",
+        in = ParameterIn.PATH,
+        description = "unique party ID",
+        example = "o3KicHQPW5b0JcOm5yI3"
+      ),
       new Parameter(
         name = "nick",
         in = ParameterIn.QUERY,
@@ -111,7 +116,12 @@ class PlayerEndpoint(
     summary = "get party statistics",
     description = "Return the party statistics",
     parameters = Array(
-      new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
+      new Parameter(
+        name = "partyId",
+        in = ParameterIn.PATH,
+        description = "unique party ID",
+        example = "o3KicHQPW5b0JcOm5yI3"
+      ),
       new Parameter(
         name = "nick",
         in = ParameterIn.QUERY,
@@ -172,7 +182,12 @@ class PlayerEndpoint(
     summary = "modify party",
     description = "Add or remove a player from party list",
     parameters = Array(
-      new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
+      new Parameter(
+        name = "partyId",
+        in = ParameterIn.PATH,
+        description = "unique party ID",
+        example = "o3KicHQPW5b0JcOm5yI3"
+      ),
     ),
     requestBody = new RequestBody(
       description = "player description",

@@ -17,4 +17,7 @@ case class PlayerBiSLinkModel(
     example = "https://ffxiv.ariyala.com/19V5R"
   ) link: String,
   @Schema(description = "player description", required = true) playerId: PlayerIdModel
-)
+) extends Validator {
+
+  require(isValidString(link), stringMatchError("BiS link"))
+}

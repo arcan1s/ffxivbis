@@ -45,13 +45,15 @@ trait BiSHelper extends BisProviderHelper {
     timeout: Timeout,
     scheduler: Scheduler
   ): Future[Unit] =
-    storage.ask(RemovePiecesFromBiS(playerId, _)).flatMap { _ =>
-      downloadBiS(link, playerId.job)
-        .flatMap { bis =>
-          Future.traverse(bis.pieces)(addPieceBiS(playerId, _))
-        }
-        .map(_ => ())
-    }
+    storage
+      .ask(RemovePiecesFromBiS(playerId, _))
+      .flatMap { _ =>
+        downloadBiS(link, playerId.job)
+          .flatMap { bis =>
+            Future.traverse(bis.pieces)(addPieceBiS(playerId, _))
+          }
+      }
+      .flatMap(_ => storage.ask(UpdateBiSLink(playerId, link, _)))
 
   def removePieceBiS(playerId: PlayerId, piece: Piece)(implicit timeout: Timeout, scheduler: Scheduler): Future[Unit] =
     storage.ask(RemovePieceFromBiS(playerId, piece, _))

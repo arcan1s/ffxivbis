@@ -59,12 +59,14 @@ trait LootProfile extends DatabaseConnection {
   def getPiecesById(playerId: Long): Future[Seq[Loot]] = getPiecesById(Seq(playerId))
 
   def getPiecesById(playerIds: Seq[Long]): Future[Seq[Loot]] =
-    withConnection { implicit conn =>
-      SQL("""select * from loot where player_id in ({player_ids})""")
-        .on("player_ids" -> playerIds)
-        .executeQuery()
-        .as(loot.*)
-    }
+    if (playerIds.isEmpty) Future.successful(Seq.empty)
+    else
+      withConnection { implicit conn =>
+        SQL("""select * from loot where player_id in ({player_ids})""")
+          .on("player_ids" -> playerIds)
+          .executeQuery()
+          .as(loot.*)
+      }
 
   def insertPieceById(loot: Loot)(playerId: Long): Future[Int] =
     withConnection { implicit conn =>

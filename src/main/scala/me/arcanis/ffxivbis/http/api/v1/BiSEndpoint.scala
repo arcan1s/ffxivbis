@@ -49,7 +49,12 @@ class BiSEndpoint(
     summary = "create best in slot",
     description = "Create the best in slot set",
     parameters = Array(
-      new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
+      new Parameter(
+        name = "partyId",
+        in = ParameterIn.PATH,
+        description = "unique party ID",
+        example = "o3KicHQPW5b0JcOm5yI3"
+      ),
     ),
     requestBody = new RequestBody(
       description = "player best in slot description",
@@ -105,7 +110,12 @@ class BiSEndpoint(
     summary = "get best in slot",
     description = "Return the best in slot items",
     parameters = Array(
-      new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
+      new Parameter(
+        name = "partyId",
+        in = ParameterIn.PATH,
+        description = "unique party ID",
+        example = "o3KicHQPW5b0JcOm5yI3"
+      ),
       new Parameter(
         name = "nick",
         in = ParameterIn.QUERY,
@@ -167,7 +177,12 @@ class BiSEndpoint(
     summary = "modify best in slot",
     description = "Add or remove an item from the best in slot",
     parameters = Array(
-      new Parameter(name = "partyId", in = ParameterIn.PATH, description = "unique party ID", example = "abcdefgh"),
+      new Parameter(
+        name = "partyId",
+        in = ParameterIn.PATH,
+        description = "unique party ID",
+        example = "o3KicHQPW5b0JcOm5yI3"
+      ),
     ),
     requestBody = new RequestBody(
       description = "action and piece description",

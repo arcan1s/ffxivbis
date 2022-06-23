@@ -10,4 +10,6 @@ package me.arcanis.ffxivbis.http.api.v1.json
 
 import io.swagger.v3.oas.annotations.media.Schema
 
-case class PartyIdModel(@Schema(description = "party id", required = true, example = "abcdefgh") partyId: String)
+case class PartyIdModel(
+  @Schema(description = "party id", required = true, example = "o3KicHQPW5b0JcOm5yI3") partyId: String
+)
