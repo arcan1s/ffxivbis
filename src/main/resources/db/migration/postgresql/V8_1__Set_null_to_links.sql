@@ -1,0 +1,1 @@
+update players set bis_link = null where bis_link = '';

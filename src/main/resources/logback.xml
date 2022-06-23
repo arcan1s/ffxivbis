@@ -12,5 +12,6 @@
     </logger>
     <logger name="org.flywaydb.core.internal" level="INFO" />
     <logger name="com.zaxxer.hikari.pool" level="INFO" />
+    <logger name="io.swagger" level="INFO" />
 
 </configuration>
