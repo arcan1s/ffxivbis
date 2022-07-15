@@ -184,8 +184,8 @@
                 }),
                 type: "POST",
                 contentType: "application/json",
-                success: function (_) { reload(); },
-                error: function (jqXHR, _, errorThrown) { requestAlert(jqXHR, errorThrown); },
+                success: _ => { reload(); },
+                error: (jqXHR, _, errorThrown) => { requestAlert(jqXHR, errorThrown); },
             });
             addPlayerDialog.modal("hide");
             return true; // action expects boolean result
@@ -210,18 +210,18 @@
                 url: `/api/v1/party/${partyId}`,
                 type: "GET",
                 dataType: "json",
-                success: function (data) {
-                    table.bootstrapTable("load", data);
+                success: response => {
+                    table.bootstrapTable("load", response);
                     table.bootstrapTable("uncheckAll");
                     table.bootstrapTable("hideLoading");
                 },
-                error: function (jqXHR, _, errorThrown) { requestAlert(jqXHR, errorThrown); },
+                error: (jqXHR, _, errorThrown) => { requestAlert(jqXHR, errorThrown); },
             });
         }
 
         function removePlayers() {
             const players = table.bootstrapTable("getSelections");
-            players.map(function (player) {
+            players.map(player => {
                 $.ajax({
                     url: `/api/v1/party/${partyId}`,
                     data: JSON.stringify({
@@ -234,13 +234,13 @@
                     }),
                     type: "POST",
                     contentType: "application/json",
-                    success: function (_) { reload(); },
-                    error: function (jqXHR, _, errorThrown) { requestAlert(jqXHR, errorThrown); },
+                    success: _ => { reload(); },
+                    error: (jqXHR, _, errorThrown) => { requestAlert(jqXHR, errorThrown); },
                 });
             });
         }
 
-        $(function () {
+        $(() => {
             setupFormClear(addPlayerDialog);
             setupRemoveButton(table, removeButton);
 

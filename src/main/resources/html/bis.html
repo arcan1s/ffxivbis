@@ -207,8 +207,8 @@
                 }),
                 type: "POST",
                 contentType: "application/json",
-                success: function (_) { reload(); },
-                error: function (jqXHR, _, errorThrown) { requestAlert(jqXHR, errorThrown); },
+                success: _ => { reload(); },
+                error: (jqXHR, _, errorThrown) => { requestAlert(jqXHR, errorThrown); },
             });
             updateBisDialog.modal("hide");
             return true; // action expects boolean result
@@ -247,9 +247,9 @@
                 url: `/api/v1/party/${partyId}`,
                 type: "GET",
                 dataType: "json",
-                success: function (data) {
-                    const items = data.map(function (player) {
-                        return player.bis.map(function (loot) {
+                success: response => {
+                    const items = response.map(player => {
+                        return player.bis.map(loot => {
                             return {
                                 nick: player.nick,
                                 job: player.job,
@@ -258,12 +258,12 @@
                             };
                         });
                     });
-                    const payload = items.reduce(function (left, right) { return left.concat(right); }, []);
+                    const payload = items.reduce((left, right) => { return left.concat(right); }, []);
                     table.bootstrapTable("load", payload);
                     table.bootstrapTable("uncheckAll");
                     table.bootstrapTable("hideLoading");
 
-                    const options = data.map(function (player) {
+                    const options = response.map(player => {
                         const option = document.createElement("option");
                         option.innerText = formatPlayerId(player);
                         option.dataset.nick = player.nick;
@@ -272,13 +272,13 @@
                     });
                     playerInput.empty().append(options);
                 },
-                error: function (jqXHR, _, errorThrown) { requestAlert(jqXHR, errorThrown); },
+                error: (jqXHR, _, errorThrown) => { requestAlert(jqXHR, errorThrown); },
             });
         }
 
         function removePiece() {
             const pieces = table.bootstrapTable("getSelections");
-            pieces.map(function (loot) {
+            pieces.map(loot => {
                 $.ajax({
                     url: `/api/v1/party/${partyId}/bis`,
                     data: JSON.stringify({
@@ -296,8 +296,8 @@
                     }),
                     type: "POST",
                     contentType: "application/json",
-                    success: function (_) { reload(); },
-                    error: function (jqXHR, _, errorThrown) { requestAlert(jqXHR, errorThrown); },
+                    success: _ => { reload(); },
+                    error: (jqXHR, _, errorThrown) => { requestAlert(jqXHR, errorThrown); },
                 });
             });
         }
@@ -325,8 +325,8 @@
                 }),
                 type: "PUT",
                 contentType: "application/json",
-                success: function (_) { reload(); },
-                error: function (jqXHR, _, errorThrown) { requestAlert(jqXHR, errorThrown); },
+                success: _ => { reload(); },
+                error: (jqXHR, _, errorThrown) => { requestAlert(jqXHR, errorThrown); },
             });
             updateBisDialog.modal("hide");
             return true; // action expects boolean result
@@ -342,7 +342,7 @@
             return false; // should not happen
         }
 
-        $(function () {
+        $(() => {
             setupFormClear(updateBisDialog, reset);
             setupRemoveButton(table, removeButton);
 
@@ -353,8 +353,8 @@
 
             hideControls();
 
-            updateBisButton.click(function () { reset(); });
-            addPieceButton.click(function () { reset(); });
+            updateBisButton.click(() => { reset(); });
+            addPieceButton.click(() => { reset(); });
 
             table.bootstrapTable({});
             reload();

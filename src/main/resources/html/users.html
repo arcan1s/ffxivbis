@@ -173,8 +173,8 @@
                 }),
                 type: "POST",
                 contentType: "application/json",
-                success: function (_) { reload(); },
-                error: function (jqXHR, _, errorThrown) { requestAlert(jqXHR, errorThrown); },
+                success: _ => { reload(); },
+                error: (jqXHR, _, errorThrown) => { requestAlert(jqXHR, errorThrown); },
             });
             addUserDialog.modal("hide");
             return true; // action expects boolean result
@@ -191,28 +191,28 @@
                 url: `/api/v1/party/${partyId}/users`,
                 type: "GET",
                 dataType: "json",
-                success: function (data) {
-                    table.bootstrapTable("load", data);
+                success: response => {
+                    table.bootstrapTable("load", response);
                     table.bootstrapTable("uncheckAll");
                     table.bootstrapTable("hideLoading");
                 },
-                error: function (jqXHR, _, errorThrown) { requestAlert(jqXHR, errorThrown); },
+                error: (jqXHR, _, errorThrown) => { requestAlert(jqXHR, errorThrown); },
             });
         }
 
         function removeUsers() {
             const users = table.bootstrapTable("getSelections");
-            users.map(function (user) {
+            users.map(user => {
                 $.ajax({
                     url: `/api/v1/party/${partyId}/users/${user.username}`,
                     type: "DELETE",
-                    success: function (_) { reload(); },
-                    error: function (jqXHR, _, errorThrown) { requestAlert(jqXHR, errorThrown); },
+                    success: _ => { reload(); },
+                    error: (jqXHR, _, errorThrown) => { requestAlert(jqXHR, errorThrown); },
                 });
             });
         }
 
-        $(function () {
+        $(() => {
             setupFormClear(addUserDialog);
             setupRemoveButton(table, removeButton);
 
