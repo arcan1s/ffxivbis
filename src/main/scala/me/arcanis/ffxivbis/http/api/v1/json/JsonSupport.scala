@@ -16,12 +16,12 @@ import java.time.Instant
 
 trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 
-  private def enumFormat[E <: Enumeration](enum: E): RootJsonFormat[E#Value] =
+  private def enumFormat[E <: Enumeration](enumeration: E): RootJsonFormat[E#Value] =
     new RootJsonFormat[E#Value] {
       override def write(obj: E#Value): JsValue = obj.toString.toJson
       override def read(json: JsValue): E#Value = json match {
-        case JsNumber(value) => enum(value.toInt)
-        case JsString(name) => enum.withName(name)
+        case JsNumber(value) => enumeration(value.toInt)
+        case JsString(name) => enumeration.withName(name)
         case other => deserializationError(s"String or number expected, got $other")
       }
     }

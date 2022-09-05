@@ -75,6 +75,8 @@ trait XivApi extends RequestExecutor {
 
 object XivApi {
 
+  private val defaultShop = JsObject("IsUnique" -> JsNumber(1), "StackSize" -> JsNumber(999))
+
   private def parseXivapiJsonToShop(
     js: JsObject
   )(implicit executionContext: ExecutionContext): Future[Map[Long, (String, Long)]] = {
@@ -128,7 +130,7 @@ object XivApi {
           if (index == "crafted" && shopId == -1L) PieceType.Crafted
           else
             Try(shopMap(shopId).fields(s"ItemCost$index").asJsObject)
-              .getOrElse(throw new Exception(s"${shopMap(shopId).fields(s"ItemCost$index")}, $index"))
+              .getOrElse(defaultShop)
               .getFields("IsUnique", "StackSize") match {
               case Seq(JsNumber(isUnique), JsNumber(stackSize)) =>
                 if (isUnique == 1 || stackSize.toLong != 999) PieceType.Tome // either upgraded gear or tomes found
