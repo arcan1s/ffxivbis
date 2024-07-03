@@ -95,6 +95,7 @@ object Job {
   case object RPR extends Drgs
   case object NIN extends Nins
   case object SAM extends Mnks
+  case object VPR extends Mnks
 
   case object BRD extends Ranges
   case object MCH extends Ranges
@@ -103,9 +104,10 @@ object Job {
   case object BLM extends Casters
   case object SMN extends Casters
   case object RDM extends Casters
+  case object PCT extends Casters
 
   val available: Seq[Job] =
-    Seq(PLD, WAR, DRK, GNB, WHM, SCH, AST, SGE, MNK, DRG, RPR, NIN, SAM, BRD, MCH, DNC, BLM, SMN, RDM)
+    Seq(PLD, WAR, DRK, GNB, WHM, SCH, AST, SGE, MNK, DRG, RPR, NIN, SAM, VPR, BRD, MCH, DNC, BLM, SMN, RDM, PCT)
   val availableWithAnyJob: Seq[Job] = available.prepended(AnyJob)
 
   def withName(job: String): Job =
