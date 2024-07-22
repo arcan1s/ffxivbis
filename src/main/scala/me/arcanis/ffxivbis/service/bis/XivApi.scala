@@ -15,6 +15,7 @@ import spray.json._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters._
 import scala.util.Try
+import scala.util.matching.Regex
 
 trait XivApi extends RequestExecutor {
 
@@ -77,6 +78,8 @@ object XivApi {
 
   private val defaultShop = JsObject("IsUnique" -> JsNumber(1), "StackSize" -> JsNumber(999))
 
+  private val itemRegexp = new Regex("""Item(Receive|Cost)(\d+)""", "type", "index")
+
   private def parseXivapiJsonToShop(
     js: JsObject
   )(implicit executionContext: ExecutionContext): Future[Map[Long, (String, Long)]] = {
@@ -86,12 +89,12 @@ object XivApi {
         .map(_ => "crafted" -> -1L) // you can craft this item
         .orElse { // lets try shop items
           js.fields("SpecialShop").asJsObject.fields.collectFirst {
-            case (shopName, JsArray(array)) if shopName.startsWith("ItemReceive") =>
+            case (shopName, JsArray(array)) if itemRegexp.matches(shopName) =>
               val shopId = array.head match {
                 case JsNumber(id) => id.toLong
                 case other => throw deserializationError(s"Could not parse $other")
               }
-              shopName.replace("ItemReceive", "") -> shopId
+              itemRegexp.findFirstMatchIn(shopName).get.group("index") -> shopId
           }
         }
         .getOrElse(throw deserializationError(s"Could not parse $js"))
