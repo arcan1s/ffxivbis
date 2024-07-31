@@ -90,6 +90,5 @@ object BisProvider {
     case "ringleft" | "fingerl" => "left ring"
     case "ringright" | "fingerr" => "right ring"
     case "weapon" | "head" | "body" | "hand" | "hands" | "legs" | "feet" | "ears" | "neck" | "wrist" | "wrists" => key
-    case "hand" => "hands"
   }
 }
