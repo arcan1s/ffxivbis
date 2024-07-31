@@ -50,7 +50,7 @@ class BisProvider(context: ActorContext[BiSProviderMessage])
   private def get(link: String, job: Job): Future[Seq[Piece]] =
     try {
       val url = Uri(link)
-        val id = Paths.get(link).normalize.getFileName.toString
+      val id = Paths.get(link).normalize.getFileName.toString
 
       val parser =
         if (url.authority.host.address().contains("etro")) Etro
