@@ -113,7 +113,7 @@ object Piece {
       case "weapon" => Weapon(pieceType, job)
       case "head" => Head(pieceType, job)
       case "body" => Body(pieceType, job)
-      case "hands" => Hands(pieceType, job)
+      case "hand" | "hands" => Hands(pieceType, job)
       case "legs" => Legs(pieceType, job)
       case "feet" => Feet(pieceType, job)
       case "ears" => Ears(pieceType, job)

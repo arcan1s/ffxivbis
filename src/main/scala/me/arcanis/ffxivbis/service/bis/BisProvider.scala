@@ -16,7 +16,7 @@ import com.typesafe.scalalogging.StrictLogging
 import me.arcanis.ffxivbis.messages.BiSProviderMessage
 import me.arcanis.ffxivbis.models.{BiS, Job, Piece, PieceType}
 import me.arcanis.ffxivbis.service.bis.parser.Parser
-import me.arcanis.ffxivbis.service.bis.parser.impl.{Ariyala, Etro}
+import me.arcanis.ffxivbis.service.bis.parser.impl.{Ariyala, Etro, XIVGear}
 import spray.json._
 
 import java.nio.file.Paths
@@ -50,9 +50,12 @@ class BisProvider(context: ActorContext[BiSProviderMessage])
   private def get(link: String, job: Job): Future[Seq[Piece]] =
     try {
       val url = Uri(link)
-      val id = Paths.get(link).normalize.getFileName.toString
+        val id = Paths.get(link).normalize.getFileName.toString
 
-      val parser = if (url.authority.host.address().contains("etro")) Etro else Ariyala
+      val parser =
+        if (url.authority.host.address().contains("etro")) Etro
+        else if (url.authority.host.address().contains("xivgear.app")) XIVGear
+        else Ariyala
       val uri = parser.uri(url, id)
       sendRequest(uri, BisProvider.parseBisJsonToPieces(job, parser, getPieceType))
     } catch {
@@ -81,12 +84,12 @@ object BisProvider {
       }
     }
 
-  def remapKey(key: String): Option[String] = key match {
-    case "mainhand" => Some("weapon")
-    case "chest" => Some("body")
-    case "ringLeft" | "fingerL" => Some("left ring")
-    case "ringRight" | "fingerR" => Some("right ring")
-    case "weapon" | "head" | "body" | "hands" | "legs" | "feet" | "ears" | "neck" | "wrist" | "wrists" => Some(key)
-    case _ => None
+  def remapKey(key: String): Option[String] = Some(key.toLowerCase).collect {
+    case "mainhand" => "weapon"
+    case "chest" => "body"
+    case "ringleft" | "fingerl" => "left ring"
+    case "ringright" | "fingerr" => "right ring"
+    case "weapon" | "head" | "body" | "hand" | "hands" | "legs" | "feet" | "ears" | "neck" | "wrist" | "wrists" => key
+    case "hand" => "hands"
   }
 }
