@@ -12,5 +12,5 @@ trait ValidatorHelper {
 
 object ValidatorHelper {
 
-  final val VALID_CHARACTERS = HashSet.from("!@#$%^&*()-_=+;:',./? ")
+  final val VALID_CHARACTERS = HashSet.from("!@#$%^&*()-_=+;:',./?| ")
 }
