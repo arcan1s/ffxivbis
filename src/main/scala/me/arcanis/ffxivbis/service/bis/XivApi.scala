@@ -15,7 +15,6 @@ import spray.json._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters._
 import scala.util.Try
-import scala.util.matching.Regex
 
 trait XivApi extends RequestExecutor {
 
@@ -41,106 +40,38 @@ trait XivApi extends RequestExecutor {
     else remotePieceType(remote).map(_ ++ local)
   }
 
-  private def remotePieceType(itemIds: Seq[Long]): Future[Map[Long, PieceType]] = {
-    val uriForItems = Uri(xivapiUrl)
-      .withPath(Uri.Path / "item")
-      .withQuery(
-        Uri.Query(
-          Map(
-            "columns" -> Seq("ID", "GameContentLinks").mkString(","),
-            "ids" -> itemIds.mkString(","),
-            "private_key" -> xivapiKey.getOrElse("")
-          )
-        )
-      )
-
-    sendRequest(uriForItems, XivApi.parseXivapiJsonToShop).flatMap { shops =>
-      val shopIds = shops.values.map(_._2).toSet
-      val columns = shops.values.map(pair => s"ItemCost${pair._1}").toSet
-      val uriForShops = Uri(xivapiUrl)
-        .withPath(Uri.Path / "specialshop")
-        .withQuery(
-          Uri.Query(
-            Map(
-              "columns" -> (columns + "ID").mkString(","),
-              "ids" -> shopIds.mkString(","),
-              "private_key" -> xivapiKey.getOrElse("")
+  private def remotePieceType(itemIds: Seq[Long]): Future[Map[Long, PieceType]] =
+    Future
+      .traverse(itemIds) { id =>
+        val uriForItem = Uri(xivapiUrl)
+          .withPath(Uri.Path / "api" / "sheet" / "Item" / id.toString)
+          .withQuery(
+            Uri.Query(
+              Map(
+                "fields" -> Seq("Lot").mkString(","),
+                "private_key" -> xivapiKey.getOrElse("")
+              )
             )
           )
-        )
 
-      sendRequest(uriForShops, XivApi.parseXivapiJsonToType(shops))
-    }
-  }
+        sendRequest(uriForItem, XivApi.parseXivapiJsonToLot).map(id -> _)
+      }
+      .map(_.toMap)
 }
 
 object XivApi {
 
-  private val defaultShop = JsObject("IsUnique" -> JsNumber(1), "StackSize" -> JsNumber(999))
-
-  private val itemRegexp = new Regex("""Item(Receive|Cost)(\d+)""", "type", "index")
-
-  private def parseXivapiJsonToShop(
-    js: JsObject
-  )(implicit executionContext: ExecutionContext): Future[Map[Long, (String, Long)]] = {
-    def extractTraderId(js: JsObject) =
-      js.fields
-        .get("Recipe")
-        .map(_ => "crafted" -> -1L) // you can craft this item
-        .orElse { // lets try shop items
-          js.fields("SpecialShop").asJsObject.fields.collectFirst {
-            case (shopName, JsArray(array)) if itemRegexp.matches(shopName) =>
-              val shopId = array.head match {
-                case JsNumber(id) => id.toLong
-                case other => throw deserializationError(s"Could not parse $other")
-              }
-              itemRegexp.findFirstMatchIn(shopName).get.group("index") -> shopId
-          }
-        }
-        .getOrElse(throw deserializationError(s"Could not parse $js"))
-
+  private def parseXivapiJsonToLot(js: JsObject)(implicit executionContext: ExecutionContext): Future[PieceType] =
     Future {
-      js.fields("Results") match {
-        case array: JsArray =>
-          array.elements
-            .map(_.asJsObject.getFields("ID", "GameContentLinks") match {
-              case Seq(JsNumber(id), shop: JsObject) => id.toLong -> extractTraderId(shop.asJsObject)
-              case other => throw deserializationError(s"Could not parse $other")
-            })
-            .toMap
-        case other => throw deserializationError(s"Could not parse $other")
-      }
-    }
-  }
-
-  private def parseXivapiJsonToType(
-    shops: Map[Long, (String, Long)]
-  )(js: JsObject)(implicit executionContext: ExecutionContext): Future[Map[Long, PieceType]] =
-    Future {
-      val shopMap = js.fields("Results") match {
-        case array: JsArray =>
-          array.elements.collect { case shop: JsObject =>
-            shop.fields("ID") match {
-              case JsNumber(id) => id.toLong -> shop
-              case other => throw deserializationError(s"Could not parse $other")
+      js.fields("fields") match {
+        case JsObject(fields) =>
+          fields
+            .get("Lot")
+            .collect {
+              case JsBoolean(true) => PieceType.Savage
+              case JsBoolean(false) => PieceType.Tome
             }
-          }.toMap
-        case other => throw deserializationError(s"Could not parse $other")
-      }
-
-      shops.map { case (itemId, (index, shopId)) =>
-        val pieceType =
-          if (index == "crafted" && shopId == -1L) PieceType.Crafted
-          else
-            Try(shopMap(shopId).fields(s"ItemCost$index").asJsObject)
-              .getOrElse(defaultShop)
-              .getFields("IsUnique", "StackSize") match {
-              case Seq(JsNumber(isUnique), JsNumber(stackSize)) =>
-                if (isUnique == 1 || stackSize.toLong != 999) PieceType.Tome // either upgraded gear or tomes found
-                else PieceType.Savage
-              case other => throw deserializationError(s"Could not parse $other")
-            }
-        itemId -> pieceType
+            .getOrElse(throw deserializationError(s"Could not find lot field in $fields"))
       }
     }
 }
