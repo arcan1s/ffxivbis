@@ -13,10 +13,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       - name: setup JDK
         uses: actions/setup-java@v2
         with:
           distribution: temurin
           java-version: 18
+
+      - name: install sbt
+        uses: eclipse-score/apt-install@main
+        with:
+          packages: wget
+      - run: |
+          wget https://scala.jfrog.io/artifactory/debian/sbt-1.11.7.deb
+          sudo dpkg -i sbt-1.11.7.deb
+
       - name: run tests
         run: make tests

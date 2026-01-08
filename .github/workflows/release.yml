@@ -12,6 +12,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       - name: extract version
         id: version
         run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
@@ -21,13 +22,24 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           filter: 'Release \d+\.\d+\.\d+'
+
       - name: setup JDK
         uses: actions/setup-java@v2
         with:
           distribution: temurin
           java-version: 18
+
+      - name: install sbt
+        uses: eclipse-score/apt-install@main
+        with:
+          packages: wget
+      - run: |
+          wget https://scala.jfrog.io/artifactory/debian/sbt-1.11.7.deb
+          sudo dpkg -i sbt-1.11.7.deb
+
       - name: create dist
         run: make dist
+
       - name: release
         uses: softprops/action-gh-release@v1
         with:
