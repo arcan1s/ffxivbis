@@ -67,6 +67,21 @@ object Fixtures {
       Piece.Ring(pieceType = PieceType.Tome, Job.VPR, "right ring")
     )
   )
+  lazy val bis5: BiS = BiS(
+    Seq(
+      Piece.Weapon(pieceType = PieceType.Savage ,Job.BRD),
+      Piece.Head(pieceType = PieceType.Tome, Job.BRD),
+      Piece.Body(pieceType = PieceType.Savage, Job.BRD),
+      Piece.Hands(pieceType = PieceType.Savage, Job.BRD),
+      Piece.Legs(pieceType = PieceType.Tome, Job.BRD),
+      Piece.Feet(pieceType = PieceType.Tome, Job.BRD),
+      Piece.Ears(pieceType = PieceType.Tome, Job.BRD),
+      Piece.Neck(pieceType = PieceType.Savage, Job.BRD),
+      Piece.Wrist(pieceType = PieceType.Tome, Job.BRD),
+      Piece.Ring(pieceType = PieceType.Tome, Job.BRD, "left ring"),
+      Piece.Ring(pieceType = PieceType.Savage, Job.BRD, "right ring")
+    )
+  )
 
   lazy val link: String = "https://ffxiv.ariyala.com/19V5R"
   lazy val link2: String = "https://ffxiv.ariyala.com/1A0WM"
@@ -74,6 +89,7 @@ object Fixtures {
   lazy val link4: String = "https://etro.gg/gearset/865fc886-994f-4c28-8fc1-4379f160a916"
   lazy val link5: String = "https://ffxiv.ariyala.com/1FGU0"
   lazy val link6: String = "https://xivgear.app/?page=sl%7Cd65b4776-01e1-4269-af74-0bc6e01ca2ec"
+  lazy val link7: String = "https://xivgear.app/?page=sl|22777835-b7c8-457e-bf21-6221d0d122ea"
 
   lazy val lootWeapon: Piece = Piece.Weapon(pieceType = PieceType.Tome, Job.AnyJob)
   lazy val lootBody: Piece = Piece.Body(pieceType = PieceType.Savage, Job.AnyJob)
