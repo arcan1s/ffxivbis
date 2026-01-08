@@ -43,14 +43,14 @@ class LootSelectorTest extends AnyWordSpecLike with Matchers with BeforeAndAfter
   "loot selector" must {
 
     "suggest loot by isRequired" in {
-      toPlayerId(default.suggestLoot(Piece.Head(pieceType = PieceType.Savage, Job.AnyJob))) shouldEqual Seq(dnc.playerId, drg.playerId)
+      toPlayerId(default.suggestLoot(Seq(Piece.Head(pieceType = PieceType.Savage, Job.AnyJob)))) shouldEqual Seq(dnc.playerId, drg.playerId)
     }
 
     "suggest loot if a player already have it" in {
       val piece = Piece.Body(pieceType = PieceType.Savage, Job.AnyJob)
       val party = default.withPlayer(dnc.withLoot(piece))
 
-      toPlayerId(party.suggestLoot(piece)) shouldEqual Seq(drg.playerId, dnc.playerId)
+      toPlayerId(party.suggestLoot(Seq(piece))) shouldEqual Seq(drg.playerId, dnc.playerId)
     }
 
     "suggest upgrade" in {
@@ -60,26 +60,26 @@ class LootSelectorTest extends AnyWordSpecLike with Matchers with BeforeAndAfter
         )
       )
 
-      toPlayerId(party.suggestLoot(Piece.WeaponUpgrade)) shouldEqual Seq(dnc.playerId, drg.playerId)
+      toPlayerId(party.suggestLoot(Seq(Piece.WeaponUpgrade))) shouldEqual Seq(dnc.playerId, drg.playerId)
     }
 
     "suggest loot by priority" in {
       val party = default.withPlayer(dnc.copy(priority = 2))
 
-      toPlayerId(party.suggestLoot(Piece.Body(pieceType = PieceType.Savage, Job.AnyJob))) shouldEqual Seq(drg.playerId, dnc.playerId)
+      toPlayerId(party.suggestLoot(Seq(Piece.Body(pieceType = PieceType.Savage, Job.AnyJob)))) shouldEqual Seq(drg.playerId, dnc.playerId)
     }
 
     "suggest loot by bis pieces got" in {
       val party = default.withPlayer(dnc.withLoot(Piece.Head(pieceType = PieceType.Savage, Job.AnyJob)))
 
-      toPlayerId(party.suggestLoot(Piece.Body(pieceType = PieceType.Savage, Job.AnyJob))) shouldEqual Seq(drg.playerId, dnc.playerId)
+      toPlayerId(party.suggestLoot(Seq(Piece.Body(pieceType = PieceType.Savage, Job.AnyJob)))) shouldEqual Seq(drg.playerId, dnc.playerId)
     }
 
     "suggest loot by this piece got" in {
       val piece = Piece.Body(pieceType = PieceType.Tome, Job.AnyJob)
       val party = default.withPlayer(dnc.withLoot(piece))
 
-      toPlayerId(party.suggestLoot(piece)) shouldEqual Seq(drg.playerId, dnc.playerId)
+      toPlayerId(party.suggestLoot(Seq(piece))) shouldEqual Seq(drg.playerId, dnc.playerId)
     }
 
     "suggest loot by total piece got" in {
@@ -88,7 +88,7 @@ class LootSelectorTest extends AnyWordSpecLike with Matchers with BeforeAndAfter
         .withPlayer(dnc.withLoot(Seq(piece, piece).map(pieceToLoot)))
         .withPlayer(drg.withLoot(piece))
 
-      toPlayerId(party.suggestLoot(piece)) shouldEqual Seq(drg.playerId, dnc.playerId)
+      toPlayerId(party.suggestLoot(Seq(piece))) shouldEqual Seq(drg.playerId, dnc.playerId)
     }
 
   }

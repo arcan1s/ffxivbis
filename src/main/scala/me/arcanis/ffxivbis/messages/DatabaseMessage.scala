@@ -69,6 +69,11 @@ object DatabaseMessage {
     override val isReadOnly: Boolean = true
   }
 
+  case class SuggestMultiLoot(partyId: String, pieces: Seq[Piece], replyTo: ActorRef[LootSelector.LootSelectorResult])
+    extends LootDatabaseMessage {
+    override val isReadOnly: Boolean = true
+  }
+
   // party handler
   trait PartyDatabaseMessage extends DatabaseMessage
 

@@ -35,8 +35,8 @@ case class Party(partyDescription: PartyDescription, rules: Seq[String], players
         this
     }
 
-  def suggestLoot(piece: Piece): LootSelector.LootSelectorResult =
-    LootSelector(getPlayers, piece, rules)
+  def suggestLoot(pieces: Seq[Piece]): LootSelector.LootSelectorResult =
+    LootSelector(getPlayers, pieces, rules)
 }
 
 object Party {

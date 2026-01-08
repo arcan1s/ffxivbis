@@ -56,4 +56,11 @@ trait LootHelper {
     scheduler: Scheduler
   ): Future[Seq[PlayerIdWithCounters]] =
     storage.ask(SuggestLoot(partyId, piece, _)).map(_.result)
+
+  def suggestPiece(partyId: String, pieces: Seq[Piece])(implicit
+    executionContext: ExecutionContext,
+    timeout: Timeout,
+    scheduler: Scheduler
+  ): Future[Seq[PlayerIdWithCounters]] =
+    storage.ask(SuggestMultiLoot(partyId, pieces, _)).map(_.result)
 }

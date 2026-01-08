@@ -40,7 +40,14 @@ trait DatabaseLootHandler { this: Database =>
       case SuggestLoot(partyId, piece, client) =>
         run {
           getParty(partyId, withBiS = true, withLoot = true)
-            .map(_.suggestLoot(piece))
+            .map(_.suggestLoot(Seq(piece)))
+        }(client ! _)
+        Behaviors.same
+
+      case SuggestMultiLoot(partyId, pieces, client) =>
+        run {
+          getParty(partyId, withBiS = true, withLoot = true)
+            .map(_.suggestLoot(pieces))
         }(client ! _)
         Behaviors.same
     }

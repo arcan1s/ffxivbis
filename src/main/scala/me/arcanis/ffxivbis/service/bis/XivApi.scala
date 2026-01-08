@@ -72,6 +72,7 @@ object XivApi {
               case JsBoolean(false) => PieceType.Tome
             }
             .getOrElse(throw deserializationError(s"Could not find lot field in $fields"))
+        case other => throw deserializationError(s"Could not read fields as object from $other")
       }
     }
 }

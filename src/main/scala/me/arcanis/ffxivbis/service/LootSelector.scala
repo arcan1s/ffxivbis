@@ -10,9 +10,9 @@ package me.arcanis.ffxivbis.service
 
 import me.arcanis.ffxivbis.models.{Piece, Player, PlayerIdWithCounters}
 
-class LootSelector(players: Seq[Player], piece: Piece, orderBy: Seq[String]) {
+class LootSelector(players: Seq[Player], pieces: Seq[Piece], orderBy: Seq[String]) {
 
-  val counters: Seq[PlayerIdWithCounters] = players.map(_.withCounters(Some(piece)))
+  val counters: Seq[PlayerIdWithCounters] = pieces.flatMap(piece => players.map(_.withCounters(Some(piece))))
 
   def suggest: LootSelector.LootSelectorResult =
     LootSelector.LootSelectorResult {
@@ -22,8 +22,8 @@ class LootSelector(players: Seq[Player], piece: Piece, orderBy: Seq[String]) {
 
 object LootSelector {
 
-  def apply(players: Seq[Player], piece: Piece, orderBy: Seq[String]): LootSelectorResult =
-    new LootSelector(players, piece, orderBy).suggest
+  def apply(players: Seq[Player], pieces: Seq[Piece], orderBy: Seq[String]): LootSelectorResult =
+    new LootSelector(players, pieces, orderBy).suggest
 
   case class LootSelectorResult(result: Seq[PlayerIdWithCounters])
 }

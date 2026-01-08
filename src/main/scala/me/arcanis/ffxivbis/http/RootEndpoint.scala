@@ -15,6 +15,7 @@ import akka.util.Timeout
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
 import com.typesafe.scalalogging.StrictLogging
 import me.arcanis.ffxivbis.http.api.v1.RootApiV1Endpoint
+import me.arcanis.ffxivbis.http.api.v2.RootApiV2Endpoint
 import me.arcanis.ffxivbis.http.view.RootView
 import me.arcanis.ffxivbis.messages.{BiSProviderMessage, Message}
 
@@ -31,6 +32,7 @@ class RootEndpoint(system: ActorSystem[Nothing], storage: ActorRef[Message], pro
   private val auth = AuthorizationProvider(config, storage)
 
   private val rootApiV1Endpoint = new RootApiV1Endpoint(storage, auth, provider, config)
+  private val rootApiV2Endpoint = new RootApiV2Endpoint(storage, auth)
   private val rootView = new RootView(auth)
   private val swagger = new Swagger(config)
 
@@ -47,6 +49,7 @@ class RootEndpoint(system: ActorSystem[Nothing], storage: ActorRef[Message], pro
     pathPrefix("api") {
       pathPrefix(Segment) {
         case "v1" => rootApiV1Endpoint.routes
+        case "v2" => rootApiV2Endpoint.routes
         case _ => reject
       }
     }
