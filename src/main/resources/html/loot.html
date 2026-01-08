@@ -41,7 +41,7 @@
 
     <div class="container">
         <div id="toolbar">
-            <button id="add-btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-loot-dialog" hidden>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-loot-dialog" hidden>
                 <i class="bi bi-plus"></i> add
             </button>
             <button class="btn btn-secondary" onclick="reload()">
@@ -147,7 +147,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">close</button>
                     <button type="button" class="btn btn-secondary" onclick="suggestLoot()">suggest</button>
-                    <button type="submit" class="btn btn-primary">add</button>
+                    <button id="add-btn" type="submit" class="btn btn-primary">add</button>
                 </div>
             </form>
         </div>
